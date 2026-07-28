@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0b10" />
+<title>Neural Archive · 个人 AI 记忆空间</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<!-- 颗粒纹理叠加层 -->
+<div class="grain" aria-hidden="true"></div>
+<!-- 环境光晕 -->
+<div class="ambient" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+</div>
+
+<div class="app" id="app">
+  <!-- 侧边导航 -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="6" />
+          <circle cx="20" cy="20" r="13" opacity="0.5" />
+          <circle cx="20" cy="20" r="19" opacity="0.22" />
+          <circle cx="6" cy="20" r="1.6" fill="currentColor"/>
+          <circle cx="34" cy="20" r="1.6" fill="currentColor"/>
+          <circle cx="20" cy="6" r="1.6" fill="currentColor"/>
+          <circle cx="20" cy="34" r="1.6" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Neural Archive</span>
+        <span class="brand-sub">个人记忆空间</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="chat">
+        <span class="nav-ico">✦</span><span>对话</span>
+      </button>
+      <button class="nav-item" data-view="memory">
+        <span class="nav-ico">◈</span><span>记忆</span>
+        <span class="nav-badge" id="memBadge">0</span>
+      </button>
+      <button class="nav-item" data-view="profile">
+        <span class="nav-ico">❋</span><span>画像</span>
+      </button>
+      <button class="nav-item" data-view="settings">
+        <span class="nav-ico">⚙</span><span>设置</span>
+      </button>
+      <button class="nav-item" data-view="export">
+        <span class="nav-ico">⇄</span><span>导出</span>
+      </button>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="status" id="connStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">未配置模型</span>
+      </div>
+      <div class="persona-chip" id="personaChip">
+        <span class="persona-avatar" id="personaAvatar">A</span>
+        <span class="persona-name" id="personaName">Aria</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 主区域 -->
+  <main class="stage">
+
+    <!-- ============ 对话视图 ============ -->
+    <section class="view view-chat active" id="view-chat">
+      <div class="chat-layout">
+        <!-- 会话列表 -->
+        <div class="conv-panel">
+          <div class="conv-head">
+            <h3>会话</h3>
+            <button class="btn-icon" id="newConvBtn" title="新建会话">＋</button>
+          </div>
+          <div class="conv-list" id="convList"></div>
+        </div>
+
+        <!-- 对话主区 -->
+        <div class="chat-main">
+          <header class="chat-header">
+            <div class="chat-title-row">
+              <h2 id="chatTitle">新的对话</h2>
+              <span class="chat-meta" id="chatMeta"></span>
+            </div>
+            <div class="chat-actions">
+              <button class="btn-ghost" id="extractMemBtn" title="从此会话提取记忆">提取记忆</button>
+              <button class="btn-ghost" id="clearConvBtn" title="清空当前会话">清空</button>
+            </div>
+          </header>
+
+          <div class="messages" id="messages">
+            <div class="empty-state" id="chatEmpty">
+              <div class="empty-orb"></div>
+              <h3>开始一段对话</h3>
+              <p>每一句话都会沉淀为你的记忆。<br/>越聊，AI 越懂你。</p>
+              <div class="suggest-row" id="suggestRow">
+                <button class="suggest-chip" data-prompt="今天过得怎么样？">今天过得怎么样？</button>
+                <button class="suggest-chip" data-prompt="帮我记一下，我下周三要体检">帮我记一下，我下周三要体检</button>
+                <button class="suggest-chip" data-prompt="我最近压力有点大，想聊聊">我最近压力有点大</button>
+                <button class="suggest-chip" data-prompt="更新我的画像：我是产品经理，喜欢摄影">更新我的画像</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer">
+            <div class="composer-inner">
+              <textarea id="msgInput" placeholder="说点什么…  (Enter 发送 / Shift+Enter 换行)" rows="1"></textarea>
+              <button class="btn-send" id="sendBtn" title="发送">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="composer-hint">
+              <span id="memHint">记忆将自动注入上下文</span>
+              <span class="dot-sep">·</span>
+              <span id="tokenHint">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 记忆视图 ============ -->
+    <section class="view view-memory" id="view-memory">
+      <header class="view-head">
+        <div>
+          <h2>记忆档案</h2>
+          <p class="view-sub">从对话中沉淀的事实、偏好与情境。</p>
+        </div>
+        <div class="view-head-actions">
+          <button class="btn-ghost" id="addMemBtn">＋ 手动添加</button>
+        </div>
+      </header>
+
+      <div class="mem-stats" id="memStats"></div>
+
+      <div class="mem-controls">
+        <div class="search-box">
+          <span class="search-ico">⌕</span>
+          <input type="text" id="memSearch" placeholder="搜索记忆…" />
+        </div>
+        <div class="filter-chips" id="memFilters"></div>
+      </div>
+
+      <div class="mem-grid" id="memGrid"></div>
+    </section>
+
+    <!-- ============ 画像视图 ============ -->
+    <section class="view view-profile" id="view-profile">
+      <header class="view-head">
+        <div>
+          <h2>用户画像</h2>
+          <p class="view-sub">由记忆聚合而成的立体你。</p>
+        </div>
+        <div class="view-head-actions">
+          <button class="btn-ghost" id="rebuildProfileBtn">重新聚合</button>
+          <button class="btn-ghost" id="editProfileBtn">编辑基础信息</button>
+        </div>
+      </header>
+
+      <div class="profile-grid">
+        <div class="profile-card profile-identity">
+          <div class="identity-orb" id="identityOrb"></div>
+          <h3 id="profileName">未命名</h3>
+          <p id="profileTagline">尚无画像数据</p>
+          <div class="identity-meta" id="identityMeta"></div>
+        </div>
+
+        <div class="profile-card profile-radar">
+          <h4>维度雷达</h4>
+          <div class="radar-wrap">
+            <canvas id="radarCanvas" width="320" height="320"></canvas>
+          </div>
+        </div>
+
+        <div class="profile-card profile-personality">
+          <h4>性格倾向</h4>
+          <div id="personalityList" class="trait-list"></div>
+        </div>
+
+        <div class="profile-card profile-interests">
+          <h4>兴趣 / 偏好</h4>
+          <div id="interestTags" class="tag-cloud"></div>
+        </div>
+
+        <div class="profile-card profile-facts">
+          <h4>关键事实</h4>
+          <ul id="factList" class="fact-list"></ul>
+        </div>
+
+        <div class="profile-card profile-goals">
+          <h4>目标 / 价值观</h4>
+          <ul id="goalList" class="fact-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 设置视图 ============ -->
+    <section class="view view-settings" id="view-settings">
+      <header class="view-head">
+        <div>
+          <h2>设置</h2>
+          <p class="view-sub">配置你的大模型与人格。密钥仅存于本地浏览器。</p>
+        </div>
+      </header>
+
+      <div class="settings-grid">
+        <!-- LLM 配置 -->
+        <div class="settings-card">
+          <div class="sc-head">
+            <h3>大模型配置</h3>
+            <span class="sc-tag">OpenAI 兼容</span>
+          </div>
+          <div class="field">
+            <label>服务商预设</label>
+            <select id="llmPreset">
+              <option value="custom">自定义</option>
+              <option value="openai">OpenAI</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="moonshot">Moonshot (Kimi)</option>
+              <option value="zhipu">智谱 GLM</option>
+              <option value="dashscope">阿里通义 (DashScope)</option>
+              <option value="ollama">Ollama (本地)</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="siliconflow">SiliconFlow</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>API Base URL</label>
+            <input type="text" id="llmBaseUrl" placeholder="https://api.openai.com/v1" />
+          </div>
+          <div class="field">
+            <label>API Key / Token</label>
+            <div class="secret-input">
+              <input type="password" id="llmApiKey" placeholder="sk-..." autocomplete="off" />
+              <button class="btn-icon mini" id="toggleKey" title="显示/隐藏">👁</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>模型名称</label>
+              <input type="text" id="llmModel" placeholder="gpt-4o-mini" />
+            </div>
+            <div class="field">
+              <label>温度</label>
+              <input type="number" id="llmTemp" min="0" max="2" step="0.1" value="0.7" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>最大 Tokens</label>
+              <input type="number" id="llmMaxTokens" min="256" step="64" value="2048" />
+            </div>
+            <div class="field">
+              <label>记忆注入条数</label>
+              <input type="number" id="memInjectCount" min="0" max="50" value="12" />
+            </div>
+          </div>
+          <div class="field">
+            <label>系统提示词（人格设定）</label>
+            <textarea id="llmSystemPrompt" rows="5" placeholder="你是用户的私人 AI 伴侣…"></textarea>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-primary" id="saveLlmBtn">保存配置</button>
+            <button class="btn-ghost" id="testLlmBtn">测试连接</button>
+          </div>
+          <div class="test-result" id="testResult"></div>
+        </div>
+
+        <!-- 人格配置 -->
+        <div class="settings-card">
+          <div class="sc-head">
+            <h3>AI 人格</h3>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>称呼</label>
+              <input type="text" id="personaNameInput" placeholder="Aria" />
+            </div>
+            <div class="field">
+              <label>头像字母</label>
+              <input type="text" id="personaAvatarInput" maxlength="2" placeholder="A" />
+            </div>
+          </div>
+          <div class="field">
+            <label>性格基调</label>
+            <select id="personaTone">
+              <option>温柔共情</option>
+              <option>理性冷静</option>
+              <option>幽默活泼</option>
+              <option>沉稳睿智</option>
+              <option>俏皮可爱</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>主题色</label>
+            <div class="color-row" id="colorRow">
+              <button class="color-swatch active" data-color="amber" style="--c:#f0b429"></button>
+              <button class="color-swatch" data-color="rose" style="--c:#f0709e"></button>
+              <button class="color-swatch" data-color="mint" style="--c:#7dd3c0"></button>
+              <button class="color-swatch" data-color="violet" style="--c:#a78bfa"></button>
+              <button class="color-swatch" data-color="coral" style="--c:#ff8a65"></button>
+            </div>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-primary" id="savePersonaBtn">保存人格</button>
+          </div>
+        </div>
+
+        <!-- 记忆策略 -->
+        <div class="settings-card">
+          <div class="sc-head">
+            <h3>记忆策略</h3>
+          </div>
+          <label class="switch-row">
+            <span>对话后自动提取记忆</span>
+            <input type="checkbox" id="autoExtract" checked />
+          </label>
+          <label class="switch-row">
+            <span>提取时调用 LLM</span>
+            <span class="muted">关闭则使用本地规则</span>
+            <input type="checkbox" id="llmExtract" checked />
+          </label>
+          <label class="switch-row">
+            <span>流式输出</span>
+            <input type="checkbox" id="streamToggle" checked />
+          </label>
+          <div class="settings-actions">
+            <button class="btn-primary" id="saveMemPolicyBtn">保存策略</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 导出视图 ============ -->
+    <section class="view view-export" id="view-export">
+      <header class="view-head">
+        <div>
+          <h2>数据与画像导出</h2>
+          <p class="view-sub">将你的记忆与画像导出为标准文件，可传输至外部硬件/软件还原。</p>
+        </div>
+      </header>
+
+      <div class="export-grid">
+        <div class="export-card export-stats">
+          <h3>数据概览</h3>
+          <div class="stat-list" id="exportStats"></div>
+        </div>
+
+        <div class="export-card">
+          <h3>导出选项</h3>
+          <p class="ec-desc">标准格式 <code>neural-archive-profile/v1</code>，含画像、记忆、（可选）会话。密钥不会被导出。</p>
+
+          <label class="check-row">
+            <input type="checkbox" id="expProfile" checked />
+            <span>用户画像</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="expMemory" checked />
+            <span>全部记忆</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="expConv" />
+            <span>会话记录</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="expSettings" checked />
+            <span>配置（不含密钥）</span>
+          </label>
+
+          <div class="settings-actions">
+            <button class="btn-primary" id="exportJsonBtn">导出 JSON</button>
+            <button class="btn-ghost" id="exportMdBtn">导出 Markdown 画像</button>
+            <button class="btn-ghost" id="copyProfileBtn">复制画像摘要</button>
+          </div>
+        </div>
+
+        <div class="export-card">
+          <h3>导入还原</h3>
+          <p class="ec-desc">从标准 JSON 文件还原画像与记忆。将合并入当前数据。</p>
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="importFile" accept=".json,application/json" hidden />
+            <div class="dz-inner">
+              <div class="dz-ico">⇩</div>
+              <p>点击或拖拽 <code>.json</code> 文件至此</p>
+              <span class="muted">仅支持 Neural Archive 标准格式</span>
+            </div>
+          </div>
+          <div class="import-result" id="importResult"></div>
+        </div>
+
+        <div class="export-card export-schema">
+          <h3>标准画像摘要预览</h3>
+          <pre id="schemaPreview" class="code-block"></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 通用模态 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">标题</h3>
+      <button class="btn-icon" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
