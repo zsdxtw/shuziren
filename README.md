@@ -1,0 +1,2 @@
+# shuziren
+shuziren-app
