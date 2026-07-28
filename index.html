@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>灵犀 Lingxi · 你的数字分身</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ 设计令牌 ============ */
+  :root{
+    --paper:#F4EFE6;
+    --paper-2:#EFE8DB;
+    --surface:#FBF7EF;
+    --surface-2:#F7F1E6;
+    --ink:#1F1B16;
+    --ink-2:#4A4339;
+    --ink-3:#6B6358;
+    --ink-4:#A89E8E;
+    --line:rgba(31,27,22,0.08);
+    --line-2:rgba(31,27,22,0.14);
+    --honey:#B8731F;
+    --honey-soft:#E8C993;
+    --honey-wash:#F3E2C0;
+    --moss:#1F4D43;
+    --moss-soft:#C8D6CE;
+    --rose:#B5462E;
+    --plum:#5A3A52;
+    --shadow-sm:0 1px 2px rgba(31,27,22,0.04), 0 1px 3px rgba(31,27,22,0.06);
+    --shadow-md:0 4px 12px rgba(31,27,22,0.06), 0 2px 4px rgba(31,27,22,0.04);
+    --shadow-lg:0 12px 32px rgba(31,27,22,0.10), 0 4px 12px rgba(31,27,22,0.06);
+    --serif:'Fraunces','Noto Serif SC',Georgia,serif;
+    --sans:'Instrument Sans','Noto Sans SC',-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--sans);
+    background:#2A2620;
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;padding:24px;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184,115,31,0.12), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(31,77,67,0.14), transparent 45%),
+      linear-gradient(135deg,#2A2620,#1A1612);
+    overflow:hidden;
+  }
+
+  /* ============ 手机外壳 ============ */
+  .device{
+    position:relative;
+    width:390px;height:844px;
+    background:var(--paper);
+    border-radius:52px;
+    box-shadow:
+      0 0 0 12px #0c0a08,
+      0 0 0 13px #2a2620,
+      0 40px 80px rgba(0,0,0,0.5),
+      0 20px 40px rgba(0,0,0,0.3);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  /* 纸张纹理 */
+  .device::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+    background-image:
+      radial-gradient(circle at 25% 15%, rgba(184,115,31,0.05), transparent 35%),
+      radial-gradient(circle at 75% 85%, rgba(31,77,67,0.04), transparent 40%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode:multiply;opacity:0.6;
+  }
+
+  /* 灵动岛 */
+  .notch{
+    position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:120px;height:34px;background:#0c0a08;border-radius:20px;z-index:60;
+  }
+  .status-bar{
+    position:absolute;top:0;left:0;right:0;height:54px;z-index:55;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px 0;font-family:var(--sans);font-weight:600;font-size:15px;color:var(--ink);
+  }
+  .status-bar .icons{display:flex;gap:6px;align-items:center;}
+  .status-bar .icons svg{width:16px;height:16px;}
+
+  /* ============ App 容器 ============ */
+  .app{position:absolute;inset:0;display:flex;flex-direction:column;z-index:5;}
+  .screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
+  .screen.active{display:flex;animation:fadeUp .5s cubic-bezier(.2,.7,.2,1);}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ============ 通用头部 ============ */
+  .app-header{
+    flex-shrink:0;padding:60px 22px 14px;
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(244,239,230,0.96),rgba(244,239,230,0.7));
+    backdrop-filter:blur(8px);
+  }
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:11px;
+    background:radial-gradient(circle at 30% 30%,#D89234,#B8731F 55%,#8A5512);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4),0 4px 10px rgba(184,115,31,0.35);
+    position:relative;display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark::after{
+    content:"";position:absolute;width:13px;height:13px;
+    background:var(--paper);border-radius:50%;
+    box-shadow:inset 0 0 0 2px var(--honey);
+    transform:scale(0.5);opacity:0;
+  }
+  .brand-mark svg{width:18px;height:18px;color:#FBF7EF;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.05;}
+  .brand-name{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-0.01em;color:var(--ink);}
+  .brand-name em{font-style:italic;font-weight:400;color:var(--honey);}
+  .brand-status{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:0.04em;margin-top:2px;}
+  .brand-status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--moss);margin-right:5px;box-shadow:0 0 0 3px rgba(31,77,67,0.18);animation:pulse 2.4s ease-in-out infinite;}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(31,77,67,0);}}
+
+  .header-actions{display:flex;gap:8px;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:12px;border:1px solid var(--line);
+    background:var(--surface);display:flex;align-items:center;justify-content:center;
+    color:var(--ink-2);cursor:pointer;transition:all .25s ease;
+  }
+  .icon-btn:hover{background:var(--surface-2);color:var(--ink);transform:translateY(-1px);}
+  .icon-btn svg{width:17px;height:17px;}
+
+  /* ============ 1. 对话屏 ============ */
+  .chat-screen .chat-body{
+    flex:1;overflow-y:auto;padding:18px 18px 12px;
+    display:flex;flex-direction:column;gap:14px;
+    scroll-behavior:smooth;
+  }
+  .chat-day{
+    text-align:center;font-family:var(--mono);font-size:10px;
+    color:var(--ink-4);letter-spacing:0.18em;text-transform:uppercase;
+    margin:6px 0 4px;display:flex;align-items:center;gap:10px;
+  }
+  .chat-day::before,.chat-day::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .msg{display:flex;gap:9px;animation:msgIn .5s cubic-bezier(.2,.7,.2,1);}
+  @keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .msg.ai{flex-direction:row;}
+  .msg.me{flex-direction:row-reverse;}
+
+  .avatar{
+    width:32px;height:32px;border-radius:11px;flex-shrink:0;
+    background:radial-gradient(circle at 30% 30%,#D89234,#B8731F 60%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.35);
+    display:flex;align-items:center;justify-content:center;color:#FBF7EF;
+    font-family:var(--serif);font-weight:600;font-size:14px;
+  }
+  .msg.me .avatar{background:linear-gradient(135deg,#2E5A4F,#1F4D43);font-size:12px;}
+
+  .bubble{
+    max-width:74%;padding:11px 14px;border-radius:18px;
+    font-size:14.5px;line-height:1.55;letter-spacing:-0.005em;
+    position:relative;
+  }
+  .msg.ai .bubble{
+    background:var(--surface);color:var(--ink);
+    border:1px solid var(--line);
+    border-top-left-radius:6px;
+    box-shadow:var(--shadow-sm);
+  }
+  .msg.me .bubble{
+    background:var(--ink);color:#F4EFE6;
+    border-top-right-radius:6px;
+    box-shadow:var(--shadow-md);
+  }
+  .bubble .rich{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2);}
+  .msg.me .bubble .rich{border-top-color:rgba(244,239,230,0.18);}
+  .bubble .rich-label{font-family:var(--mono);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-4);margin-bottom:5px;}
+  .msg.me .bubble .rich-label{color:rgba(244,239,230,0.55);}
+  .bubble .rich-action{
+    display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;
+  }
+  .bubble .rich-action .chip{
+    font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:5px;
+    background:var(--honey-wash);color:var(--honey);font-weight:500;
+  }
+  .msg.me .bubble .rich-action .chip{background:rgba(232,201,147,0.18);color:var(--honey-soft);}
+
+  .bubble .mood{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;color:var(--ink-4);margin-top:6px;}
+  .msg.me .bubble .mood{color:rgba(244,239,230,0.5);}
+
+  /* 打字指示 */
+  .typing .bubble{padding:14px 16px;}
+  .typing-dots{display:flex;gap:4px;}
+  .typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--ink-4);animation:typing 1.3s ease-in-out infinite;}
+  .typing-dots span:nth-child(2){animation-delay:0.18s;}
+  .typing-dots span:nth-child(3){animation-delay:0.36s;}
+  @keyframes typing{0%,60%,100%{opacity:0.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+
+  /* 建议气泡 */
+  .suggestions{display:flex;gap:7px;padding:4px 18px 8px;overflow-x:auto;scrollbar-width:none;}
+  .suggestions::-webkit-scrollbar{display:none;}
+  .sugg{
+    flex-shrink:0;padding:8px 13px;border-radius:14px;font-size:12.5px;
+    background:var(--surface);border:1px solid var(--line);color:var(--ink-2);
+    cursor:pointer;transition:all .2s;white-space:nowrap;
+    display:flex;align-items:center;gap:6px;
+  }
+  .sugg:hover{background:var(--honey-wash);border-color:var(--honey-soft);color:var(--honey);transform:translateY(-1px);}
+  .sugg svg{width:12px;height:12px;}
+
+  /* 输入栏 */
+  .composer{
+    flex-shrink:0;padding:10px 14px 12px;
+    border-top:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(244,239,230,0.7),var(--paper));
+    backdrop-filter:blur(8px);
+    display:flex;align-items:flex-end;gap:9px;
+  }
+  .composer-btn{
+    width:40px;height:40px;border-radius:13px;flex-shrink:0;
+    background:var(--surface);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--ink-3);cursor:pointer;transition:all .2s;
+  }
+  .composer-btn:hover{color:var(--honey);border-color:var(--honey-soft);}
+  .composer-btn svg{width:18px;height:18px;}
+  .composer-input{
+    flex:1;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:10px 14px;font-size:14.5px;font-family:var(--sans);
+    color:var(--ink);min-height:40px;max-height:120px;resize:none;outline:none;
+    line-height:1.4;
+  }
+  .composer-input::placeholder{color:var(--ink-4);}
+  .composer-input:focus{border-color:var(--honey);background:#fff;}
+  .send-btn{
+    width:40px;height:40px;border-radius:13px;flex-shrink:0;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#D89234,#B8731F);
+    box-shadow:0 4px 10px rgba(184,115,31,0.35);
+    display:flex;align-items:center;justify-content:center;color:#FBF7EF;
+    transition:all .2s;
+  }
+  .send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(184,115,31,0.45);}
+  .send-btn:active{transform:scale(0.95);}
+  .send-btn svg{width:18px;height:18px;}
+
+  /* ============ 2. 今日屏 ============ */
+  .today-screen .today-body{flex:1;overflow-y:auto;padding:16px 18px 20px;}
+  .section-title{
+    font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:0.02em;
+    color:var(--ink-3);margin:18px 2px 10px;display:flex;align-items:center;gap:8px;
+  }
+  .section-title:first-child{margin-top:0;}
+  .section-title .count{
+    font-family:var(--mono);font-size:10px;color:var(--ink-4);
+    background:var(--surface);padding:1px 7px;border-radius:6px;border:1px solid var(--line);
+  }
+
+  .hero-card{
+    background:linear-gradient(135deg,#1F1B16 0%,#2E2620 100%);
+    color:#F4EFE6;border-radius:22px;padding:20px;position:relative;overflow:hidden;
+    box-shadow:var(--shadow-lg);
+  }
+  .hero-card::before{
+    content:"";position:absolute;top:-30px;right:-30px;width:140px;height:140px;
+    background:radial-gradient(circle,rgba(184,115,31,0.4),transparent 65%);
+    border-radius:50%;
+  }
+  .hero-date{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;color:var(--honey-soft);text-transform:uppercase;}
+  .hero-greet{font-family:var(--serif);font-size:24px;font-weight:500;margin-top:6px;line-height:1.2;letter-spacing:-0.01em;}
+  .hero-greet em{font-style:italic;color:var(--honey-soft);}
+  .hero-meta{display:flex;gap:14px;margin-top:14px;font-size:12px;color:rgba(244,239,230,0.7);}
+  .hero-meta span{display:flex;align-items:center;gap:5px;}
+  .hero-meta svg{width:13px;height:13px;color:var(--honey-soft);}
+  .hero-quote{
+    margin-top:14px;padding-top:14px;border-top:1px solid rgba(244,239,230,0.12);
+    font-family:var(--serif);font-style:italic;font-size:13px;color:rgba(244,239,230,0.8);line-height:1.5;
+  }
+
+  .task-item{
+    display:flex;gap:12px;align-items:flex-start;padding:13px 14px;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    margin-bottom:8px;cursor:pointer;transition:all .25s;
+  }
+  .task-item:hover{border-color:var(--line-2);transform:translateX(2px);box-shadow:var(--shadow-sm);}
+  .task-check{
+    width:20px;height:20px;border-radius:7px;border:1.5px solid var(--ink-4);
+    flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+    transition:all .2s;
+  }
+  .task-check svg{width:11px;height:11px;color:#FBF7EF;opacity:0;transition:opacity .2s;}
+  .task-item.done .task-check{background:var(--moss);border-color:var(--moss);}
+  .task-item.done .task-check svg{opacity:1;}
+  .task-item.done .task-text{color:var(--ink-4);text-decoration:line-through;text-decoration-color:var(--ink-4);}
+  .task-content{flex:1;min-width:0;}
+  .task-text{font-size:14px;color:var(--ink);line-height:1.4;font-weight:500;}
+  .task-sub{font-size:11.5px;color:var(--ink-3);margin-top:3px;display:flex;gap:8px;align-items:center;}
+  .task-tag{
+    font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:5px;
+    letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .tag-honey{background:var(--honey-wash);color:var(--honey);}
+  .tag-moss{background:var(--moss-soft);color:var(--moss);}
+  .tag-rose{background:#F3D6CC;color:var(--rose);}
+  .tag-plum{background:#E0D2DC;color:var(--plum);}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .stat-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px;
+  }
+  .stat-label{font-family:var(--mono);font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-4);}
+  .stat-value{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--ink);margin-top:4px;letter-spacing:-0.01em;}
+  .stat-value small{font-size:13px;color:var(--ink-3);font-weight:400;}
+  .stat-trend{font-size:10.5px;color:var(--moss);margin-top:2px;display:flex;align-items:center;gap:3px;}
+  .stat-trend.down{color:var(--rose);}
+
+  .mood-strip{display:flex;gap:5px;align-items:flex-end;height:54px;padding:0 2px;}
+  .mood-bar{flex:1;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--honey),var(--honey-soft));position:relative;transition:all .3s;}
+  .mood-bar.low{background:linear-gradient(180deg,var(--rose),#D88770);}
+  .mood-bar.mid{background:linear-gradient(180deg,#C8A14A,#E8C993);}
+  .mood-bar .lbl{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8.5px;color:var(--ink-4);}
+
+  /* ============ 3. 画像屏 ============ */
+  .insights-screen .insights-body{flex:1;overflow-y:auto;padding:16px 18px 20px;}
+  .profile-hero{
+    background:var(--surface);border:1px solid var(--line);border-radius:22px;
+    padding:18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;
+  }
+  .profile-hero::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;
+    background:radial-gradient(circle,rgba(184,115,31,0.12),transparent 70%);border-radius:50%;
+  }
+  .profile-orb{
+    width:60px;height:60px;border-radius:50%;flex-shrink:0;position:relative;
+    background:conic-gradient(from 180deg,
+      #B8731F 0deg 60deg,
+      #1F4D43 60deg 120deg,
+      #B5462E 120deg 180deg,
+      #5A3A52 180deg 240deg,
+      #C8A14A 240deg 300deg,
+      #2E5A4F 300deg 360deg);
+    box-shadow:inset 0 0 0 3px var(--surface),0 6px 16px rgba(31,27,22,0.12);
+  }
+  .profile-orb::after{
+    content:"";position:absolute;inset:9px;border-radius:50%;background:var(--surface);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .profile-orb::before{
+    content:"你";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-weight:600;font-size:16px;color:var(--ink);z-index:2;
+  }
+  .profile-info{flex:1;min-width:0;}
+  .profile-name{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-0.01em;}
+  .profile-name em{font-style:italic;color:var(--honey);font-weight:400;}
+  .profile-tagline{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.4;}
+  .profile-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+  .profile-meta span{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);background:var(--paper-2);padding:2px 7px;border-radius:5px;}
+
+  .radar-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;
+    padding:18px;margin-top:14px;
+  }
+  .radar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .radar-title{font-family:var(--serif);font-size:16px;font-weight:600;}
+  .radar-sub{font-family:var(--mono);font-size:10px;color:var(--ink-4);letter-spacing:0.06em;}
+  .radar-wrap{display:flex;justify-content:center;padding:8px 0 4px;}
+  .radar-svg{width:280px;height:240px;}
+
+  .dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px;}
+  .dim-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px;
+    position:relative;overflow:hidden;
+  }
+  .dim-card .bar{position:absolute;left:0;top:0;bottom:0;width:3px;}
+  .dim-bar-honey .bar{background:var(--honey);}
+  .dim-bar-moss .bar{background:var(--moss);}
+  .dim-bar-rose .bar{background:var(--rose);}
+  .dim-bar-plum .bar{background:var(--plum);}
+  .dim-name{font-family:var(--mono);font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-4);}
+  .dim-score{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);margin-top:2px;letter-spacing:-0.01em;}
+  .dim-score small{font-size:11px;color:var(--ink-4);font-weight:400;font-family:var(--sans);}
+  .dim-insight{font-size:11.5px;color:var(--ink-3);margin-top:5px;line-height:1.4;}
+
+  .trait-list{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px 14px;margin-top:14px;}
+  .trait-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);}
+  .trait-row:last-child{border-bottom:none;}
+  .trait-label{font-size:13.5px;color:var(--ink-2);}
+  .trait-value{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--honey);}
+
+  /* ============ 4. 服务屏 ============ */
+  .services-screen .services-body{flex:1;overflow-y:auto;padding:16px 18px 20px;}
+  .svc-hero{
+    background:linear-gradient(135deg,var(--moss) 0%,#163A32 100%);
+    color:#F4EFE6;border-radius:22px;padding:18px;position:relative;overflow:hidden;
+    box-shadow:var(--shadow-md);
+  }
+  .svc-hero::before{
+    content:"";position:absolute;bottom:-30px;right:-20px;width:120px;height:120px;
+    background:radial-gradient(circle,rgba(232,201,147,0.25),transparent 65%);border-radius:50%;
+  }
+  .svc-hero-title{font-family:var(--serif);font-size:18px;font-weight:500;line-height:1.3;}
+  .svc-hero-title em{font-style:italic;color:var(--honey-soft);}
+  .svc-hero-desc{font-size:12px;color:rgba(244,239,230,0.7);margin-top:6px;line-height:1.5;}
+  .svc-hero-input{
+    margin-top:13px;background:rgba(0,0,0,0.2);border:1px solid rgba(244,239,230,0.15);
+    border-radius:13px;padding:11px 14px;font-size:13px;color:rgba(244,239,230,0.5);
+    display:flex;align-items:center;gap:9px;
+  }
+  .svc-hero-input svg{width:15px;height:15px;color:var(--honey-soft);}
+
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .svc-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    padding:15px 14px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+  }
+  .svc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--line-2);}
+  .svc-icon{
+    width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    margin-bottom:10px;
+  }
+  .svc-icon svg{width:19px;height:19px;}
+  .svc-icon.honey{background:var(--honey-wash);color:var(--honey);}
+  .svc-icon.moss{background:var(--moss-soft);color:var(--moss);}
+  .svc-icon.rose{background:#F3D6CC;color:var(--rose);}
+  .svc-icon.plum{background:#E0D2DC;color:var(--plum);}
+  .svc-icon.ink{background:#E5DED2;color:var(--ink-2);}
+  .svc-icon.gold{background:#F3E6C0;color:#9C7A1A;}
+  .svc-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-0.01em;}
+  .svc-desc{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.4;}
+  .svc-badge{
+    position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:9px;
+    background:var(--rose);color:#FBF7EF;padding:1px 6px;border-radius:5px;letter-spacing:0.04em;
+  }
+
+  .recent-svc{margin-top:16px;}
+  .recent-item{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;
+    background:var(--surface);border:1px solid var(--line);border-radius:13px;margin-bottom:7px;
+  }
+  .recent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .recent-content{flex:1;min-width:0;}
+  .recent-title{font-size:13px;font-weight:500;color:var(--ink);}
+  .recent-sub{font-size:11px;color:var(--ink-3);margin-top:2px;font-family:var(--mono);}
+
+  /* ============ 底部导航 ============ */
+  .tab-bar{
+    flex-shrink:0;display:flex;justify-content:space-around;
+    padding:10px 12px 22px;background:rgba(244,239,230,0.92);
+    backdrop-filter:blur(16px);
+    border-top:1px solid var(--line);
+    position:relative;z-index:10;
+  }
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:6px 4px;cursor:pointer;color:var(--ink-4);transition:color .2s;position:relative;
+  }
+  .tab svg{width:22px;height:22px;transition:transform .25s;}
+  .tab-label{font-size:10px;font-family:var(--sans);font-weight:500;letter-spacing:0.02em;}
+  .tab.active{color:var(--honey);}
+  .tab.active svg{transform:translateY(-1px);}
+  .tab.active::before{
+    content:"";position:absolute;top:-10px;width:24px;height:3px;border-radius:2px;
+    background:var(--honey);
+  }
+  .tab-fab{
+    width:46px;height:46px;border-radius:16px;margin-top:-22px;
+    background:linear-gradient(135deg,#D89234,#B8731F);
+    box-shadow:0 6px 14px rgba(184,115,31,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+    display:flex;align-items:center;justify-content:center;color:#FBF7EF;
+    transform:translateY(-2px);transition:transform .2s;
+  }
+  .tab-fab svg{width:22px;height:22px;}
+  .tab-fab:active{transform:translateY(0) scale(0.94);}
+
+  /* 滚动条 */
+  ::-webkit-scrollbar{width:0;height:0;}
+
+  /* 浮层提示 */
+  .toast{
+    position:absolute;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#F4EFE6;padding:10px 18px;border-radius:14px;
+    font-size:12.5px;font-weight:500;box-shadow:var(--shadow-lg);
+    opacity:0;pointer-events:none;transition:all .3s;z-index:80;white-space:nowrap;
+    display:flex;align-items:center;gap:7px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast svg{width:14px;height:14px;color:var(--honey-soft);}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="notch"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 12h2v2H1zm4-2h2v4H5zm4-2h2v6H9zm4-2h2v8h-2z"/></svg>
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3c2.5 0 4.5 1 6 2.5l-1 1c-1.3-1.3-3-2-5-2s-3.7.7-5 2l-1-1C3.5 4 5.5 3 8 3zm0 3c1.5 0 2.8.5 3.8 1.5l-1 1c-.8-.8-1.7-1.2-2.8-1.2s-2 .4-2.8 1.2l-1-1C5.2 6.5 6.5 6 8 6zm0 3c.8 0 1.5.3 2 .8l-1 1c-.3-.3-.6-.4-1-.4s-.7.1-1 .4l-1-1c.5-.5 1.2-.8 2-.8z"/></svg>
+      <svg viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity="0.4"/><rect x="3" y="3" width="14" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <div class="app">
+    <!-- 头部 -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12l3 2v3l-3 1v3l-2-1-2 1v-3l-3-1v-3l3-2V9.5A4 4 0 0 1 12 2z"/></svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">灵犀 <em>Lingxi</em></div>
+          <div class="brand-status"><span class="dot"></span>正在听 · 已懂你 287 天</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toast('记忆宫殿已开启')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </button>
+        <button class="icon-btn" onclick="toast('设置面板')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== 对话屏 ===== -->
+    <section class="screen chat-screen active" id="screen-chat">
+      <div class="chat-body" id="chatBody">
+        <div class="chat-day">今天 · 7月28日 周一</div>
+
+        <div class="msg ai">
+          <div class="avatar">犀</div>
+          <div class="bubble">
+            早安。昨晚你提到今天有项目汇报，我已帮你把会议材料整理到备忘录。<br><br>
+            对了，你这两天提到胃不太舒服——<em style="color:var(--honey);font-style:italic;">记得早餐别空腹喝咖啡</em>。要我帮你点一份温热的小米粥吗？
+            <div class="rich">
+              <div class="rich-label">已为你准备</div>
+              <div class="rich-action"><span>小米南瓜粥 · 永和</span><span class="chip">¥9</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg me">
+          <div class="avatar">我</div>
+          <div class="bubble">好的，再帮我叫个车，9点半前到公司。今天可能要晚点回
+            <div class="mood">· 语气略疲惫</div>
+          </div>
+        </div>
+
+        <div class="msg ai">
+          <div class="avatar">犀</div>
+          <div class="bubble">
+            已下单 ✓<br>
+            滴滴专车 9:15 到楼下，预计 9:38 抵达国贸。<br><br>
+            晚回的话我提醒你妈妈别等你吃饭了——上次你说她担心你加班。
+            <div class="rich">
+              <div class="rich-label">已自动安排</div>
+              <div class="rich-action"><span>通知妈妈 · 19:00</span><span class="chip">家人</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg me">
+          <div class="avatar">我</div>
+          <div class="bubble">嗯…谢谢你总是记得这些</div>
+        </div>
+
+        <div class="msg ai">
+          <div class="avatar">犀</div>
+          <div class="bubble">
+            这是我该做的。你曾说过"被惦记是最温暖的安慰"——我一直记得。:)
+          </div>
+        </div>
+      </div>
+
+      <div class="suggestions">
+        <div class="sugg" onclick="quickSend('今天心情怎么样')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          今天心情如何
+        </div>
+        <div class="sugg" onclick="quickSend('帮我点份午餐')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18l-1.5-7h-15L3 11zm0 0v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8"/></svg>
+          点午餐
+        </div>
+        <div class="sugg" onclick="quickSend('总结我这一周')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          周总结
+        </div>
+        <div class="sugg" onclick="quickSend('我有点焦虑')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 8v4M12 16h.01"/></svg>
+          想聊聊
+        </div>
+      </div>
+
+      <div class="composer">
+        <button class="composer-btn" onclick="toast('语音输入中…')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg>
+        </button>
+        <textarea class="composer-input" id="composerInput" placeholder="对灵犀说点什么…" rows="1"></textarea>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== 今日屏 ===== -->
+    <section class="screen today-screen" id="screen-today">
+      <div class="today-body">
+        <div class="hero-card">
+          <div class="hero-date">7月28日 · 周一 · 立秋前 11 天</div>
+          <div class="hero-greet">早安，<em>立秋将至</em><br>愿你今日从容。</div>
+          <div class="hero-meta">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>28°C 晴</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>空气质量 优</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4L5 9z"/></svg>3 件事待办</span>
+          </div>
+          <div class="hero-quote">"昨日你写到：想成为一个不慌不忙的人。今日，便是练习。"</div>
+        </div>
+
+        <div class="section-title">今日待办 <span class="count">3</span></div>
+
+        <div class="task-item" onclick="toggleTask(this)">
+          <div class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-text">10:00 项目季度汇报</div>
+            <div class="task-sub"><span class="task-tag tag-honey">工作</span>会议室 A · 材料已备齐</div>
+          </div>
+        </div>
+
+        <div class="task-item" onclick="toggleTask(this)">
+          <div class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-text">午饭后给爸爸回电话</div>
+            <div class="task-sub"><span class="task-tag tag-moss">家人</span>他昨日问起你体检结果</div>
+          </div>
+        </div>
+
+        <div class="task-item" onclick="toggleTask(this)">
+          <div class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-text">续签健身房年卡</div>
+            <div class="task-sub"><span class="task-tag tag-rose">健康</span>7月31日到期 · 已坚持 4 个月</div>
+          </div>
+        </div>
+
+        <div class="section-title">健康节律</div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">睡眠</div>
+            <div class="stat-value">7.2<small>h</small></div>
+            <div class="stat-trend">↑ 比上周多 0.4h</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">步数</div>
+            <div class="stat-value">8,932<small>步</small></div>
+            <div class="stat-trend down">↓ 昨日偏少</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">心率均</div>
+            <div class="stat-value">72<small>bpm</small></div>
+            <div class="stat-trend">平稳</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">饮水</div>
+            <div class="stat-value">1.4<small>L</small></div>
+            <div class="stat-trend down">↓ 待补充</div>
+          </div>
+        </div>
+
+        <div class="section-title">本周情绪 <span class="count">7天</span></div>
+        <div class="stat-card" style="padding:13px 13px 26px;">
+          <div class="mood-strip">
+            <div class="mood-bar low" style="height:40%"><span class="lbl">周一</span></div>
+            <div class="mood-bar mid" style="height:60%"><span class="lbl">周二</span></div>
+            <div class="mood-bar mid" style="height:55%"><span class="lbl">周三</span></div>
+            <div class="mood-bar" style="height:85%"><span class="lbl">周四</span></div>
+            <div class="mood-bar" style="height:90%"><span class="lbl">周五</span></div>
+            <div class="mood-bar mid" style="height:65%"><span class="lbl">周六</span></div>
+            <div class="mood-bar" style="height:78%"><span class="lbl">周日</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 画像屏 ===== -->
+    <section class="screen insights-screen" id="screen-insights">
+      <div class="insights-body">
+        <div class="profile-hero">
+          <div class="profile-orb"></div>
+          <div class="profile-info">
+            <div class="profile-name">林知远 <em>· 28岁</em></div>
+            <div class="profile-tagline">互联网产品经理 · INFJ · 偏好慢节奏与深度</div>
+            <div class="profile-meta">
+              <span>已陪伴 287 天</span>
+              <span>对话 12,486 条</span>
+              <span>记忆 342 段</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="radar-card">
+          <div class="radar-head">
+            <div class="radar-title">六维生命画像</div>
+            <div class="radar-sub">UPDATED · 7.28</div>
+          </div>
+          <div class="radar-wrap">
+            <svg class="radar-svg" viewBox="0 0 280 240">
+              <!-- 网格 -->
+              <g fill="none" stroke="#1F1B16" stroke-opacity="0.08" stroke-width="1">
+                <polygon points="140,30 240,90 240,170 140,210 40,170 40,90"/>
+                <polygon points="140,60 210,105 210,155 140,180 70,155 70,105"/>
+                <polygon points="140,90 180,120 180,140 140,150 100,140 100,120"/>
+              </g>
+              <!-- 轴线 -->
+              <g stroke="#1F1B16" stroke-opacity="0.06" stroke-width="1">
+                <line x1="140" y1="120" x2="140" y2="30"/>
+                <line x1="140" y1="120" x2="240" y2="90"/>
+                <line x1="140" y1="120" x2="240" y2="170"/>
+                <line x1="140" y1="120" x2="140" y2="210"/>
+                <line x1="140" y1="120" x2="40" y2="170"/>
+                <line x1="140" y1="120" x2="40" y2="90"/>
+              </g>
+              <!-- 数据多边形 -->
+              <polygon points="140,42 222,96 220,164 140,196 56,162 52,98"
+                fill="#B8731F" fill-opacity="0.18" stroke="#B8731F" stroke-width="1.8"/>
+              <!-- 数据点 -->
+              <g fill="#B8731F">
+                <circle cx="140" cy="42" r="3.5"/>
+                <circle cx="222" cy="96" r="3.5"/>
+                <circle cx="220" cy="164" r="3.5"/>
+                <circle cx="140" cy="196" r="3.5"/>
+                <circle cx="56" cy="162" r="3.5"/>
+                <circle cx="52" cy="98" r="3.5"/>
+              </g>
+              <!-- 标签 -->
+              <g font-family="Instrument Sans" font-size="10.5" fill="#4A4339" font-weight="500">
+                <text x="140" y="20" text-anchor="middle">健康 78</text>
+                <text x="252" y="88" text-anchor="middle">情感 86</text>
+                <text x="252" y="178" text-anchor="middle">社交 64</text>
+                <text x="140" y="228" text-anchor="middle">工作 82</text>
+                <text x="28" y="178" text-anchor="middle">生活 75</text>
+                <text x="28" y="88" text-anchor="middle">财务 70</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="section-title">维度洞察</div>
+        <div class="dim-grid">
+          <div class="dim-card dim-bar-rose">
+            <div class="bar"></div>
+            <div class="dim-name">情感</div>
+            <div class="dim-score">86 <small>/ 100</small></div>
+            <div class="dim-insight">本周情绪稳定上扬，与父亲通话后明显放松。</div>
+          </div>
+          <div class="dim-card dim-bar-honey">
+            <div class="bar"></div>
+            <div class="dim-name">工作</div>
+            <div class="dim-score">82 <small>/ 100</small></div>
+            <div class="dim-insight">投入度高，但连续 3 晚过 23 点，需注意。</div>
+          </div>
+          <div class="dim-card dim-bar-plum">
+            <div class="bar"></div>
+            <div class="dim-name">健康</div>
+            <div class="dim-score">78 <small>/ 100</small></div>
+            <div class="dim-insight">胃部偶有不适，建议少冰饮、规律早餐。</div>
+          </div>
+          <div class="dim-card dim-bar-moss">
+            <div class="bar"></div>
+            <div class="dim-name">生活</div>
+            <div class="dim-score">75 <small>/ 100</small></div>
+            <div class="dim-insight">阅读时长回升，独处质量提升。</div>
+          </div>
+        </div>
+
+        <div class="section-title">偏好画像</div>
+        <div class="trait-list">
+          <div class="trait-row"><span class="trait-label">饮食口味</span><span class="trait-value">清淡 · 微辣</span></div>
+          <div class="trait-row"><span class="trait-label">作息节律</span><span class="trait-value">夜猫 · 0点前后</span></div>
+          <div class="trait-row"><span class="trait-label">出行偏好</span><span class="trait-value">专车 · 靠窗</span></div>
+          <div class="trait-row"><span class="trait-label">阅读偏好</span><span class="trait-value">心理学 · 散文</span></div>
+          <div class="trait-row"><span class="trait-label">沟通风格</span><span class="trait-value">温和 · 不说教</span></div>
+          <div class="trait-row"><span class="trait-label">在意的事</span><span class="trait-value">家人 · 成长 · 独处</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 服务屏 ===== -->
+    <section class="screen services-screen" id="screen-services">
+      <div class="services-body">
+        <div class="svc-hero">
+          <div class="svc-hero-title">说一句话，<em>我替你办妥</em></div>
+          <div class="svc-hero-desc">一个对话入口，调度你日常所需的全部服务。无需切换 APP。</div>
+          <div class="svc-hero-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12l3 2v3l-3 1v3l-2-1-2 1v-3l-3-1v-3l3-2V9.5A4 4 0 0 1 12 2z"/></svg>
+            "帮我订明天去上海的高铁，靠窗…"
+          </div>
+        </div>
+
+        <div class="section-title">常用服务</div>
+        <div class="svc-grid">
+          <div class="svc-card" onclick="toast('正在打开美团外卖…')">
+            <div class="svc-icon honey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18l-1.5-7h-15L3 11zm0 0v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8M8 15h.01"/></svg></div>
+            <div class="svc-name">点外卖</div>
+            <div class="svc-desc">你常点 · 永和 / 西贝</div>
+            <div class="svc-badge">9折</div>
+          </div>
+          <div class="svc-card" onclick="toast('正在呼叫滴滴专车…')">
+            <div class="svc-icon ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 17l-2-7 3-5h12l3 5-2 7M5 17v3h2v-3M19 17v3h-2v-3M7 13h.01M17 13h.01"/></svg></div>
+            <div class="svc-name">打车</div>
+            <div class="svc-desc">专车 · 预约 9:15</div>
+          </div>
+          <div class="svc-card" onclick="toast('正在查询 12306…')">
+            <div class="svc-icon moss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 14h2M13 14h2"/></svg></div>
+            <div class="svc-name">订票</div>
+            <div class="svc-desc">高铁 · 航班 · 电影</div>
+          </div>
+          <div class="svc-card" onclick="toast('正在打开购物清单…')">
+            <div class="svc-icon rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div>
+            <div class="svc-name">购物</div>
+            <div class="svc-desc">比价 · 代下单</div>
+          </div>
+          <div class="svc-card" onclick="toast('正在预约健身房…')">
+            <div class="svc-icon plum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M2 9h4M2 15h4M18 9h4M18 15h4M6 12h12"/></svg></div>
+            <div class="svc-name">预约</div>
+            <div class="svc-desc">健身 · 理发 · 体检</div>
+          </div>
+          <div class="svc-card" onclick="toast('缴费中心')">
+            <div class="svc-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+            <div class="svc-name">缴费</div>
+            <div class="svc-desc">水电 · 话费 · 房租</div>
+          </div>
+        </div>
+
+        <div class="section-title">最近代办 <span class="count">3</span></div>
+        <div class="recent-item">
+          <div class="recent-dot" style="background:var(--moss);"></div>
+          <div class="recent-content">
+            <div class="recent-title">小米南瓜粥 已送达</div>
+            <div class="recent-sub">永和 · ¥9 · 09:02 完成</div>
+          </div>
+        </div>
+        <div class="recent-item">
+          <div class="recent-dot" style="background:var(--honey);"></div>
+          <div class="recent-content">
+            <div class="recent-title">滴滴专车 已预约</div>
+            <div class="recent-sub">9:15 · 国贸 · 预计 ¥38</div>
+          </div>
+        </div>
+        <div class="recent-item">
+          <div class="recent-dot" style="background:var(--ink-4);"></div>
+          <div class="recent-content">
+            <div class="recent-title">高铁票 待支付</div>
+            <div class="recent-sub">7.29 北京→上海 · G2</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 底部导航 ===== -->
+    <nav class="tab-bar">
+      <div class="tab active" data-tab="chat" onclick="switchTab('chat')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="tab-label">对话</span>
+      </div>
+      <div class="tab" data-tab="today" onclick="switchTab('today')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="tab-label">今日</span>
+      </div>
+      <div class="tab" data-tab="insights" onclick="switchTab('insights')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span class="tab-label">画像</span>
+      </div>
+      <div class="tab" data-tab="services" onclick="switchTab('services')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="tab-label">服务</span>
+      </div>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  // ============ Tab 切换 ============
+  function switchTab(name){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+    document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));
+  }
+
+  // ============ Toast ============
+  let toastTimer;
+  function toast(msg){
+    const el=document.getElementById('toast');
+    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'+msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
+  }
+
+  // ============ 任务勾选 ============
+  function toggleTask(el){
+    el.classList.toggle('done');
+    if(el.classList.contains('done')){
+      const text=el.querySelector('.task-text').textContent;
+      toast('已完成 · '+text);
+    }
+  }
+
+  // ============ 对话交互 ============
+  const chatBody=document.getElementById('chatBody');
+  const input=document.getElementById('composerInput');
+
+  // 自动高度
+  input.addEventListener('input',()=>{
+    input.style.height='auto';
+    input.style.height=Math.min(input.scrollHeight,120)+'px';
+  });
+  // 回车发送
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){
+      e.preventDefault();sendMessage();
+    }
+  });
+
+  const aiReplies=[
+    {t:'我听到了。你说的时候我感受到一点犹豫——是这件事让你为难吗？',m:'温柔共情'},
+    {t:'好的，我已经记下来了。需要我现在帮你安排吗？',m:'主动服务'},
+    {t:'嗯，根据你这两周的作息，这个决定挺符合你"想要慢下来"的状态。',m:'调用画像'},
+    {t:'我在。想说完吗？我不打断你。',m:'陪伴倾听'},
+    {t:'这个我帮你查了——根据你的偏好（清淡、靠窗），已为你筛出 3 个选项。',m:'服务编排'},
+    {t:'你上次提到过类似的情境，那次你选择了……这次，你怎么想？',m:'长期记忆'},
+  ];
+
+  function sendMessage(){
+    const text=input.value.trim();
+    if(!text)return;
+    addMsg('me',text);
+    input.value='';input.style.height='auto';
+    // 打字指示
+    const typing=addTyping();
+    setTimeout(()=>{
+      typing.remove();
+      const r=aiReplies[Math.floor(Math.random()*aiReplies.length)];
+      addMsg('ai',r.t+(r.m?'<div class="mood">· '+r.m+'</div>':''));
+    },1100+Math.random()*800);
+  }
+
+  function quickSend(text){
+    input.value=text;sendMessage();
+  }
+
+  function addMsg(who,html){
+    const wrap=document.createElement('div');
+    wrap.className='msg '+who;
+    wrap.innerHTML='<div class="avatar">'+(who==='ai'?'犀':'我')+'</div><div class="bubble">'+html+'</div>';
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop=chatBody.scrollHeight;
+  }
+
+  function addTyping(){
+    const wrap=document.createElement('div');
+    wrap.className='msg ai typing';
+    wrap.innerHTML='<div class="avatar">犀</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop=chatBody.scrollHeight;
+    return wrap;
+  }
+
+  // 初始滚到底
+  setTimeout(()=>{chatBody.scrollTop=chatBody.scrollHeight;},100);
+</script>
+</body>
+</html>
