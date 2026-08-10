@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数字灵魂 · Digital Soul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Manrope:wght@300..800&family=Noto+Sans+SC:wght@300..700&family=Noto+Serif+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14110E;
+  --bg-grad-1:#1C1813;
+  --bg-grad-2:#0F0D0B;
+  --surface:#1F1A15;
+  --surface-2:#261F19;
+  --surface-3:#2E2620;
+  --line:rgba(232,184,109,0.12);
+  --line-strong:rgba(232,184,109,0.22);
+  --text:#F5EFE6;
+  --text-2:#C9BFB1;
+  --text-3:#8A8074;
+  --text-4:#5C544A;
+  --amber:#E8B86D;
+  --amber-deep:#C9954A;
+  --amber-soft:#F0D4A0;
+  /* 角色色 */
+  --companion:#E89B9B;       /* 玫瑰 陪伴者 */
+  --companion-deep:#C77A7A;
+  --butler:#6BB8A8;           /* 青绿 管家 */
+  --butler-deep:#4A9888;
+  --twin:#A89BD4;             /* 紫罗兰 分身 */
+  --twin-deep:#8576B8;
+  /* 当前角色色 */
+  --role:var(--companion);
+  --role-deep:var(--companion-deep);
+  --role-glow:rgba(232,155,155,0.18);
+  --radius:22px;
+  --radius-sm:14px;
+  --shadow:0 24px 60px -20px rgba(0,0,0,0.7);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Manrope','Noto Sans SC',sans-serif;
+  background:#0A0907;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:24px;
+  overflow:hidden;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(232,184,109,0.06), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(168,155,212,0.05), transparent 45%);
+}
+/* 背景颗粒 */
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity:0.05;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== 手机外壳 ===== */
+.device{
+  position:relative;
+  width:390px;
+  height:844px;
+  background:linear-gradient(160deg,var(--bg-grad-1),var(--bg-grad-2));
+  border-radius:48px;
+  box-shadow:
+    0 0 0 12px #1a1714,
+    0 0 0 13px #2a241e,
+    0 50px 100px -20px rgba(0,0,0,0.9),
+    0 0 80px -10px var(--role-glow);
+  overflow:hidden;
+  z-index:1;
+  transition:box-shadow .8s ease;
+}
+/* 灵动岛 */
+.notch{
+  position:absolute;
+  top:11px;left:50%;
+  transform:translateX(-50%);
+  width:118px;height:32px;
+  background:#000;
+  border-radius:20px;
+  z-index:100;
+}
+
+/* ===== 状态栏 ===== */
+.statusbar{
+  position:relative;
+  height:54px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  padding:0 28px 6px;
+  font-family:'Manrope';
+  font-weight:600;
+  font-size:15px;
+  color:var(--text);
+  z-index:50;
+}
+.statusbar .right{display:flex;gap:7px;align-items:center}
+.statusbar svg{display:block}
+
+/* ===== 主容器 ===== */
+.app{
+  position:relative;
+  height:calc(100% - 54px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ===== 顶部角色切换 ===== */
+.topbar{
+  padding:8px 20px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-shrink:0;
+}
+.brand{
+  display:flex;align-items:center;gap:9px;
+}
+.brand-mark{
+  width:30px;height:30px;
+  border-radius:9px;
+  background:linear-gradient(135deg,var(--amber),var(--role));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces';font-weight:600;font-size:18px;color:#1a1410;
+  box-shadow:0 4px 14px -4px var(--role);
+  transition:all .6s ease;
+}
+.brand-name{
+  font-family:'Noto Serif SC';
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:0.5px;
+}
+.brand-name span{color:var(--text-3);font-weight:400;font-size:11px;margin-left:5px;font-family:'Manrope'}
+
+.role-switch{
+  display:flex;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  border-radius:30px;
+  padding:3px;
+  position:relative;
+}
+.role-pill{
+  position:relative;
+  padding:7px 14px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-3);
+  cursor:pointer;
+  border-radius:24px;
+  z-index:2;
+  transition:color .4s ease;
+  display:flex;align-items:center;gap:5px;
+  white-space:nowrap;
+}
+.role-pill.active{color:#1a1410}
+.role-pill .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:currentColor;
+  opacity:.7;
+}
+.role-indicator{
+  position:absolute;
+  top:3px;
+  height:calc(100% - 6px);
+  border-radius:24px;
+  background:linear-gradient(135deg,var(--role),var(--role-deep));
+  transition:all .5s cubic-bezier(.5,.1,.3,1.2);
+  z-index:1;
+  box-shadow:0 4px 16px -4px var(--role);
+}
+
+/* ===== 内容滚动区 ===== */
+.screen-wrap{
+  flex:1;
+  overflow:hidden;
+  position:relative;
+}
+.screen{
+  position:absolute;
+  inset:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:4px 18px 110px;
+  opacity:0;
+  transform:translateY(14px);
+  pointer-events:none;
+  transition:opacity .45s ease, transform .45s ease;
+}
+.screen.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+.screen::-webkit-scrollbar{width:0}
+
+/* ===== 通用组件 ===== */
+.card{
+  background:linear-gradient(160deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px;
+  backdrop-filter:blur(20px);
+}
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:22px 4px 12px;
+}
+.section-title h3{
+  font-family:'Noto Serif SC';
+  font-weight:600;
+  font-size:15px;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.section-title h3::before{
+  content:"";
+  width:3px;height:14px;
+  border-radius:2px;
+  background:var(--role);
+  transition:background .5s;
+}
+.section-title .more{
+  font-size:11px;color:var(--text-3);
+  display:flex;align-items:center;gap:3px;
+}
+
+/* ============ 陪伴者 ============ */
+.hero-companion{
+  position:relative;
+  padding:24px 18px 28px;
+  text-align:center;
+  overflow:hidden;
+}
+.hero-companion::before{
+  content:"";
+  position:absolute;
+  top:-40%;left:50%;
+  transform:translateX(-50%);
+  width:380px;height:380px;
+  background:radial-gradient(circle,var(--role-glow),transparent 60%);
+  filter:blur(20px);
+  transition:background .6s;
+}
+.soul-orb{
+  position:relative;
+  width:120px;height:120px;
+  margin:0 auto 16px;
+  z-index:2;
+}
+.orb-core{
+  position:absolute;inset:0;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 30%,var(--amber-soft),transparent 55%),
+    radial-gradient(circle at 65% 70%,var(--role),transparent 60%),
+    linear-gradient(135deg,var(--role-deep),#3a2418);
+  box-shadow:
+    0 0 40px var(--role-glow),
+    inset 0 0 30px rgba(255,255,255,0.1);
+  animation:orbPulse 4s ease-in-out infinite;
+}
+.orb-ring{
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:1px solid var(--role);
+  opacity:0.3;
+  animation:orbRing 8s linear infinite;
+}
+.orb-ring:nth-child(3){
+  inset:-22px;
+  border-style:dashed;
+  opacity:0.15;
+  animation-duration:14s;
+  animation-direction:reverse;
+}
+.orb-particles{
+  position:absolute;inset:0;
+  border-radius:50%;
+}
+.orb-particles span{
+  position:absolute;
+  width:3px;height:3px;
+  border-radius:50%;
+  background:var(--amber-soft);
+  top:50%;left:50%;
+}
+.orb-particles span:nth-child(1){animation:part 6s ease-in-out infinite}
+.orb-particles span:nth-child(2){animation:part 7s ease-in-out infinite -2s}
+.orb-particles span:nth-child(3){animation:part 8s ease-in-out infinite -4s}
+.orb-particles span:nth-child(4){animation:part 6.5s ease-in-out infinite -1s}
+
+@keyframes orbPulse{
+  0%,100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.04);filter:brightness(1.15)}
+}
+@keyframes orbRing{
+  to{transform:rotate(360deg)}
+}
+@keyframes part{
+  0%{transform:translate(-50%,-50%) translate(0,0);opacity:0}
+  20%{opacity:1}
+  100%{transform:translate(-50%,-50%) translate(var(--x),var(--y));opacity:0}
+}
+
+.companion-name{
+  font-family:'Fraunces','Noto Serif SC';
+  font-weight:500;
+  font-size:24px;
+  letter-spacing:0.5px;
+  margin-bottom:4px;
+  position:relative;z-index:2;
+}
+.companion-name em{
+  font-style:italic;
+  color:var(--role);
+  transition:color .5s;
+}
+.companion-tag{
+  font-size:11px;
+  color:var(--text-3);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  position:relative;z-index:2;
+}
+
+/* 对话区 */
+.chat{
+  margin-top:8px;
+}
+.msg{
+  display:flex;
+  margin-bottom:14px;
+  gap:9px;
+}
+.msg.bot .avatar{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--role),var(--role-deep));
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  box-shadow:0 4px 10px -3px var(--role);
+  transition:background .5s;
+}
+.msg.user{flex-direction:row-reverse}
+.msg.user .avatar{
+  background:linear-gradient(135deg,#3a3530,#2a2520);
+  color:var(--text-2);
+  box-shadow:none;
+}
+.bubble{
+  max-width:75%;
+  padding:11px 14px;
+  border-radius:16px;
+  font-size:13.5px;
+  line-height:1.55;
+  position:relative;
+}
+.msg.bot .bubble{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--line);
+  border-top-left-radius:5px;
+  color:var(--text);
+}
+.msg.user .bubble{
+  background:linear-gradient(135deg,var(--amber-deep),#8a6532);
+  border-top-right-radius:5px;
+  color:#1a1410;
+  font-weight:500;
+}
+.bubble .emotion{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10px;
+  color:var(--role);
+  margin-top:6px;
+  font-family:'JetBrains Mono';
+}
+.typing{
+  display:inline-flex;gap:3px;padding:4px 0;
+}
+.typing span{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--role);
+  animation:typing 1.4s infinite;
+}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+/* 快捷动作 */
+.quick-actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin-top:6px;
+}
+.qa{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+  padding:14px 6px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:all .3s;
+}
+.qa:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);border-color:var(--line-strong)}
+.qa-icon{
+  width:34px;height:34px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--role),var(--role-deep));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  box-shadow:0 6px 14px -5px var(--role);
+  transition:all .5s;
+}
+.qa-label{font-size:10.5px;color:var(--text-2);font-weight:500}
+
+/* 情绪曲线 */
+.mood-card{
+  position:relative;
+  overflow:hidden;
+}
+.mood-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:14px;
+}
+.mood-head .now{
+  font-family:'Fraunces';
+  font-size:28px;
+  font-weight:500;
+}
+.mood-head .now small{font-size:12px;color:var(--text-3);font-family:'Manrope';margin-left:6px}
+.mood-head .trend{
+  font-size:11px;
+  color:var(--butler);
+  background:rgba(107,184,168,0.1);
+  padding:4px 9px;
+  border-radius:10px;
+  font-weight:600;
+}
+.mood-svg{
+  width:100%;height:80px;
+}
+.mood-svg path.area{fill:url(#moodGrad);opacity:.4}
+.mood-svg path.line{stroke:var(--companion);stroke-width:2;fill:none;filter:drop-shadow(0 2px 6px var(--companion))}
+.mood-days{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-4);font-family:'JetBrains Mono'}
+
+/* ============ 管家秘书 ============ */
+.greet{
+  padding:6px 4px 16px;
+}
+.greet h2{
+  font-family:'Fraunces','Noto Serif SC';
+  font-weight:500;
+  font-size:22px;
+  line-height:1.3;
+  margin-bottom:4px;
+}
+.greet h2 em{font-style:italic;color:var(--butler)}
+.greet p{font-size:12px;color:var(--text-3);line-height:1.6}
+.greet .weather{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;
+  font-size:11.5px;
+  color:var(--text-2);
+  background:rgba(107,184,168,0.08);
+  border:1px solid rgba(107,184,168,0.18);
+  padding:6px 11px;
+  border-radius:20px;
+}
+
+/* 今日时间轴 */
+.timeline{
+  position:relative;
+  padding-left:24px;
+}
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:7px;top:6px;bottom:6px;
+  width:1.5px;
+  background:linear-gradient(var(--butler),transparent);
+  opacity:.4;
+}
+.tl-item{
+  position:relative;
+  margin-bottom:14px;
+  padding-left:4px;
+}
+.tl-item::before{
+  content:"";
+  position:absolute;
+  left:-21px;top:6px;
+  width:11px;height:11px;
+  border-radius:50%;
+  background:var(--bg);
+  border:2px solid var(--butler);
+}
+.tl-item.now::before{
+  background:var(--butler);
+  box-shadow:0 0 0 4px rgba(107,184,168,0.2);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(107,184,168,0.2)}50%{box-shadow:0 0 0 8px rgba(107,184,168,0.08)}}
+.tl-time{
+  font-family:'JetBrains Mono';
+  font-size:11px;
+  color:var(--butler);
+  font-weight:600;
+  margin-bottom:3px;
+}
+.tl-content{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 13px;
+}
+.tl-content .t{font-size:13px;font-weight:500;margin-bottom:3px}
+.tl-content .d{font-size:11px;color:var(--text-3)}
+.tl-item.now .tl-content{border-color:rgba(107,184,168,0.3);background:rgba(107,184,168,0.05)}
+
+/* 任务卡片网格 */
+.task-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.task-card{
+  padding:14px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:linear-gradient(150deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+  cursor:pointer;
+  transition:all .3s;
+  position:relative;
+  overflow:hidden;
+}
+.task-card:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+.task-card::after{
+  content:"";
+  position:absolute;
+  right:-20px;top:-20px;
+  width:60px;height:60px;border-radius:50%;
+  background:var(--tc,var(--butler));
+  opacity:.08;
+}
+.tc-icon{
+  font-size:20px;
+  margin-bottom:8px;
+}
+.tc-title{font-size:12.5px;font-weight:600;margin-bottom:2px}
+.tc-desc{font-size:10px;color:var(--text-3);line-height:1.4}
+
+/* 智能提醒 */
+.remind-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.remind-item:last-child{border:none}
+.remind-icon{
+  width:36px;height:36px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  flex-shrink:0;
+}
+.remind-text{flex:1}
+.remind-text .rt{font-size:13px;font-weight:500;margin-bottom:2px}
+.remind-text .rd{font-size:10.5px;color:var(--text-3);line-height:1.4}
+.remind-time{font-family:'JetBrains Mono';font-size:10px;color:var(--text-3)}
+
+/* ============ 数字分身 ============ */
+.avatar-hero{
+  text-align:center;
+  padding:14px 4px 18px;
+}
+.avatar-circle{
+  width:84px;height:84px;
+  margin:0 auto 12px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 30%,#E8B86D,transparent 50%),
+    radial-gradient(circle at 65% 65%,var(--twin),transparent 55%),
+    linear-gradient(135deg,#3a2a4a,#1a1428);
+  border:2px solid var(--twin);
+  box-shadow:0 0 30px rgba(168,155,212,0.3);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces';font-size:30px;color:#fff;
+}
+.avatar-circle::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:50%;
+  border:1px dashed var(--twin);
+  opacity:.4;
+  animation:orbRing 12s linear infinite;
+}
+.avatar-name{font-family:'Noto Serif SC';font-size:18px;font-weight:600;margin-bottom:3px}
+.avatar-name em{color:var(--twin);font-style:normal}
+.avatar-meta{font-size:11px;color:var(--text-3);font-family:'JetBrains Mono'}
+.completeness{
+  margin-top:14px;
+  background:rgba(168,155,212,0.06);
+  border:1px solid rgba(168,155,212,0.15);
+  border-radius:14px;
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.comp-num{font-family:'Fraunces';font-size:24px;color:var(--twin)}
+.comp-label{font-size:10px;color:var(--text-3);text-align:right;line-height:1.4}
+
+/* 画像维度 */
+.profile-dims{display:flex;flex-direction:column;gap:8px}
+.dim{
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:11px 13px;
+  cursor:pointer;
+  transition:all .25s;
+}
+.dim:hover{background:rgba(255,255,255,0.045)}
+.dim-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:7px;
+}
+.dim-name{
+  font-size:12.5px;
+  font-weight:600;
+  display:flex;align-items:center;gap:7px;
+}
+.dim-name .di{
+  font-size:13px;
+}
+.dim-meta{font-size:10px;color:var(--text-3);font-family:'JetBrains Mono'}
+.dim-bar{
+  height:4px;
+  background:rgba(255,255,255,0.05);
+  border-radius:2px;
+  overflow:hidden;
+}
+.dim-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--twin-deep),var(--twin));
+  border-radius:2px;
+  position:relative;
+}
+.dim-fill::after{
+  content:"";
+  position:absolute;
+  right:0;top:0;
+  width:6px;height:100%;
+  background:#fff;
+  opacity:.6;
+  box-shadow:0 0 8px var(--twin);
+}
+.dim-tags{
+  display:flex;flex-wrap:wrap;gap:4px;
+  margin-top:7px;
+}
+.dim-tags span{
+  font-size:9.5px;
+  padding:2px 7px;
+  background:rgba(168,155,212,0.1);
+  color:var(--twin);
+  border-radius:8px;
+  font-family:'JetBrains Mono';
+}
+
+/* 分身能力 */
+.proxy-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
+}
+.proxy-row:last-child{border:none}
+.proxy-left{display:flex;align-items:center;gap:11px}
+.proxy-ic{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(168,155,212,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;
+}
+.proxy-info .pt{font-size:12.5px;font-weight:500}
+.proxy-info .pd{font-size:10px;color:var(--text-3);margin-top:1px}
+.toggle{
+  width:34px;height:19px;
+  background:rgba(255,255,255,0.08);
+  border-radius:12px;
+  position:relative;
+  cursor:pointer;
+  transition:background .3s;
+}
+.toggle.on{background:var(--twin)}
+.toggle::after{
+  content:"";
+  position:absolute;
+  top:2px;left:2px;
+  width:15px;height:15px;
+  background:#fff;border-radius:50%;
+  transition:left .3s;
+}
+.toggle.on::after{left:17px}
+
+/* ============ 设置 ============ */
+.settings-group{
+  margin-bottom:8px;
+}
+.set-card{
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.set-row{
+  display:flex;
+  align-items:center;
+  padding:13px 15px;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+}
+.set-row:last-child{border:none}
+.set-ic{
+  width:30px;height:30px;
+  border-radius:8px;
+  background:rgba(232,184,109,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+}
+.set-text{flex:1}
+.set-text .st{font-size:13px;font-weight:500}
+.set-text .sd{font-size:10.5px;color:var(--text-3);margin-top:1px;line-height:1.4}
+.set-value{
+  font-size:11px;
+  color:var(--amber);
+  font-family:'JetBrains Mono';
+  display:flex;align-items:center;gap:4px;
+}
+.chev{color:var(--text-4);font-size:14px}
+
+/* 模型配置卡 */
+.llm-card{
+  background:linear-gradient(150deg,rgba(232,184,109,0.06),rgba(232,184,109,0.01));
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+.llm-card::before{
+  content:"LLM";
+  position:absolute;
+  top:-10px;right:8px;
+  font-family:'Fraunces';
+  font-size:64px;
+  font-weight:600;
+  color:var(--amber);
+  opacity:.05;
+  letter-spacing:-2px;
+}
+.llm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.llm-head .lt{font-family:'Noto Serif SC';font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px}
+.llm-head .lt::before{content:"";width:3px;height:14px;background:var(--amber);border-radius:2px}
+.llm-status{
+  font-size:10px;
+  background:rgba(107,184,168,0.12);
+  color:var(--butler);
+  padding:3px 8px;
+  border-radius:8px;
+  font-family:'JetBrains Mono';
+  display:flex;align-items:center;gap:4px;
+}
+.llm-status::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--butler);box-shadow:0 0 6px var(--butler)}
+
+.llm-field{margin-bottom:13px}
+.llm-field:last-child{margin-bottom:0}
+.llm-label{
+  font-size:10.5px;
+  color:var(--text-3);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+  font-weight:600;
+}
+.llm-input{
+  width:100%;
+  background:rgba(0,0,0,0.25);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+  color:var(--text);
+  font-size:12.5px;
+  font-family:'Manrope','Noto Sans SC';
+  outline:none;
+}
+.llm-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,184,109,0.1)}
+.llm-select{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.llm-opt{
+  padding:6px 11px;
+  font-size:11px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  color:var(--text-2);
+  cursor:pointer;
+  transition:all .25s;
+}
+.llm-opt.active{background:var(--amber);color:#1a1410;border-color:var(--amber);font-weight:600}
+.llm-opt:hover:not(.active){border-color:var(--amber);color:var(--amber)}
+
+.slider-row{display:flex;align-items:center;gap:10px}
+.slider{
+  flex:1;
+  -webkit-appearance:none;
+  height:4px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  outline:none;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:16px;height:16px;
+  background:var(--amber);
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 0 0 4px rgba(232,184,109,0.15);
+}
+.slider-val{
+  font-family:'JetBrains Mono';
+  font-size:11px;
+  color:var(--amber);
+  min-width:32px;
+  text-align:right;
+}
+
+/* 导出 */
+.export-card{
+  background:linear-gradient(150deg,rgba(168,155,212,0.06),rgba(168,155,212,0.01));
+  border:1px solid rgba(168,155,212,0.18);
+  border-radius:var(--radius);
+  padding:18px;
+}
+.export-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  margin:14px 0;
+}
+.es-item{
+  background:var(--surface);
+  padding:11px 6px;
+  text-align:center;
+}
+.es-num{
+  font-family:'Fraunces';
+  font-size:20px;
+  color:var(--twin);
+  font-weight:500;
+}
+.es-lbl{font-size:9px;color:var(--text-3);margin-top:2px}
+.export-btn{
+  display:flex;
+  gap:8px;
+}
+.btn{
+  flex:1;
+  padding:11px;
+  border-radius:12px;
+  border:none;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .25s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--twin),var(--twin-deep));
+  color:#fff;
+  box-shadow:0 8px 20px -8px var(--twin);
+}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--line);
+  color:var(--text-2);
+}
+
+/* 隐私 */
+.privacy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.priv-item{
+  padding:11px;
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--line);
+  border-radius:11px;
+}
+.priv-item .pn{font-size:11px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.priv-item .pd{font-size:9.5px;color:var(--text-3);line-height:1.4}
+.priv-tag{
+  font-size:8px;
+  padding:1px 5px;
+  border-radius:5px;
+  background:rgba(107,184,168,0.15);
+  color:var(--butler);
+  font-family:'JetBrains Mono';
+}
+
+/* ============ 底部输入栏 ============ */
+.composer{
+  position:absolute;
+  left:14px;right:14px;
+  bottom:78px;
+  z-index:30;
+  display:none;
+}
+.composer.show{display:flex;align-items:center;gap:8px}
+.composer-input{
+  flex:1;
+  background:rgba(31,26,21,0.85);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--line-strong);
+  border-radius:24px;
+  padding:11px 16px;
+  color:var(--text);
+  font-size:13px;
+  outline:none;
+  font-family:inherit;
+}
+.composer-input::placeholder{color:var(--text-4)}
+.composer-send{
+  width:40px;height:40px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--role),var(--role-deep));
+  border:none;
+  color:#1a1410;
+  font-size:16px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 16px -4px var(--role);
+  transition:all .3s;
+}
+
+/* ============ 底部导航 ============ */
+.tabbar{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:74px;
+  background:rgba(15,13,11,0.85);
+  backdrop-filter:blur(30px);
+  border-top:1px solid var(--line);
+  display:flex;
+  z-index:40;
+  padding-bottom:10px;
+}
+.tab{
+  flex:1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:3px;
+  cursor:pointer;
+  color:var(--text-4);
+  transition:color .3s;
+  position:relative;
+}
+.tab.active{color:var(--role)}
+.tab-ic{font-size:19px;transition:transform .3s}
+.tab.active .tab-ic{transform:translateY(-2px)}
+.tab-lbl{font-size:9.5px;font-weight:600;letter-spacing:.5px}
+.tab.active::before{
+  content:"";
+  position:absolute;
+  top:0;
+  width:24px;height:2px;
+  border-radius:2px;
+  background:var(--role);
+  box-shadow:0 0 8px var(--role);
+  transition:background .5s;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  top:30px;left:50%;
+  transform:translateX(-50%) translateY(-30px);
+  background:rgba(31,26,21,0.95);
+  border:1px solid var(--line-strong);
+  padding:11px 18px;
+  border-radius:14px;
+  font-size:12.5px;
+  color:var(--text);
+  z-index:1000;
+  opacity:0;
+  pointer-events:none;
+  transition:all .4s;
+  backdrop-filter:blur(20px);
+  box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .ic{color:var(--butler);font-size:14px}
+
+/* 平板/桌面适配提示 */
+@media (max-height:880px){
+  body{padding:10px}
+  .device{transform:scale(0.95);transform-origin:center}
+}
+@media (max-width:420px){
+  body{padding:0}
+  .device{
+    width:100%;height:100vh;height:100dvh;
+    border-radius:0;
+    box-shadow:none;
+  }
+  .notch{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="notch"></div>
+
+  <!-- 状态栏 -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <div class="right">
+      <!-- 信号 -->
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="3" width="3" height="8" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+      <!-- WiFi -->
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M7.5 0C4.5 0 1.8 1.1 0 2.9l1.4 1.4C2.9 2.8 5.1 2 7.5 2s4.6.8 6.1 2.3l1.4-1.4C13.2 1.1 10.5 0 7.5 0zm0 4C5.6 4 3.9 4.7 2.7 5.9L4.1 7.3c.9-.9 2.1-1.4 3.4-1.4s2.5.5 3.4 1.4l1.4-1.4C11.1 4.7 9.4 4 7.5 4zm0 4c-1 0-1.9.4-2.5 1l2.5 2.5L10 9c-.6-.6-1.5-1-2.5-1z"/></svg>
+      <!-- 电池 -->
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" opacity="0.5"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="24" y="3.5" width="1.5" height="5" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
+    </div>
+  </div>
+
+  <div class="app">
+    <!-- 顶部 -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">灵</div>
+        <div class="brand-name">数字灵魂<span>v1.0</span></div>
+      </div>
+      <div class="role-switch" id="roleSwitch">
+        <div class="role-indicator" id="roleIndicator"></div>
+        <div class="role-pill active" data-role="companion"><span class="dot"></span>陪伴者</div>
+        <div class="role-pill" data-role="butler"><span class="dot"></span>管家</div>
+        <div class="role-pill" data-role="twin"><span class="dot"></span>分身</div>
+      </div>
+    </div>
+
+    <!-- 屏幕容器 -->
+    <div class="screen-wrap">
+
+      <!-- ===== 陪伴者 ===== -->
+      <div class="screen active" id="screen-companion">
+        <div class="hero-companion">
+          <div class="soul-orb">
+            <div class="orb-core"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-particles">
+              <span style="--x:30px;--y:-20px"></span>
+              <span style="--x:-25px;--y:-30px"></span>
+              <span style="--x:35px;--y:25px"></span>
+              <span style="--x:-30px;--y:20px"></span>
+            </div>
+          </div>
+          <div class="companion-name">小<em>灵</em></div>
+          <div class="companion-tag">YOUR  ·  COMPANION</div>
+        </div>
+
+        <div class="chat">
+          <div class="msg bot">
+            <div class="avatar">灵</div>
+            <div class="bubble">
+              早上好呀，昨晚睡得好吗？看你昨晚11点才关灯，今天要不要把会议调整到下午？<br>
+              <span class="emotion">◐ 共情 · 温柔</span>
+            </div>
+          </div>
+          <div class="msg user">
+            <div class="avatar">我</div>
+            <div class="bubble">有点累，但又有点期待今天的提案</div>
+          </div>
+          <div class="msg bot">
+            <div class="avatar">灵</div>
+            <div class="bubble">
+              我懂这种感觉，身体的疲惫和心里的兴奋可以同时存在。提案材料我已经帮你整理好了，要不要先过一遍重点？<br>
+              <div class="typing"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>今日心境</h3>
+          <span class="more">7天趋势 ›</span>
+        </div>
+        <div class="card mood-card">
+          <div class="mood-head">
+            <div class="now">7.8<small>/10 平和</small></div>
+            <div class="trend">↑ 较昨日 +12%</div>
+          </div>
+          <svg class="mood-svg" viewBox="0 0 320 80" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#E89B9B" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#E89B9B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="area" d="M0,55 C40,50 60,30 100,35 C140,40 160,20 200,25 C240,30 280,15 320,20 L320,80 L0,80 Z"/>
+            <path class="line" d="M0,55 C40,50 60,30 100,35 C140,40 160,20 200,25 C240,30 280,15 320,20"/>
+            <circle cx="320" cy="20" r="3.5" fill="#E89B9B"/>
+            <circle cx="320" cy="20" r="7" fill="#E89B9B" opacity="0.2"/>
+          </svg>
+          <div class="mood-days">
+            <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>今日</span>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>陪伴方式</h3>
+        </div>
+        <div class="quick-actions">
+          <div class="qa" onclick="toast('已开启深度对话模式')">
+            <div class="qa-icon">💬</div>
+            <div class="qa-label">深度对话</div>
+          </div>
+          <div class="qa" onclick="toast('情绪日记已记录')">
+            <div class="qa-icon">📖</div>
+            <div class="qa-label">情绪日记</div>
+          </div>
+          <div class="qa" onclick="toast('冥想引导已启动 · 10分钟')">
+            <div class="qa-icon">🌙</div>
+            <div class="qa-label">冥想引导</div>
+          </div>
+          <div class="qa" onclick="toast('正在切换声音形象')">
+            <div class="qa-icon">🎭</div>
+            <div class="qa-label">人格切换</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 管家秘书 ===== -->
+      <div class="screen" id="screen-butler">
+        <div class="greet">
+          <h2>早上好，<em>陈先生</em><br>今天有3件要事待办</h2>
+          <p>北京 · 多云转晴 23°C · PM2.5 良<br>通勤预计 28 分钟，建议 8:50 前出门</p>
+          <div class="weather">🌂 下午3点有阵雨，记得带伞</div>
+        </div>
+
+        <div class="section-title">
+          <h3>今日时间轴</h3>
+          <span class="more">查看全部 ›</span>
+        </div>
+        <div class="card" style="padding:18px 18px 4px">
+          <div class="timeline">
+            <div class="tl-item now">
+              <div class="tl-time">09:30 · 进行中</div>
+              <div class="tl-content">
+                <div class="t">产品周会</div>
+                <div class="d">线上 · 已生成会议纪要模板</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-time">12:00</div>
+              <div class="tl-content">
+                <div class="t">健康午餐 · 已代下单</div>
+                <div class="d">轻食沙拉 + 三文鱼 · ¥38 · 预计11:50送达</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-time">14:00</div>
+              <div class="tl-content">
+                <div class="t">客户提案演示</div>
+                <div class="d">会议室 B 区 · 已整理提案材料 3 份</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-time">18:30</div>
+              <div class="tl-content">
+                <div class="t">健身 · 私教课</div>
+                <div class="d">已叫车 · 18:10 出发 · 预计 ¥24</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>快捷服务</h3>
+        </div>
+        <div class="task-grid">
+          <div class="task-card" style="--tc:var(--butler)" onclick="toast('正在搜索附近餐厅')">
+            <div class="tc-icon">🍜</div>
+            <div class="tc-title">点外卖</div>
+            <div class="tc-desc">智能推荐 · 代下单</div>
+          </div>
+          <div class="task-card" style="--tc:var(--amber)" onclick="toast('正在为您叫车')">
+            <div class="tc-icon">🚗</div>
+            <div class="tc-title">叫车出行</div>
+            <div class="tc-desc">最优路线规划</div>
+          </div>
+          <div class="task-card" style="--tc:var(--twin)" onclick="toast('日程已创建')">
+            <div class="tc-icon">📅</div>
+            <div class="tc-title">日程安排</div>
+            <div class="tc-desc">自然语言建会</div>
+          </div>
+          <div class="task-card" style="--tc:var(--companion)" onclick="toast('正在跨平台比价')">
+            <div class="tc-icon">🛒</div>
+            <div class="tc-title">智能购物</div>
+            <div class="tc-desc">跨平台比价推荐</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>智能提醒</h3>
+        </div>
+        <div class="card">
+          <div class="remind-item">
+            <div class="remind-icon" style="background:rgba(232,155,155,0.12)">💊</div>
+            <div class="remind-text">
+              <div class="rt">服用维生素D</div>
+              <div class="rd">餐后30分钟 · 已连续12天</div>
+            </div>
+            <div class="remind-time">12:30</div>
+          </div>
+          <div class="remind-item">
+            <div class="remind-icon" style="background:rgba(107,184,168,0.12)">📞</div>
+            <div class="remind-text">
+              <div class="rt">给妈妈打电话</div>
+              <div class="rd">每周三惯例 · 上次通话5天前</div>
+            </div>
+            <div class="remind-time">19:00</div>
+          </div>
+          <div class="remind-item">
+            <div class="remind-icon" style="background:rgba(168,155,212,0.12)">🎂</div>
+            <div class="remind-text">
+              <div class="rt">小林生日</div>
+              <div class="d rd">还有3天 · 已为您准备礼物方案</div>
+            </div>
+            <div class="remind-time">8/13</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 数字分身 ===== -->
+      <div class="screen" id="screen-twin">
+        <div class="avatar-hero">
+          <div class="avatar-circle">陈</div>
+          <div class="avatar-name">陈<em>·</em>数字分身</div>
+          <div class="avatar-meta">已陪伴 187 天 · 4,328 次对话</div>
+          <div class="completeness">
+            <div>
+              <div class="comp-num">86%</div>
+            </div>
+            <div class="comp-label">画像完整度<br><span style="color:var(--twin)">优于 92% 用户</span></div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>画像维度</h3>
+          <span class="more">导出 ›</span>
+        </div>
+        <div class="profile-dims">
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">👤</span>基础属性</div>
+              <div class="dim-meta">92% · 日更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:92%"></div></div>
+            <div class="dim-tags"><span>32岁</span><span>产品经理</span><span>北京</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">🧠</span>性格特征</div>
+              <div class="dim-meta">88% · 周更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:88%"></div></div>
+            <div class="dim-tags"><span>INTJ</span><span>理性</span><span>内向</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">💗</span>情感状态</div>
+              <div class="dim-meta">95% · 日更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:95%"></div></div>
+            <div class="dim-tags"><span>平和</span><span>低压力</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">🎵</span>兴趣爱好</div>
+              <div class="dim-meta">78% · 周更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:78%"></div></div>
+            <div class="dim-tags"><span>爵士乐</span><span>科幻</span><span>徒步</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">💰</span>消费偏好</div>
+              <div class="dim-meta">83% · 实时</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:83%"></div></div>
+            <div class="dim-tags"><span>品质优先</span><span>理性消费</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">❤️</span>健康画像</div>
+              <div class="dim-meta">71% · 日更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:71%"></div></div>
+            <div class="dim-tags"><span>睡眠良好</span><span>需增运动</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">👥</span>社交网络</div>
+              <div class="dim-meta">65% · 月更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:65%"></div></div>
+            <div class="dim-tags"><span>密友5人</span><span>低活跃</span></div>
+          </div>
+          <div class="dim">
+            <div class="dim-head">
+              <div class="dim-name"><span class="di">⚖️</span>价值观</div>
+              <div class="dim-meta">58% · 季更</div>
+            </div>
+            <div class="dim-bar"><div class="dim-fill" style="width:58%"></div></div>
+            <div class="dim-tags"><span>成长导向</span><span>家庭本位</span></div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>分身能力</h3>
+        </div>
+        <div class="card">
+          <div class="proxy-row">
+            <div class="proxy-left">
+              <div class="proxy-ic">💬</div>
+              <div class="proxy-info">
+                <div class="pt">消息代回复</div>
+                <div class="pd">授权范围内自动回复常规消息</div>
+              </div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="proxy-row">
+            <div class="proxy-left">
+              <div class="proxy-ic">🎂</div>
+              <div class="proxy-info">
+                <div class="pt">朋友圈互动</div>
+                <div class="pd">代为点赞、评论祝福</div>
+              </div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="proxy-row">
+            <div class="proxy-left">
+              <div class="proxy-ic">🤝</div>
+              <div class="proxy-info">
+                <div class="pt">商务初筛</div>
+                <div class="pd">代表您初步沟通合作意向</div>
+              </div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="proxy-row">
+            <div class="proxy-left">
+              <div class="proxy-ic">📊</div>
+              <div class="proxy-info">
+                <div class="pt">决策辅助</div>
+                <div class="pd">基于画像给出消费/职业建议</div>
+              </div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="proxy-row">
+            <div class="proxy-left">
+              <div class="proxy-ic">🏛️</div>
+              <div class="proxy-info">
+                <div class="pt">数字遗产</div>
+                <div class="pd">指定传承人 · 故事与画像留存</div>
+              </div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 设置 ===== -->
+      <div class="screen" id="screen-settings">
+        <div class="section-title" style="margin-top:8px">
+          <h3>大模型配置</h3>
+        </div>
+        <div class="llm-card">
+          <div class="llm-head">
+            <div class="lt">模型引擎</div>
+            <div class="llm-status">已连接</div>
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">服务提供商</div>
+            <div class="llm-select">
+              <div class="llm-opt active" onclick="pickLlm(this)">OpenAI</div>
+              <div class="llm-opt" onclick="pickLlm(this)">Anthropic</div>
+              <div class="llm-opt" onclick="pickLlm(this)">DeepSeek</div>
+              <div class="llm-opt" onclick="pickLlm(this)">通义千问</div>
+              <div class="llm-opt" onclick="pickLlm(this)">本地 Ollama</div>
+              <div class="llm-opt" onclick="pickLlm(this)">+ 自定义</div>
+            </div>
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">模型版本</div>
+            <input class="llm-input" value="gpt-4o-2024-08-06" />
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">API Key</div>
+            <input class="llm-input" type="password" value="sk-proj-xxxxxxxxxxxxxxxxxxxx" />
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">接口地址 (Base URL)</div>
+            <input class="llm-input" value="https://api.openai.com/v1" />
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">温度 Temperature · <span style="color:var(--text-2)">创造性</span></div>
+            <div class="slider-row">
+              <input type="range" class="slider" min="0" max="2" step="0.1" value="0.7" oninput="this.nextElementSibling.textContent=this.value" />
+              <span class="slider-val">0.7</span>
+            </div>
+          </div>
+          <div class="llm-field">
+            <div class="llm-label">上下文长度 Tokens</div>
+            <div class="slider-row">
+              <input type="range" class="slider" min="2048" max="128000" step="2048" value="16384" oninput="this.nextElementSibling.textContent=(this.value/1000)+'K'" />
+              <span class="slider-val">16K</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>人格设定</h3>
+        </div>
+        <div class="set-card">
+          <div class="set-row">
+            <div class="set-ic">🎭</div>
+            <div class="set-text">
+              <div class="st">AI 性格风格</div>
+              <div class="sd">温柔体贴 · 偶尔幽默</div>
+            </div>
+            <div class="set-value">温柔 ›</div>
+          </div>
+          <div class="set-row">
+            <div class="set-ic">🔊</div>
+            <div class="set-text">
+              <div class="st">声音形象</div>
+              <div class="sd">柔和女声 · 慢语速</div>
+            </div>
+            <div class="set-value">小灵 ›</div>
+          </div>
+          <div class="set-row">
+            <div class="set-ic">🧬</div>
+            <div class="set-text">
+              <div class="st">系统提示词</div>
+              <div class="sd">自定义AI的人设与行为准则</div>
+            </div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>画像数据管理</h3>
+        </div>
+        <div class="export-card">
+          <div style="font-family:'Noto Serif SC';font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px">
+            <span style="width:3px;height:14px;background:var(--twin);border-radius:2px"></span>
+            我的画像
+          </div>
+          <p style="font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.5">
+            您的画像数据采用端侧加密存储，密钥由您掌控。可随时查看、修改、导出或删除。
+          </p>
+          <div class="export-stats">
+            <div class="es-item">
+              <div class="es-num">328</div>
+              <div class="es-lbl">画像标签</div>
+            </div>
+            <div class="es-item">
+              <div class="es-num">187</div>
+              <div class="es-lbl">陪伴天数</div>
+            </div>
+            <div class="es-item">
+              <div class="es-num">12.4M</div>
+              <div class="es-lbl">数据体积</div>
+            </div>
+          </div>
+          <div class="export-btn">
+            <button class="btn btn-primary" onclick="exportProfile()">
+              ⬇ 导出画像
+            </button>
+            <button class="btn btn-ghost" onclick="toast('已打开画像编辑器')">
+              ✎ 编辑
+            </button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-ghost" onclick="toast('JSON 数据已复制到剪贴板')">📋 复制JSON</button>
+            <button class="btn btn-ghost" style="color:var(--companion)" onclick="toast('已彻底删除所有画像数据')">🗑 删除全部</button>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>隐私与安全</h3>
+        </div>
+        <div class="privacy-grid">
+          <div class="priv-item">
+            <div class="pn">🔒 端侧计算</div>
+            <div class="pd">敏感数据不出设备</div>
+          </div>
+          <div class="priv-item">
+            <div class="pn">🛡️ 差分隐私</div>
+            <div class="pd">云端数据已脱敏</div>
+          </div>
+          <div class="priv-item">
+            <div class="pn">🔑 加密隔离</div>
+            <div class="pd">用户独立密钥</div>
+          </div>
+          <div class="priv-item">
+            <div class="pn">👁️ 用户可控</div>
+            <div class="pd">随时查看/删除</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>通用设置</h3>
+        </div>
+        <div class="set-card">
+          <div class="set-row">
+            <div class="set-ic">🔔</div>
+            <div class="set-text">
+              <div class="st">通知与提醒</div>
+              <div class="sd">智能情境化推送</div>
+            </div>
+            <div class="chev">›</div>
+          </div>
+          <div class="set-row">
+            <div class="set-ic">🌐</div>
+            <div class="set-text">
+              <div class="st">服务集成</div>
+              <div class="sd">美团 · 滴滴 · 健康平台 等6项</div>
+            </div>
+            <div class="chev">›</div>
+          </div>
+          <div class="set-row">
+            <div class="set-ic">🎨</div>
+            <div class="set-text">
+              <div class="st">外观主题</div>
+              <div class="sd">深色 · 暖琥珀</div>
+            </div>
+            <div class="chev">›</div>
+          </div>
+          <div class="set-row">
+            <div class="set-ic">ℹ️</div>
+            <div class="set-text">
+              <div class="st">关于数字灵魂</div>
+              <div class="sd">版本 1.0.0 · 隐私协议</div>
+            </div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 输入栏 -->
+    <div class="composer" id="composer">
+      <input class="composer-input" placeholder="和小灵说点什么..." />
+      <button class="composer-send" onclick="toast('消息已发送')">↑</button>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="tabbar">
+      <div class="tab active" data-tab="companion">
+        <div class="tab-ic">💗</div>
+        <div class="tab-lbl">陪伴</div>
+      </div>
+      <div class="tab" data-tab="butler">
+        <div class="tab-ic">🗂️</div>
+        <div class="tab-lbl">管家</div>
+      </div>
+      <div class="tab" data-tab="twin">
+        <div class="tab-ic">🧬</div>
+        <div class="tab-lbl">分身</div>
+      </div>
+      <div class="tab" data-tab="settings">
+        <div class="tab-ic">⚙️</div>
+        <div class="tab-lbl">设置</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="ic">✓</span><span id="toastText">操作成功</span></div>
+
+<script>
+const roleColors = {
+  companion:{role:'#E89B9B',deep:'#C77A7A',glow:'rgba(232,155,155,0.18)'},
+  butler:{role:'#6BB8A8',deep:'#4A9888',glow:'rgba(107,184,168,0.18)'},
+  twin:{role:'#A89BD4',deep:'#8576B8',glow:'rgba(168,155,212,0.18)'}
+};
+
+function setRole(role){
+  const c = roleColors[role];
+  const root = document.documentElement;
+  root.style.setProperty('--role',c.role);
+  root.style.setProperty('--role-deep',c.deep);
+  root.style.setProperty('--role-glow',c.glow);
+
+  // 切换角色按钮高亮
+  document.querySelectorAll('.role-pill').forEach(p=>{
+    p.classList.toggle('active', p.dataset.role===role);
+  });
+  positionIndicator();
+
+  // 联动底部tab
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab===role || (role==='companion' && t.dataset.tab==='companion'));
+  });
+
+  // 切换屏幕
+  showScreen(role==='companion'?'companion':role==='butler'?'butler':'twin');
+}
+
+function positionIndicator(){
+  const active = document.querySelector('.role-pill.active');
+  const ind = document.getElementById('roleIndicator');
+  if(!active) return;
+  ind.style.width = active.offsetWidth+'px';
+  ind.style.left = active.offsetLeft+'px';
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  // 陪伴者界面显示输入栏
+  const composer = document.getElementById('composer');
+  composer.classList.toggle('show', name==='companion');
+}
+
+// 角色切换
+document.querySelectorAll('.role-pill').forEach(p=>{
+  p.addEventListener('click',()=>setRole(p.dataset.role));
+});
+
+// 底部Tab切换
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const tab = t.dataset.tab;
+    if(tab==='settings'){
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      showScreen('settings');
+      // 设置页保持琥珀色主题
+      const root=document.documentElement;
+      root.style.setProperty('--role','#E8B86D');
+      root.style.setProperty('--role-deep','#C9954A');
+      root.style.setProperty('--role-glow','rgba(232,184,109,0.18)');
+      document.querySelectorAll('.role-pill').forEach(p=>p.classList.remove('active'));
+      positionIndicator();
+    } else {
+      setRole(tab);
+    }
+  });
+});
+
+// 模型选择
+function pickLlm(el){
+  el.parentElement.querySelectorAll('.llm-opt').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  toast('已切换至 '+el.textContent);
+}
+
+// 导出画像
+function exportProfile(){
+  const data = {
+    appName:"数字灵魂",
+    version:"1.0.0",
+    exportDate:new Date().toISOString(),
+    user:{
+      name:"陈先生",
+      age:32,
+      occupation:"产品经理",
+      location:"北京",
+      mbti:"INTJ"
+    },
+    profile:{
+      completeness:0.86,
+      dimensions:{
+        basic:{score:0.92,tags:["32岁","产品经理","北京"]},
+        personality:{score:0.88,tags:["INTJ","理性","内向"]},
+        emotion:{score:0.95,tags:["平和","低压力"]},
+        interests:{score:0.78,tags:["爵士乐","科幻","徒步"]},
+        consumption:{score:0.83,tags:["品质优先","理性消费"]},
+        health:{score:0.71,tags:["睡眠良好","需增运动"]},
+        social:{score:0.65,tags:["密友5人","低活跃"]},
+        values:{score:0.58,tags:["成长导向","家庭本位"]}
+      }
+    },
+    stats:{
+      days:187,
+      conversations:4328,
+      profileTags:328,
+      dataSize:"12.4MB"
+    },
+    llm:{
+      provider:"OpenAI",
+      model:"gpt-4o-2024-08-06",
+      temperature:0.7
+    }
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'digital-soul-profile-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('画像数据已导出为 JSON');
+}
+
+// Toast
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// 初始化指示器位置
+window.addEventListener('load',()=>{
+  setTimeout(positionIndicator,100);
+});
+window.addEventListener('resize',positionIndicator);
+</script>
+</body>
+</html>
