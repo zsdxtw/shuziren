@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「伴」AI 社交管家 App — 产品设计方案</title>
+<style>
+  :root {
+    --primary: #2f6fed;
+    --primary-light: #eaf1fe;
+    --accent: #0ea5a5;
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --text: #1f2329;
+    --text-2: #51565e;
+    --text-3: #8a909a;
+    --border: #e5e8ee;
+    --warn: #d97706;
+    --danger: #dc2626;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+  .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+  /* Sidebar */
+  nav { width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 32px 20px; border-right: 1px solid var(--border); background: var(--card); }
+  nav .logo { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  nav .logo span { color: var(--primary); }
+  nav .sub { font-size: 12px; color: var(--text-3); margin-bottom: 24px; }
+  nav a { display: block; padding: 7px 12px; font-size: 13.5px; color: var(--text-2); text-decoration: none; border-radius: 8px; margin-bottom: 2px; }
+  nav a:hover { background: var(--primary-light); color: var(--primary); }
+  nav .lv2 { padding-left: 26px; font-size: 12.5px; color: var(--text-3); }
+  /* Content */
+  main { flex: 1; padding: 48px 56px; min-width: 0; }
+  h1 { font-size: 30px; margin-bottom: 8px; }
+  .lead { color: var(--text-2); font-size: 15px; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  section { margin-bottom: 56px; }
+  h2 { font-size: 22px; margin-bottom: 18px; padding-left: 12px; border-left: 4px solid var(--primary); }
+  h3 { font-size: 17px; margin: 26px 0 12px; }
+  h4 { font-size: 15px; margin: 18px 0 8px; color: var(--text); }
+  p { margin-bottom: 12px; color: var(--text-2); font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 22px; color: var(--text-2); font-size: 14.5px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 26px; margin-bottom: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; font-size: 13.5px; margin-bottom: 18px; box-shadow: 0 0 0 1px var(--border); }
+  th { background: #f0f3f8; text-align: left; padding: 10px 14px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); color: var(--text-2); vertical-align: top; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .tag-p1 { background: #fdeaea; color: var(--danger); }
+  .tag-p2 { background: #fef4e2; color: var(--warn); }
+  .tag-p3 { background: #e8f4fd; color: var(--primary); }
+  .callout { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 14px 20px; margin: 16px 0; font-size: 14px; color: #274070; }
+  .callout.warn { background: #fef4e2; border-color: var(--warn); color: #7a4a05; }
+  .callout.danger { background: #fdeaea; border-color: var(--danger); color: #7a1a1a; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; }
+  .kpi .num { font-size: 24px; font-weight: 700; color: var(--primary); }
+  .kpi .lbl { font-size: 12.5px; color: var(--text-3); margin-top: 4px; }
+  .persona { border-top: 4px solid var(--accent); }
+  .persona h4 { margin-top: 0; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+  .flow .node { background: var(--card); border: 1.5px solid var(--primary); color: var(--primary); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
+  .flow .arrow { color: var(--text-3); font-weight: 700; }
+  .tab-bar { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 14px 14px 0 0; overflow: hidden; margin-top: 10px; }
+  .tab-bar div { flex: 1; text-align: center; padding: 12px 4px; font-size: 13px; font-weight: 600; color: var(--text-3); border-right: 1px solid var(--border); }
+  .tab-bar div:last-child { border-right: none; }
+  .tab-bar .on { color: var(--primary); background: var(--primary-light); }
+  .mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: 12.5px; background: #f2f4f8; padding: 2px 6px; border-radius: 5px; }
+  .arch { background: #0f172a; color: #cbd5e1; border-radius: 12px; padding: 24px 28px; font-family: Consolas, monospace; font-size: 13px; line-height: 1.7; white-space: pre; overflow-x: auto; margin: 14px 0; }
+  .arch b { color: #7dd3fc; font-weight: 600; }
+  .arch i { color: #fbbf24; font-style: normal; }
+  @media (max-width: 900px) { nav { display: none; } main { padding: 28px 20px; } .grid2,.grid3,.grid4 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="logo">「伴」<span>·</span> 产品设计方案</div>
+  <div class="sub">AI 社交管家 App | V1.0 | 2026-09</div>
+  <a href="#s1">1. 产品概述与定位</a>
+  <a href="#s2">2. 社会环境洞察</a>
+  <a href="#s3">3. 目标市场与用户画像</a>
+  <a href="#s4">4. 竞品分析与差异化</a>
+  <a href="#s5">5. 产品总体架构</a>
+  <a class="lv2" href="#s5-1">5.1 信息架构</a>
+  <a class="lv2" href="#s5-2">5.2 技术架构</a>
+  <a href="#s6">6. 五大模块功能设计</a>
+  <a class="lv2" href="#s6-1">6.1 对话</a>
+  <a class="lv2" href="#s6-2">6.2 提醒</a>
+  <a class="lv2" href="#s6-3">6.3 圈子</a>
+  <a class="lv2" href="#s6-4">6.4 我的</a>
+  <a class="lv2" href="#s6-5">6.5 AI</a>
+  <a href="#s7">7. AI 中台与用户画像</a>
+  <a href="#s8">8. 第三方数据对接策略</a>
+  <a href="#s9">9. 商业模式</a>
+  <a href="#s10">10. 合规与隐私</a>
+  <a href="#s11">11. MVP 路线图</a>
+  <a href="#s12">12. 风险与挑战</a>
+</nav>
+
+<main>
+<h1>「伴」— AI 社交管家 App 产品设计方案</h1>
+<p class="lead">定位一句话：<strong>把微信的臃肿砍掉，把 Siri 的智商拉满</strong> —— 一个以 AI 为中枢、以"简洁通讯 + 主动式生活管家"为双引擎的个人生活操作系统。本文档覆盖市场环境、目标用户、产品架构、五大模块功能、数据对接策略、商业模式与落地路线图。</p>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+<h2>1. 产品概述与定位</h2>
+
+<div class="card">
+<h4>1.1 一句话产品定义</h4>
+<p><strong>「伴」是一款 AI 原生的社交+管家应用：用最简洁的通讯连接人，用最懂你的 AI 管理生活。</strong>它不是"带 AI 功能的微信"，而是"以 AI 为底座的个人生活操作系统"——通讯、提醒、圈子都只是 AI 调度的前台界面。</p>
+</div>
+
+<div class="grid3">
+  <div class="card"><h4>🔹 简洁通讯（守）</h4><p>纯文字/语音对话，无广告、无信息流、无商城。对标微信做"减法"，抢夺对臃肿生态疲劳的用户。</p></div>
+  <div class="card"><h4>🔹 生活管家（攻）</h4><p>聚合账单、出行、消费、工作事务，把碎片化的数字生活统一成一条"今日时间线"，AI 主动提醒与规划。</p></div>
+  <div class="card"><h4>🔹 AI 分身（魂）</h4><p>全方位了解用户的 AI 角色（管家/秘书/分身），越用越懂你，形成数据飞轮与迁移成本。</p></div>
+</div>
+
+<div class="callout"><strong>核心差异化逻辑：</strong>微信赢在"连接人"，但它永远不会变成你的生活管家（商业模型靠广告与流量分发）；ChatGPT 赢在"智能"，但它没有你的生活数据，只能你问一句它答一句。「伴」的机会在两者之间的空白带：<strong>有生活数据的 AI + 无商业噪音的通讯</strong>。</div>
+
+<h3>1.2 命名建议（备选）</h3>
+<table>
+<tbody><tr><th>名称</th><th>寓意</th><th>备注</th></tr>
+<tr><td><strong>伴 / Bandful</strong></td><td>陪伴、伙伴、管家随侍在侧</td><td>首选，单字易记，情感温度高</td></tr>
+<tr><td>小满</td><td>"小满即安"，不过度、不臃肿的产品哲学</td><td>契合"反微信臃肿"定位</td></tr>
+<tr><td>知吾</td><td>知我者，AI 也</td><td>强调画像与懂你的能力</td></tr>
+</tbody></table>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+<h2>2. 社会环境洞察 —— 为什么是现在</h2>
+
+<div class="grid2">
+<div class="card">
+<h4>📱 趋势一：超级 App 疲劳，"反臃肿"情绪蔓延</h4>
+<p>微信已从通讯工具演变为"操作系统级"商业综合体：视频号、直播、小程序、搜一搜广告、公众号信息流。年轻用户群体中出现明显的"数字极简主义"倾向——关掉朋友圈、折叠群聊、寻找纯净通讯工具。海外市场已验证该趋势（如极简社交 App 的多次走红），<strong>国内尚无一个"克制的、无广告的"主流替代品</strong>。</p>
+</div>
+<div class="card">
+<h4>🤖 趋势二：大模型 Agent 能力成熟，个人 AI 管家具备技术可行性</h4>
+<p>2025–2026 年，大模型的长记忆、工具调用（Function Calling）、多模态理解能力已经商用化，推理成本两年内下降超 90%。"个人 Agent"从概念变为可交付产品。<strong>谁先积累用户的个人上下文数据，谁的 AI 就越懂用户</strong>，这是天然的先发壁垒。</p>
+</div>
+<div class="card">
+<h4>🏠 趋势三：独居经济与"时间贫困"的新中产</h4>
+<p>中国独居家庭户已超 1.25 亿，一人食、一人行成为常态；一二线城市白领普遍"时间贫困"——账单忘缴、行程混乱、会议冲突是高频痛点。他们没有秘书，但<strong>买得起 20 元/月的 AI 秘书</strong>。同时银发群体触网率持续提升，语音优先的 AI 交互对老年人极度友好。</p>
+</div>
+<div class="card">
+<h4>🧩 趋势四：数字生活碎片化，缺乏统一的"生活仪表盘"</h4>
+<p>一个普通用户的数字生活散落在 30+ App：信用卡账单在银行 App、物流在电商 App、行程在携程/12306、外卖在美团/饿了么、会议在公司 OA。<strong>没有任何一个入口能回答"我今天要做什么"这个简单问题</strong>。聚合的价值随碎片化程度加深而放大。</p>
+</div>
+</div>
+
+<div class="callout warn"><strong>监管环境的另一面：</strong>《个人信息保护法》《生成式人工智能服务管理暂行办法》提高了数据与 AI 产品的合规门槛，对小团队是成本，但对"以隐私为卖点"的产品是<strong>护城河</strong>——大厂的广告商业模式反而使其难以承诺"绝不用你的数据变现"。</div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+<h2>3. 目标市场与用户画像</h2>
+
+<h3>3.1 市场分层</h3>
+<div class="grid4">
+  <div class="kpi"><div class="num">1.25亿+</div><div class="lbl">中国独居家庭户（情感+管家需求基本盘）</div></div>
+  <div class="kpi"><div class="num">~2.4亿</div><div class="lbl">一二线 25–40 岁新中产（核心付费人群）</div></div>
+  <div class="kpi"><div class="num">¥20–30/月</div><div class="lbl">AI 订阅心理价位（参照视频会员）</div></div>
+  <div class="kpi"><div class="num">2.8亿+</div><div class="lbl">60 岁以上人口（银发语音交互延展市场）</div></div>
+</div>
+
+<table>
+<tbody><tr><th>层级</th><th>人群</th><th>核心诉求</th><th>对应模块</th></tr>
+<tr><td><strong>核心层（MVP 主攻）</strong></td><td>25–40 岁一二线城市白领/新中产</td><td>效率焦虑：账单、行程、会议统一管理；对微信臃肿疲劳</td><td>提醒 + AI + 对话</td></tr>
+<tr><td><strong>增长层（V2 扩展）</strong></td><td>企业中高层 + 其秘书/行政</td><td>差旅行程、会议接待有人代录，自己只看"今日时间线"</td><td>提醒（秘书后台）+ AI</td></tr>
+<tr><td><strong>延展层（V3 探索）</strong></td><td>家庭主理人、银发群体</td><td>家庭账单代缴、子女远程关怀、语音交互</td><td>圈子（家庭圈）+ AI（语音）</td></tr>
+</tbody></table>
+
+<h3>3.2 典型用户画像（Persona）</h3>
+<div class="grid2">
+<div class="card persona">
+<h4>👨‍💼 画像 A：陈默，32 岁，互联网公司中层</h4>
+<ul>
+<li><strong>痛点：</strong>每月 6 张信用卡 + 房贷 + 车贷，还款日靠脑子记；出差频繁，机票酒店行程散落在 5 个 App；微信群 200+，真正重要的消息被淹没。</li>
+<li><strong>使用场景：</strong>早上 8 点 AI 推送今日时间线（10 点会议、下午 3 点高铁、招行信用卡后天到期）；高铁上语音让 AI 把周日聚会安排进日程并通知朋友。</li>
+<li><strong>付费意愿：</strong>高。愿为"不漏事"付费 30 元/月。</li>
+</ul>
+</div>
+<div class="card persona">
+<h4>👩‍💼 画像 B：林秘书，28 岁，董事长行政助理</h4>
+<ul>
+<li><strong>痛点：</strong>老板的出差、会议、接待安排靠微信一条条发，老板经常漏看；临时改行程要逐个通知。</li>
+<li><strong>使用场景：</strong>在网页后台批量录入老板下周行程 → 自动同步到老板的"提醒"时间线 → 行程变更一键更新并 AI 语音播报给老板。</li>
+<li><strong>价值：</strong>B 端付费入口（企业版按席位收费）。</li>
+</ul>
+</div>
+<div class="card persona">
+<h4>🧑‍🎓 画像 C：苏苏，26 岁，独居设计师</h4>
+<ul>
+<li><strong>痛点：</strong>独居，社交圈窄；外卖快递等位信息零散；深夜想找人说话但不想"打扰"真人朋友。</li>
+<li><strong>使用场景：</strong>AI 分身陪聊、提醒取快递；在兴趣圈（插画圈）认识同城朋友后转到"对话"单聊。</li>
+<li><strong>价值：</strong>高活跃度 + 口碑传播者。</li>
+</ul>
+</div>
+<div class="card persona">
+<h4>👴 画像 D：王阿姨，63 岁，退休教师（V3 阶段）</h4>
+<ul>
+<li><strong>痛点：</strong>水电煤缴费忘记、挂号抢号难、子女不在身边。</li>
+<li><strong>使用场景：</strong>全程语音："小伴，明天提醒我交电费"；子女远程绑定家庭圈，代她管理账单并收到异常提醒。</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+<h2>4. 竞品分析与差异化定位</h2>
+<table>
+<tbody><tr><th>产品</th><th>它强在哪</th><th>它的软肋</th><th>「伴」怎么打</th></tr>
+<tr><td><strong>微信</strong></td><td>关系链垄断、生态全</td><td>臃肿、广告多、永远不会为"个人效率"做深（商业模式不允许）</td><td>不打关系链正面战场，打"重要的少数人 + 个人事务"场景；支持通讯录导入降低冷启动</td></tr>
+<tr><td><strong>豆包/Kimi/文心</strong></td><td>大模型能力强、免费</td><td>无生活数据、无社交、用完即走，是"工具"不是"管家"</td><td>用"数据聚合 + 主动服务"差异化：它不找你，你找它；「伴」是反过来</td></tr>
+<tr><td><strong>支付宝</strong></td><td>账单/缴费数据最全</td><td>社交失败史、AI 能力弱、工具属性重</td><td>账单数据通过授权对接为我所用，不正面竞争</td></tr>
+<tr><td><strong>飞书/钉钉</strong></td><td>工作场景垄断</td><td>生活场景绝缘体</td><td>工作事务只做"轻录入+提醒"，不做协同办公</td></tr>
+<tr><td><strong>苹果提醒/日历/记账App</strong></td><td>系统级、免费</td><td>被动记录、无 AI 主动性、无社交</td><td>它们是"记事本"，「伴」是"秘书"</td></tr>
+</tbody></table>
+
+<div class="callout"><strong>差异化定位总结：</strong>三个坐标轴上同时占位 —— <strong>通讯简洁度（对标微信做减法）× 生活数据聚合度（对标支付宝做连接）× AI 主动智能度（对标大模型做场景）</strong>。任何单一维度的竞品都无法覆盖这个组合。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+<h2>5. 产品总体架构</h2>
+
+<h3 id="s5-1">5.1 信息架构（IA）</h3>
+<p>底部 5 个 Tab + 全局 AI 悬浮入口（任何页面可唤起）。AI 不是第 5 个 Tab 的附属，而是<strong>贯穿所有模块的中枢</strong>——Tab 5 只是它的"全屏对话形态"。</p>
+
+<div class="tab-bar"><div>💬 对话</div><div>⏰ 提醒</div><div>🌐 圈子</div><div>👤 我的</div><div class="on">✨ AI</div></div>
+<div class="card" style="border-top:none;border-radius:0 0 14px 14px;margin-top:0;">
+<pre style="font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--text-2);">对话 ── 单聊 / 群聊（文字、语音、图片、位置、文件）
+        └─ 会话内 AI 能力：智能总结未读、代拟回复、语音转文字
+
+提醒 ── 今日时间线（聚合视图）
+        ├─ 工作事务（秘书后台录入：出差/会议/接待/拜访）
+        ├─ 金融账单（信用卡/贷款/水电煤/物业/话费）
+        ├─ 消费进度（电商物流/外卖/排队等位/票务）
+        ├─ 出行行程（机票/酒店/火车/打车）
+        └─ 手动创建 + AI 从对话中自动识别生成
+
+圈子 ── 群空间（基于对话群的动态圈）
+        ├─ 朋友圈（纯时间序，无算法、无广告）
+        ├─ 兴趣圈（公开主题社区，可发现新朋友）
+        └─ 家庭圈（账单共享、远程关怀）
+
+我的 ── 钱包 / 会员订阅 / 设置
+        ├─ 账号授权中心（第三方平台授权管理仪表盘）
+        ├─ AI 设置（模型选择、人格、声音、记忆管理）
+        ├─ 我的画像（AI 生成的多维画像可视化）
+        └─ 隐私中心（数据导出、删除、授权撤回）
+
+AI  ── 全屏对话（文字/语音/图片）
+        ├─ 角色切换：管家 / 秘书 / 分身 / 树洞
+        ├─ 主动服务：每日简报、异常预警、智能建议
+        └─ 跨模块调度：一句话创建提醒、发消息、查账单
+</pre>
+</div>
+
+<h3 id="s5-2">5.2 技术架构</h3>
+<div class="arch"><b>┌─ 客户端层 ──────────────────────────────────────────────┐</b>
+│  iOS / Android（Flutter 跨端） + 网页管理后台（秘书端/React）│
+└──────────────────────────┬───────────────────────────────┘
+                           │ HTTPS / WSS
+<b>┌─ 接入层 ───────────────┴───────────────────────────────┐</b>
+│  API 网关 │ 长连接网关（IM） │ 鉴权中心 │ 限流/风控        │
+└──────────────────────────┬───────────────────────────────┘
+<b>┌─ 业务服务层（微服务）───┴───────────────────────────────┐</b>
+│  IM 消息服务   │ 提醒/日程服务 │ 圈子动态服务 │ 钱包服务    │
+│  <i>数据聚合服务</i>（第三方对接：账单/电商/出行/邮件解析）   │
+│  秘书后台服务（企业事务录入 → 同步用户时间线）              │
+└──────────────────────────┬───────────────────────────────┘
+<b>┌─ AI 中台（核心壁垒）────┴───────────────────────────────┐</b>
+│  大模型网关（多模型路由：自研+第三方，可切换）              │
+│  <i>Agent 编排引擎</i>：意图识别 → 工具调用 → 跨模块执行    │
+│  <i>用户记忆系统</i>：短期会话记忆 + 长期事实记忆（RAG）     │
+│  <i>画像引擎</i>：多维标签 + 行为序列 → 用户画像图谱         │
+│  主动服务引擎：事件触发 / 定时任务 / 异常检测               │
+└──────────────────────────┬───────────────────────────────┘
+<b>┌─ 数据层 ───────────────┴───────────────────────────────┐</b>
+│  消息库（端到端加密可选）│ 用户数据 Vault（账单/行程，加密） │
+│  向量库（记忆/画像）│ 图数据库（关系链+画像图谱）│ 对象存储  │
+└──────────────────────────────────────────────────────────┘</div>
+
+<div class="callout"><strong>架构要点：</strong>① <strong>AI 中台是独立层</strong>，所有业务服务对它暴露工具接口（Tool API），AI 通过 Agent 编排跨模块调度——这是"AI 是中枢而非功能"在技术上的落点。② <strong>数据聚合服务与 AI 中台解耦</strong>，第三方对接的脏活累活收敛在一个服务里，便于逐个平台灰度上线。③ <strong>用户敏感数据进 Vault 加密存储</strong>，密钥与画像数据分离，支撑第 10 章的合规承诺。</div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+<h2>6. 五大模块功能设计</h2>
+
+<h3 id="s6-1">6.1 对话 —— 做"三无一有"的纯粹通讯</h3>
+<div class="card">
+<p><strong>设计原则：无广告、无信息流、无商业入口，有温度。</strong>只保留"和人在说话"所需要的一切，多一样都不加。</p>
+<table>
+<tbody><tr><th>功能</th><th>说明</th><th>优先级</th></tr>
+<tr><td>单聊/群聊</td><td>文字、语音条、图片、位置、文件；语音支持倍速播放与转文字</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>语音通话</td><td>1v1 语音（视频放 P2，克制）</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td>会话分组/折叠</td><td>"重要的人"置顶区，其余自动折叠，信息降噪</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td>AI 未读总结</td><td>长按群聊 → AI 总结 99+ 未读为 3 行要点（不读原文也能接话）</td><td><span class="tag tag-p1">P0·差异化</span></td></tr>
+<tr><td>AI 代拟回复</td><td>输入框唤起 AI，根据聊天上下文生成语气可选的回复草稿</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td>对话内转提醒</td><td>长按消息 → "设为提醒"（AI 自动提取时间地点事项）</td><td><span class="tag tag-p1">P0·打通模块</span></td></tr>
+<tr><td>阅后即焚/定时消息</td><td>可选的轻隐私功能</td><td><span class="tag tag-p3">P2</span></td></tr>
+</tbody></table>
+<p><strong>明确不做：</strong>朋友圈广告、小程序平台（早期）、视频号/直播、公众号、游戏分发、支付场景补贴大战。<strong>每一个"不做"都是写给用户的承诺书。</strong></p>
+</div>
+
+<h3 id="s6-2">6.2 提醒 —— 产品的心脏：全方位"今日时间线"</h3>
+<div class="card">
+<p><strong>核心理念：从"人记事"到"事找人"。</strong>所有事项无论来源，统一汇入一条按时间排序的"今日时间线"，AI 负责聚合、排序、提醒、预警冲突。</p>
+
+<h4>事项的四大来源</h4>
+<div class="flow">
+<span class="node">① 第三方自动对接</span><span class="arrow">→</span>
+<span class="node">② 他人代录（秘书/家人）</span><span class="arrow">→</span>
+<span class="node">③ AI 从对话/邮件/短信识别</span><span class="arrow">→</span>
+<span class="node">④ 用户手动创建</span><span class="arrow">→</span>
+<span class="node">统一时间线</span>
+</div>
+
+<h4>场景清单（按对接难度分级）</h4>
+<table>
+<tbody><tr><th>类别</th><th>场景</th><th>数据来源与对接方式</th><th>优先级</th></tr>
+<tr><td rowspan="3"><strong>工作事务</strong></td><td>出差行程</td><td>秘书网页后台录入（本产品的 B 端入口）→ 实时同步老板时间线；同时可被航旅/酒店数据自动校验补充</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>会议/接待/拜访</td><td>秘书后台 + 手动创建 + AI 从对话识别（"明天下午三点和张总开会"→ 自动建提醒）</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>OA/邮箱日历同步</td><td>CalDAV/Exchange/企业微信日历只读同步（V2）</td><td><span class="tag tag-p3">P2</span></td></tr>
+<tr><td rowspan="3"><strong>金融账单</strong></td><td>信用卡还款</td><td>账单日/还款日：① 银行账单邮件解析（授权邮箱）② 银联云闪付开放接口 ③ 手动录入兜底</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>贷款（房贷/车贷/消费贷）</td><td>手动创建一次 → AI 自动生成每期循环提醒 + 金额变动校验</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>水电煤/物业/话费</td><td>政务/公共事业缴费平台对接（各地差异大）→ 中期以"缴费提醒模板 + 支付宝/微信缴费记录导入"过渡</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td rowspan="3"><strong>消费进度</strong></td><td>电商物流（京东/天猫/拼多多）</td><td>① 官方开放接口/联盟 ② 授权读取发货短信与邮件 ③ 用户转发物流短信给 AI 解析</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td>外卖/排队等位</td><td>美团/饿了么/美味不用等开放能力有限 → 以"截图给 AI 识别"与"分享卡片到伴"做轻对接</td><td><span class="tag tag-p3">P2</span></td></tr>
+<tr><td>票务（电影/演出/挂号）</td><td>短信/邮件解析 + 日历文件（.ics）识别</td><td><span class="tag tag-p2">P1</span></td></tr>
+<tr><td rowspan="2"><strong>出行行程</strong></td><td>机票/火车</td><td>航旅纵横/12306 出票短信与邮件解析（成功率 95%+）→ 自动生成含值机/检票口/晚点预警的行程卡</td><td><span class="tag tag-p1">P0</span></td></tr>
+<tr><td>酒店（携程等）</td><td>订单邮件解析；入住当天时间线自动出现"今日入住"卡片含地址导航</td><td><span class="tag tag-p1">P0</span></td></tr>
+</tbody></table>
+
+<h4>时间线的智能能力</h4>
+<ul>
+<li><strong>冲突预警：</strong>"周六下午你已答应同学聚会，系统检测到 14:00 有一张三亚航班，是否调整？"</li>
+<li><strong>链式提醒：</strong>出差 = 机票 + 酒店 + 报销提醒 + 目的地天气，自动打包成一个"行程集"。</li>
+<li><strong>异常检测：</strong>信用卡账单金额环比突增 50% → AI 主动询问是否需要查看明细。</li>
+<li><strong>免打扰节律：</strong>23:00–7:00 静默，紧急事项（航班取消）才穿透。</li>
+</ul>
+</div>
+</section></main></div>
+
+<h3 id="s6-3">6.3 圈子 —— 反算法的社交连接</h3>
+<div class="card">
+<table>
+<tbody><tr><th>功能</th><th>说明</th><th>设计要点</th></tr>
+<tr><td><strong>群空间</strong></td><td>每个群自动拥有一个共享空间：群相册、群日程、群文件、群接龙</td><td>群不只是聊天，是"一个小圈子的共同记忆"，与提醒模块打通（群日程进个人时间线）</td></tr>
+<tr><td><strong>朋友圈</strong></td><td>纯时间序动态：文字/图片/语音日记</td><td><strong>无算法推荐、无广告、无点赞排行</strong>；可设"仅本月可见"等轻隐私粒度</td></tr>
+<tr><td><strong>兴趣圈</strong></td><td>公开主题社区（徒步/读书/养猫…），可发帖、约活动</td><td>承担"认识新朋友→沉淀为对话关系"的增长飞轮，是社交冷启动的引擎</td></tr>
+<tr><td><strong>家庭圈</strong></td><td>家庭成员共享账单提醒、位置关怀（授权制）、代办指派</td><td>面向家庭主理人与银发场景的关键抓手（V2–V3）</td></tr>
+<tr><td><strong>AI 在圈子里</strong></td><td>可@AI 总结讨论、发起投票、把群聊结论一键变日程</td><td>AI 是圈子的"公共秘书"，强化中枢定位</td></tr>
+</tbody></table>
+</div>
+
+<h3 id="s6-4">6.4 我的 —— 个人数字资产的总控台</h3>
+<div class="card">
+<table>
+<tbody><tr><th>板块</th><th>功能</th><th>备注</th></tr>
+<tr><td><strong>钱包</strong></td><td>余额、会员订阅、账单代缴费入口</td><td>支付牌照是重资产，早期接微信/支付宝支付通道即可，不做金融野心</td></tr>
+<tr><td><strong>账号授权中心</strong></td><td>所有第三方授权（邮箱、电商、航旅、银行）的统一仪表盘：已授权什么、读了哪些数据、一键撤回</td><td><strong>这是信任工程的核心界面</strong>，要做到行业最透明</td></tr>
+<tr><td><strong>AI 设置</strong></td><td>模型选择（自研/GPT/Claude/国产模型路由）、人格与称呼、声音克隆、记忆查看与编辑（"AI 记住了我什么"逐条可删）</td><td>记忆透明化是差异化信任点</td></tr>
+<tr><td><strong>我的画像</strong></td><td>AI 基于对话与行为生成的多维画像：<strong>兴趣图谱、消费结构、社交节律、日程密度、情绪曲线、关注领域</strong>，可视化呈现，用户可修正</td><td>见第 7 章；支持导出，向用户证明"画像属于你"</td></tr>
+<tr><td><strong>隐私中心</strong></td><td>数据导出（全量打包）、账号注销、端到端加密开关、设备管理</td><td>合规刚需 + 品牌承诺</td></tr>
+<tr><td><strong>通用设置</strong></td><td>通知节律、主题、字体（关怀模式大字体为银发铺路）</td><td>—</td></tr>
+</tbody></table>
+</div>
+
+<h3 id="s6-5">6.5 AI —— 中枢：管家、秘书、分身、树洞</h3>
+<div class="card">
+<h4>四种角色（一套底座，四套人格与权限）</h4>
+<table>
+<tbody><tr><th>角色</th><th>定位</th><th>典型交互</th></tr>
+<tr><td><strong>🤵 管家</strong></td><td>主动型生活管理：时间线、账单、行程、预警</td><td>"你明天 7:40 出门才不迟到，我叫车吗？"</td></tr>
+<tr><td><strong>📋 秘书</strong></td><td>执行型：代写、代回、代约、代查，跨 App 操作</td><td>"帮我把周四下午的会推到周五，并通知参会的三个人"</td></tr>
+<tr><td><strong>🪞 分身</strong></td><td>了解你的一切，能"以你的口吻"起草内容、回答朋友的问题（需你确认才发送）</td><td>"以我的风格回一下这条消息" / 面试前"模拟 HR 问我问题"</td></tr>
+<tr><td><strong>🕳️ 树洞</strong></td><td>情绪陪伴：不评判、不给建议除非你要，纯倾听（独居与深夜场景）</td><td>"今天好累。" —— "我在，你说。"</td></tr>
+</tbody></table>
+
+<h4>AI 的三类交互形态</h4>
+<ul>
+<li><strong>全屏对话（Tab 5）：</strong>文字/语音/图片多模态，支持连续任务（"帮我规划下周杭州出差"→ 查票→比价→建行程→问你确认）。</li>
+<li><strong>全局悬浮球：</strong>任何页面唤起，承接"当下语境"——在对话页唤起即带着聊天记录，在提醒页唤起即带着当日时间线。</li>
+<li><strong>主动服务卡片：</strong>AI 不等用户开口，在提醒页顶部、对话页顶部推送每日简报与预警（频率克制，宁缺毋滥）。</li>
+</ul>
+</div>
+
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+<h2>7. AI 中台与用户画像体系</h2>
+
+<h3>7.1 数据飞轮（产品最核心的增长引擎）</h3>
+<div class="flow">
+<span class="node">用户行为与授权数据</span><span class="arrow">→</span>
+<span class="node">记忆系统（事实+偏好）</span><span class="arrow">→</span>
+<span class="node">多维画像</span><span class="arrow">→</span>
+<span class="node">更准的主动服务</span><span class="arrow">→</span>
+<span class="node">更多使用与授权</span><span class="arrow">↺</span>
+</div>
+<p>飞轮一旦转动，<strong>迁移成本随时间线性增长</strong>——用户用了 18 个月的 AI 管家，比微信的关系链更难离开，因为微信记录的是"你认识谁"，「伴」记录的是"你是谁"。</p>
+
+<h3>7.2 画像维度设计（"我的"模块可视化呈现）</h3>
+<div class="grid3">
+<div class="card"><h4>🎯 兴趣图谱</h4><p>从对话与圈子中提取的兴趣标签云（如：徒步/手冲咖啡/科幻），标注置信度与时间衰减。</p></div>
+<div class="card"><h4>💳 消费结构</h4><p>聚合账单数据生成月度消费画像：餐饮/出行/数码占比、消费节律、冲动指数。</p></div>
+<div class="card"><h4>🤝 社交图谱</h4><p>亲密度分层（家人/密友/同事/弱连接）、响应模式、社交能量曲线（何时爱聊天）。</p></div>
+<div class="card"><h4>📅 时间画像</h4><p>日程密度热力图、通勤规律、差旅频率 → 支撑"何时提醒最合适"。</p></div>
+<div class="card"><h4>🌊 情绪曲线</h4><p>基于对话语义的周/月情绪波动（仅端内可见，绝不用于广告），异常低谷时树洞角色主动关怀。</p></div>
+<div class="card"><h4>🧠 偏好档案</h4><p>AI 记住的事实清单："不吃香菜""喜欢靠窗座位""周三晚上打球"——逐条可见、可改、可删。</p></div>
+</div>
+
+<div class="callout danger"><strong>画像的三条铁律（写进产品宪法）：</strong>① 画像<strong>只对用户本人可见与可用</strong>，不向任何第三方出售、不用于广告定向；② 每个画像结论都支持"查看依据 + 一键修正/删除"；③ 敏感维度（健康、政治、宗教）<strong>永不推断</strong>。违背任何一条，产品的信任根基即告崩塌。</div>
+
+<h3>7.3 记忆系统分层</h3>
+<table>
+<tbody><tr><th>层</th><th>内容</th><th>存储与生命周期</th></tr>
+<tr><td>会话记忆</td><td>当前对话上下文</td><td>会话结束即压缩归档</td></tr>
+<tr><td>事实记忆</td><td>用户明确告知的事实（生日、忌口、车牌号）</td><td>向量库长期存储，用户可逐条管理</td></tr>
+<tr><td>行为记忆</td><td>行为序列归纳的模式（每周五加班、月初还贷）</td><td>定期重算，置信度随样本更新</td></tr>
+<tr><td>画像层</td><td>由上述记忆聚合出的多维标签图谱</td><td>图数据库，支持解释与回溯</td></tr>
+</tbody></table>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+<h2>8. 第三方数据对接策略（最难也最值钱的部分）</h2>
+<p>提醒模块的成败取决于数据接入的广度与稳定性。现实是：大厂不会为一个新产品开放核心接口。因此采用<strong>三层递进策略</strong>，同一数据源能直连则直连，不能直连走授权，都不行用解析兜底：</p>
+<table>
+<tbody><tr><th>层级</th><th>方式</th><th>适用场景</th><th>成本/风险</th></tr>
+<tr><td><strong>L1 官方直连</strong></td><td>开放平台 API、商务合作</td><td>航旅类、部分公共事业缴费、企业 OA</td><td>慢，需要 BD 逐个谈；最稳定</td></tr>
+<tr><td><strong>L2 用户授权</strong></td><td>OAuth 授权、邮箱授权读取（IMAP/Gmail API）、.ics 日历订阅</td><td>账单邮件（银行出账单 100% 发邮件）、酒店/机票确认邮件</td><td>合规路径清晰；覆盖率取决于用户授权率，需把"授权收益"讲透</td></tr>
+<tr><td><strong>L3 智能解析</strong></td><td>AI 解析用户转发/截图的短信、订单页、聊天消息（端侧 OCR + LLM 结构化）</td><td>物流短信、外卖截图、等位页面、任何长尾来源</td><td><strong>这是大模型时代的杀手锏</strong>：不用谈任何商务，覆盖一切数据源；用户一键转发即完成对接</td></tr>
+</tbody></table>
+<div class="callout"><strong>战略判断：</strong>L3 是本产品冷启动的关键路径——AI 解析能力让"对接京东携程"这个原本需要百人 BD 团队的事，变成"用户把短信转发给 AI"的产品功能。L1/L2 随规模逐步补上提升自动化率。<strong>第一期聚焦：银行账单邮件 + 航旅酒店确认邮件 + 短信转发解析</strong>，三个就能覆盖 80% 高频提醒场景。</div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+<h2>9. 商业模式</h2>
+<div class="grid2">
+<div class="card">
+<h4>💎 C 端订阅（主收入）</h4>
+<ul>
+<li><strong>免费版：</strong>完整通讯 + 基础提醒（手动+解析）+ AI 每日 20 轮对话</li>
+<li><strong>Pro ¥25/月：</strong>无限 AI、第三方自动对接（L1/L2）、AI 未读总结、画像报告、主动服务全量</li>
+<li><strong>Pro+ ¥45/月：</strong>分身角色、声音克隆、家庭共享（最多 5 人）、专属模型通道</li>
+</ul>
+</div>
+<div class="card">
+<h4>🏢 B 端秘书版 SaaS（第二曲线）</h4>
+<ul>
+<li>企业行政/秘书后台：高管时间线管理、接待安排、差旅同步</li>
+<li>按席位收费（如 ¥99/秘书/月，高管免费绑定）</li>
+<li>天然获客路径：秘书录入 → 老板装 App → 老板全家/朋友扩散</li>
+</ul>
+</div>
+<div class="card">
+<h4>🧩 增值与生态（远期）</h4>
+<ul>
+<li>云存储扩容、专属声音/形象、AI 技能市场（第三方 Agent 上架分成）</li>
+<li>缴费代办抽佣（水电煤代缴通道）</li>
+</ul>
+</div>
+<div class="card">
+<h4>🚫 明确不做的收入</h4>
+<ul>
+<li><strong>不做广告</strong>——这是与微信差异的品牌根基，写入产品宪法</li>
+<li><strong>不卖数据</strong>——画像数据的商业化即信任破产</li>
+<li><strong>不做金融放贷导流</strong>——账单数据毗邻金融，诱惑大，必须克制</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+<h2>10. 合规与隐私</h2>
+<table>
+<tbody><tr><th>合规项</th><th>要求</th><th>落地动作</th></tr>
+<tr><td>生成式 AI 备案</td><td>《生成式人工智能服务管理暂行办法》</td><td>上线前完成算法备案与安全评估；接入第三方模型也需履行备案义务</td></tr>
+<tr><td>个人信息保护</td><td>《个保法》：敏感个人信息单独同意</td><td>账单/行程属敏感信息，逐项授权、可撤回；授权中心实时可查</td></tr>
+<tr><td>数据安全</td><td>《数据安全法》分级分类</td><td>用户 Vault 加密存储、密钥分离、境内存储</td></tr>
+<tr><td>IM 内容安全</td><td>即时通讯内容合规义务</td><td>文本/图片/语音审核体系（机审+人审）；端到端加密会话的合规方案需专项设计</td></tr>
+<tr><td>金融数据边界</td><td>账单数据不得用于信贷导流等未授权用途</td><td>数据用途白名单制，写进隐私政策的醒目位置</td></tr>
+<tr><td>未成年人</td><td>未成年人模式</td><td>AI 对话内容过滤、时长限制、树洞角色未成年人专项安全策略</td></tr>
+</tbody></table>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+<h2>11. MVP 路线图</h2>
+<table>
+<tbody><tr><th>阶段</th><th>周期</th><th>目标</th><th>交付范围</th></tr>
+<tr><td><strong>P0 概念验证</strong></td><td>M1–M3</td><td>验证"AI 时间线"是否成立</td><td>AI 对话（管家角色）+ 手动提醒 + 邮件/短信解析 + 今日时间线。内测 1,000 人</td></tr>
+<tr><td><strong>P1 核心闭环</strong></td><td>M4–M8</td><td>五模块骨架完整，跑通飞轮</td><td>+ 纯对话 IM（单聊/群聊）、朋友圈、授权中心、AI 未读总结、画像 V1、Pro 订阅上线。目标 10 万注册</td></tr>
+<tr><td><strong>P2 B 端破局</strong></td><td>M9–M14</td><td>秘书版 SaaS 验证付费</td><td>+ 秘书网页后台、企业版、兴趣圈、语音通话、家庭圈。目标 100 万注册 / 付费率 5%</td></tr>
+<tr><td><strong>P3 生态扩展</strong></td><td>M15+</td><td>画像飞轮 + 银发/家庭场景</td><td>+ 分身角色、声音克隆、关怀模式、AI 技能市场</td></tr>
+</tbody></table>
+<div class="callout warn"><strong>克制建议：</strong>冷启动期不要把五个模块一起重推。<strong>先用"AI + 提醒"单点打透</strong>（这个组合市面上没有对手），让用户为"不漏事"而来，再靠圈子/对话提升留存。通讯模块早期只服务"已经在用管家的人互相连接"，不去正面抢微信关系链。</div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+<h2>12. 风险与挑战</h2>
+<table>
+<tbody><tr><th>风险</th><th>等级</th><th>应对策略</th></tr>
+<tr><td><strong>微信降维打击</strong>（微信推出 AI 管家/智能总结）</td><td><span class="tag tag-p1">高</span></td><td>微信的商业模型（广告+流量分发）决定它无法承诺"无广告、不卖数据"；我们拼的是"克制"这张牌，大厂抄不动。同时快速积累画像数据形成迁移成本</td></tr>
+<tr><td><strong>第三方数据对接受阻</strong>（接口不开放、解析被对抗）</td><td><span class="tag tag-p1">高</span></td><td>三层策略兜底（第 8 章）；L3 用户主动转发路径不可被封锁，保证体验下限</td></tr>
+<tr><td><strong>AI 推理成本失控</strong></td><td><span class="tag tag-p2">中</span></td><td>多模型路由（简单意图走小模型/端侧模型）；订阅制天然对冲成本；主动服务做频率预算</td></tr>
+<tr><td><strong>隐私安全事故</strong>（一次即致命）</td><td><span class="tag tag-p1">高</span></td><td>Vault 加密+密钥分离；画像端侧优先计算；安全投入前置，不等出事再补</td></tr>
+<tr><td><strong>监管变化</strong>（AI 备案、IM 内容责任收紧）</td><td><span class="tag tag-p2">中</span></td><td>合规先行（第 10 章）；保留"通讯可独立运营"的降级方案</td></tr>
+<tr><td><strong>社交冷启动失败</strong>（没有朋友在用，对话模块空转）</td><td><span class="tag tag-p2">中</span></td><td>接受它——前期对话服务"管家用户间的小圈层"而非全民关系链；兴趣圈承担增量连接</td></tr>
+</tbody></table>
+
+<div class="callout" style="margin-top:24px;"><strong>最终判断：</strong>这个产品真正在赌的是一件事 —— <strong>AI 时代的"微信"不会是微信自己长出来的</strong>。微信的组织基因决定它做不出一个"克制、无广告、为你个人服务"的产品。窗口期大约 2–3 年，拼的是谁先让 1000 万用户的 AI"离不开自己的生活数据"。建议以"AI 时间线管家"为楔子单点切入，社交做留存，画像做壁垒。</div>
+</section>
+
+<p style="text-align:center;color:var(--text-3);font-size:12.5px;margin-top:48px;">「伴」产品设计方案 V1.0 · 2026-09 · 供内部讨论，欢迎拍砖</p>
+
+
+
+
+</body></html>
