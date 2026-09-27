@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「伴」AI 社交管家 — 交互原型 V2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F2EA;
+  --paper-2:#EFEAE0;
+  --ink:#1B1E26;
+  --ink-2:#4A4F5A;
+  --ink-3:#969BA6;
+  --line:#E3DDCE;
+  --brand:#E8552F;          /* 柿红 */
+  --brand-soft:#FDEEE7;
+  --teal:#0E7C6B;
+  --ai1:#155E75; --ai2:#0E9488; /* 青鸾 */
+  --ai-grad:linear-gradient(120deg,#155E75,#0E9488 60%,#35B8A6);
+  --card:#FFFFFF;
+  --radius:18px;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans),"Noto Color Emoji",sans-serif;background:var(--paper);color:var(--ink);line-height:1.7;overflow-x:hidden}
+::selection{background:var(--brand);color:#fff}
+button{font-family:inherit;border:none;background:none;cursor:pointer}
+
+/* ---------- 纹理与氛围 ---------- */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.aurora{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;pointer-events:none}
+
+/* ---------- 通用版式 ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+section{padding:110px 0}
+.sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:14px}
+.sec-no{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--brand);letter-spacing:.15em}
+.sec-title{font-family:var(--serif);font-size:clamp(26px,3.4vw,40px);font-weight:900;letter-spacing:.02em}
+.sec-desc{color:var(--ink-2);font-size:15px;max-width:640px;margin-bottom:48px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:64px 0 90px;overflow:hidden}
+.hero .aurora.a{width:520px;height:520px;background:#F8C8B4;top:-180px;right:-100px}
+.hero .aurora.b{width:420px;height:420px;background:#BFE6DD;bottom:-220px;left:-120px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:88px;position:relative;z-index:2}
+.brandmark{display:flex;align-items:center;gap:12px}
+.brandmark .zi{width:44px;height:44px;border-radius:13px;background:var(--ink);color:#F5F2EA;display:grid;place-items:center;font-family:var(--serif);font-size:24px;font-weight:900;box-shadow:4px 4px 0 var(--brand)}
+.brandmark .meta b{font-family:var(--serif);font-size:17px;display:block;line-height:1.2}
+.brandmark .meta span{font-size:11.5px;color:var(--ink-3);letter-spacing:.12em}
+.top-links{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
+.top-links a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:.25s}
+.top-links a:hover{color:var(--brand);border-color:var(--brand)}
+.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:60px;align-items:end;position:relative;z-index:2}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.2em;color:var(--teal);margin-bottom:22px}
+.kicker::before{content:"";width:26px;height:2px;background:var(--teal)}
+h1{font-family:var(--serif);font-size:clamp(40px,5.6vw,72px);font-weight:900;line-height:1.22;letter-spacing:.01em}
+h1 .han{color:var(--brand);position:relative}
+h1 em{font-style:normal;background:var(--ai-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{margin-top:26px;font-size:16px;color:var(--ink-2);max-width:560px}
+.hero-sub strong{color:var(--ink)}
+.hero-cta{margin-top:38px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:99px;font-size:14.5px;font-weight:700;text-decoration:none;transition:.3s cubic-bezier(.2,.7,.2,1)}
+.btn-ink{background:var(--ink);color:#F5F2EA}
+.btn-ink:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(27,30,38,.45)}
+.btn-ghost{border:1.5px solid var(--ink);color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+.hero-right{position:relative}
+.constitution{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;box-shadow:0 24px 50px -30px rgba(27,30,38,.25);transform:rotate(1.5deg)}
+.constitution h4{font-family:var(--serif);font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.constitution li{list-style:none;font-size:13.5px;color:var(--ink-2);padding:8px 0 8px 26px;position:relative;border-bottom:1px dashed var(--line)}
+.constitution li:last-child{border:none}
+.constitution li::before{content:"";position:absolute;left:4px;top:16px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.hero-stats{display:flex;gap:44px;margin-top:70px;position:relative;z-index:2}
+.stat b{font-family:var(--serif);font-size:30px;font-weight:900;display:block}
+.stat b i{font-style:normal;font-size:15px;color:var(--brand)}
+.stat span{font-size:12.5px;color:var(--ink-3)}
+
+/* ---------- 原型舞台 ---------- */
+.prototype{background:linear-gradient(180deg,var(--paper) 0%,#EBE6D9 100%);position:relative;overflow:hidden}
+.stage{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;max-width:1240px;margin:0 auto;padding:0 30px}
+.note{font-size:13px;color:var(--ink-2);background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:14px;padding:14px 16px;backdrop-filter:blur(4px);box-shadow:0 10px 24px -18px rgba(27,30,38,.4);margin-bottom:120px;position:relative;max-width:250px}
+.note b{color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px}
+.note .no{position:absolute;top:-11px;left:-11px;width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;font-family:var(--serif)}
+.note.right .no{left:auto;right:-11px;background:var(--teal)}
+.note.ai .no{background:var(--ai2)}
+.note:nth-child(even){margin-left:36px}
+.note.right:nth-child(even){margin-left:0;margin-right:36px}
+@media(max-width:1080px){.side{display:none}.stage{grid-template-columns:1fr;justify-items:center}}
+
+/* ---------- 手机 ---------- */
+.phone{width:392px;height:820px;background:#14161C;border-radius:56px;padding:11px;position:relative;flex-shrink:0;
+  box-shadow:0 60px 120px -40px rgba(27,30,38,.55),0 0 0 2px #3A3E48,inset 0 0 0 2px #000}
+.screen-wrap{position:relative;width:100%;height:100%;border-radius:46px;overflow:hidden;background:#F7F5F0}
+.island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:112px;height:30px;background:#0B0C10;border-radius:99px;z-index:60}
+.statusbar{position:absolute;top:0;left:0;right:0;height:46px;z-index:55;display:flex;justify-content:space-between;align-items:center;padding:8px 26px 0;font-size:13.5px;font-weight:700;pointer-events:none}
+.statusbar .sicons{display:flex;gap:6px;align-items:center;font-size:11px}
+.moon{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#2A2E38;color:#F6D365;font-size:10px}
+.screen{position:absolute;inset:0;padding-top:46px;overflow-y:auto;overscroll-behavior:contain;display:none;scrollbar-width:none;animation:screenIn .38s cubic-bezier(.2,.7,.2,1)}
+.screen::-webkit-scrollbar{display:none}
+.screen.on{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.appbar{padding:14px 20px 10px;display:flex;justify-content:space-between;align-items:center}
+.appbar h3{font-family:var(--serif);font-size:23px;font-weight:900}
+.appbar .acts{display:flex;gap:14px;color:var(--ink-2);font-size:17px}
+.pad{padding:0 16px}
+
+/* 底部 Tab */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:76px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;z-index:50;padding-bottom:14px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink-3);font-size:10.5px;font-weight:600;transition:.25s;position:relative}
+.tab .ico{font-size:20px;line-height:1;transition:.25s}
+.tab.on{color:var(--ai2)}
+.tab.on .ico{transform:translateY(-2px)}
+.tab.on::after{content:"";position:absolute;top:0;width:22px;height:3px;border-radius:0 0 4px 4px;background:var(--ai-grad)}
+.tab .bdg{position:absolute;top:6px;right:calc(50% - 20px);min-width:15px;height:15px;border-radius:99px;background:var(--brand);color:#fff;font-size:9px;display:grid;place-items:center;padding:0 4px}
+
+/* AI 悬浮球 */
+.ai-ball{position:absolute;right:14px;bottom:96px;width:52px;height:52px;border-radius:50%;background:var(--ai-grad);z-index:58;display:grid;place-items:center;color:#fff;font-size:21px;cursor:pointer;box-shadow:0 12px 26px -8px rgba(14,148,136,.6);transition:.3s;border:2px solid rgba(255,255,255,.5)}
+.ai-ball:hover{transform:scale(1.08) rotate(6deg)}
+.ai-ball::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px dashed rgba(14,148,136,.45);animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- 对话 Tab ---------- */
+.search{margin:2px 16px 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-size:13px;color:var(--ink-3);display:flex;gap:8px;align-items:center}
+.pinned{padding:2px 16px 12px;border-bottom:1px solid var(--line)}
+.pinned .lbl{font-size:11px;color:var(--ink-3);letter-spacing:.1em;margin-bottom:9px;display:flex;justify-content:space-between}
+.pinned .row{display:flex;gap:16px}
+.pin{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-2)}
+.pin .av{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;position:relative}
+.pin .av::after{content:"";position:absolute;inset:-3px;border-radius:19px;border:1.5px solid rgba(232,85,47,.4)}
+.chat{display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid #F0EDE4;align-items:flex-start;transition:.2s;cursor:pointer}
+.chat:active{background:#F3F0E8}
+.chat .av{width:48px;height:48px;border-radius:16px;flex-shrink:0;display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;position:relative}
+.chat .av.grp{border-radius:50%}
+.chat .mid{flex:1;min-width:0}
+.chat .top{display:flex;justify-content:space-between;align-items:baseline}
+.chat .name{font-size:15px;font-weight:700}
+.chat .time{font-size:11px;color:var(--ink-3)}
+.chat .prev{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.chat .unread{min-width:18px;height:18px;border-radius:99px;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;padding:0 5px;margin-left:6px}
+.chat .unread.mute{background:#C9CDD6}
+.sumcard{margin:7px 0 2px;background:linear-gradient(120deg,#EAF5F2,#F0F7F4);border:1px solid #CDE6DF;border-radius:12px;padding:9px 12px;font-size:12px;color:#1E4B43;cursor:pointer}
+.sumcard .t{display:flex;align-items:center;gap:6px;font-weight:700;font-size:11.5px;color:var(--teal);margin-bottom:4px}
+.sumcard ul{padding-left:16px}
+.sumcard li{margin:1px 0}
+.sumcard .more{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed #CDE6DF;color:var(--ink-2)}
+.sumcard.open .more{display:block}
+.sumcard .fold{font-size:10.5px;color:var(--ai2);margin-top:4px;display:inline-block}
+.draft-hint{margin:10px 16px;background:#FFF7ED;border:1px solid #F5DFC4;border-radius:12px;padding:10px 13px;font-size:12px;color:#8A5A1E;display:flex;gap:8px;align-items:center}
+
+/* ---------- 提醒 Tab ---------- */
+.datebar{padding:12px 20px 4px}
+.datebar .d1{font-family:var(--serif);font-size:24px;font-weight:900}
+.datebar .d2{font-size:12px;color:var(--ink-3);margin-top:1px}
+.brief{margin:12px 16px 6px;border-radius:20px;padding:18px 18px 16px;color:#fff;background:var(--ai-grad);position:relative;overflow:hidden;box-shadow:0 18px 36px -16px rgba(14,148,136,.55)}
+.brief::after{content:"伴";position:absolute;right:-8px;bottom:-26px;font-family:var(--serif);font-size:110px;font-weight:900;opacity:.12}
+.brief .who{font-size:11px;letter-spacing:.18em;opacity:.85;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.brief p{font-size:13.5px;line-height:1.75;position:relative;z-index:2}
+.brief p b{color:#FFE9A8}
+.brief .go{margin-top:11px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;background:rgba(255,255,255,.18);padding:6px 13px;border-radius:99px;border:1px solid rgba(255,255,255,.3)}
+.chips{display:flex;gap:8px;padding:12px 16px 6px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--line);transition:.25s}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.timeline{padding:8px 16px 100px;position:relative}
+.timeline::before{content:"";position:absolute;left:37px;top:24px;bottom:110px;width:2px;background:repeating-linear-gradient(#DAD4C2 0 5px,transparent 5px 11px)}
+.t-item{position:relative;padding:0 0 14px 52px;animation:screenIn .4s both}
+.t-item.hide{display:none}
+.t-item .dot{position:absolute;left:9px;top:5px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:10px;color:#fff;z-index:2;box-shadow:0 0 0 3.5px #F7F5F0}
+.t-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 8px 18px -14px rgba(27,30,38,.25)}
+.t-card .row1{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.t-card .tt{font-size:14px;font-weight:700}
+.t-card .tm{font-size:11.5px;color:var(--brand);font-weight:700;white-space:nowrap}
+.t-card .ds{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.6}
+.t-card .src{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:10px;padding:2px 8px;border-radius:99px;background:#F1EFE6;color:var(--ink-3);border:1px solid var(--line)}
+.t-card .act{margin-top:9px;display:flex;gap:8px}
+.mini-btn{font-size:11.5px;font-weight:700;padding:6px 13px;border-radius:99px;background:var(--ink);color:#fff;transition:.2s}
+.mini-btn:active{transform:scale(.95)}
+.mini-btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.mini-btn.brand{background:var(--brand)}
+.sub-chain{margin:9px 0 0;padding:9px 11px;background:#F8F7F2;border-radius:11px;border:1px dashed var(--line)}
+.sub-chain .h{font-size:10.5px;color:var(--ai2);font-weight:700;letter-spacing:.08em;margin-bottom:5px}
+.sub-chain .i{font-size:11.5px;color:var(--ink-2);display:flex;gap:7px;align-items:center;padding:2.5px 0}
+.warn-card{margin:4px 0 14px 52px;position:relative;background:#FFF7ED;border:1.5px solid #F0C98F;border-radius:16px;padding:13px 15px;animation:pulse-b 2.6s infinite}
+@keyframes pulse-b{0%,100%{box-shadow:0 0 0 0 rgba(232,85,47,0)}50%{box-shadow:0 0 0 5px rgba(232,85,47,.07)}}
+.warn-card .h{display:flex;gap:7px;align-items:center;font-size:13px;font-weight:700;color:#9A3412;margin-bottom:5px}
+.warn-card p{font-size:12px;color:#7C4A1E;line-height:1.65}
+.tl-end{text-align:center;font-size:11px;color:var(--ink-3);padding:6px 0 0 52px}
+
+/* ---------- 圈子 Tab ---------- */
+.seg{display:flex;margin:4px 16px 12px;background:#ECE8DC;border-radius:13px;padding:3.5px}
+.seg button{flex:1;padding:8px 0;border-radius:10px;font-size:12.5px;font-weight:700;color:var(--ink-3);transition:.25s}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 3px 10px -4px rgba(27,30,38,.25)}
+.pane{display:none;padding:0 16px 100px}
+.pane.on{display:block}
+.moment{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 16px;margin-bottom:13px}
+.moment .hd{display:flex;gap:11px;align-items:center;margin-bottom:9px}
+.moment .av{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px}
+.moment .nm{font-size:14px;font-weight:700}
+.moment .tm{font-size:10.5px;color:var(--ink-3)}
+.moment .tx{font-size:13.5px;color:var(--ink-2);line-height:1.7}
+.moment .imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.moment .imgs i{aspect-ratio:1;border-radius:10px;display:block}
+.moment .ft{display:flex;gap:18px;margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--ink-3)}
+.pure-tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--teal);background:#E7F4F0;border-radius:99px;padding:3px 10px;font-weight:700;margin-bottom:12px}
+.circle-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:13px}
+.circle-card .cov{height:86px;position:relative;display:flex;align-items:flex-end;padding:12px 14px}
+.circle-card .cov b{color:#fff;font-size:15px;font-family:var(--serif);position:relative;z-index:2}
+.circle-card .cov span{position:absolute;top:10px;right:12px;font-size:10px;background:rgba(0,0,0,.35);color:#fff;padding:3px 9px;border-radius:99px;backdrop-filter:blur(4px)}
+.circle-card .bd{padding:12px 14px;font-size:12px;color:var(--ink-2)}
+.circle-card .bd .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.fam-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:13px}
+.fam-card .h{font-size:13.5px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.fam-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-top:1px dashed var(--line)}
+.fam-row .av{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.fam-row .inf{flex:1}
+.fam-row .inf b{font-size:13px;display:block}
+.fam-row .inf span{font-size:11px;color:var(--ink-3)}
+.ok{font-size:10.5px;font-weight:700;color:var(--teal);background:#E7F4F0;padding:4px 10px;border-radius:99px}
+.ok.warn{color:#B45309;background:#FEF3E2}
+
+/* ---------- 我的 Tab ---------- */
+.me-card{margin:6px 16px 14px;background:var(--ink);border-radius:22px;padding:20px;color:#EDEAE0;position:relative;overflow:hidden}
+.me-card::after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(232,85,47,.5),transparent 70%);right:-60px;top:-60px}
+.me-card .row{display:flex;gap:15px;align-items:center;position:relative;z-index:2}
+.me-card .av{width:58px;height:58px;border-radius:19px;background:var(--brand);display:grid;place-items:center;font-family:var(--serif);font-size:26px;font-weight:900;color:#fff}
+.me-card .nm{font-family:var(--serif);font-size:19px;font-weight:900}
+.me-card .sub{font-size:11px;opacity:.7;margin-top:2px}
+.me-card .pro{position:relative;z-index:2;margin-top:15px;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:10px 14px;font-size:11.5px}
+.me-card .pro b{color:#F6D365}
+.block{margin:0 16px 14px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 16px}
+.block .bh{font-size:13.5px;font-weight:800;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center}
+.block .bh span{font-size:10.5px;color:var(--ai2);font-weight:700}
+.tagcloud{display:flex;flex-wrap:wrap;gap:7px}
+.tg{font-size:11px;padding:4px 11px;border-radius:99px;background:#F3F1E9;border:1px solid var(--line);color:var(--ink-2)}
+.tg b{color:var(--brand);font-weight:700}
+.bars .brow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:11px;color:var(--ink-2)}
+.bars .brow em{font-style:normal;width:44px;flex-shrink:0}
+.bars .track{flex:1;height:7px;border-radius:99px;background:#F0EDE2;overflow:hidden}
+.bars .fill{height:100%;border-radius:99px;background:var(--ai-grad)}
+.bars .pc{width:38px;text-align:right;color:var(--ink-3)}
+.spark{margin-top:4px}
+.auth-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px dashed var(--line)}
+.auth-row:first-of-type{border:none;padding-top:2px}
+.auth-row .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:15px;background:#F3F1E9;flex-shrink:0}
+.auth-row .inf{flex:1}
+.auth-row .inf b{font-size:12.5px;display:block}
+.auth-row .inf span{font-size:10.5px;color:var(--ink-3)}
+.sw{width:40px;height:23px;border-radius:99px;background:var(--ai2);position:relative;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:2.5px;right:2.5px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.sw.off{background:#D6D2C4}.sw.off::after{right:auto;left:2.5px}
+.doc-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.doc-scroll::-webkit-scrollbar{display:none}
+.doc{flex-shrink:0;width:128px;border-radius:14px;padding:12px;color:#fff;position:relative;overflow:hidden}
+.doc .tp{font-size:9.5px;opacity:.8;letter-spacing:.1em}
+.doc .nm{font-size:13.5px;font-weight:800;margin:3px 0 8px}
+.doc .ex{font-size:10px;background:rgba(255,255,255,.2);border-radius:99px;padding:3px 9px;display:inline-block}
+.doc .ex.hot{background:#FFE9A8;color:#7C2D12;font-weight:700}
+.list-row{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px dashed var(--line);font-size:13px;font-weight:600}
+.list-row:first-of-type{border:none}
+.list-row .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;background:#F3F1E9}
+.list-row .arr{margin-left:auto;color:var(--ink-3);font-size:15px}
+.list-row .val{margin-left:auto;font-size:11px;color:var(--ink-3)}
+.me-pad{padding-bottom:100px}
+
+/* ---------- AI Tab ---------- */
+.ai-head{padding:12px 20px 8px;display:flex;align-items:center;gap:12px}
+.ai-orb{width:42px;height:42px;border-radius:50%;background:var(--ai-grad);position:relative;box-shadow:0 8px 20px -6px rgba(14,148,136,.6)}
+.ai-orb::before{content:"";position:absolute;inset:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#D9FFF8,transparent 60%);animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.25);opacity:.6}}
+.ai-head .nm{font-family:var(--serif);font-size:19px;font-weight:900}
+.ai-head .st{font-size:10.5px;color:var(--ai2);display:flex;align-items:center;gap:5px}
+.ai-head .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ai2);animation:pulse-b 2s infinite}
+.model-tag{margin-left:auto;font-size:9.5px;color:var(--ink-3);border:1px solid var(--line);padding:4px 9px;border-radius:99px;background:#fff}
+.roles{display:flex;gap:8px;padding:6px 16px 12px;overflow-x:auto;scrollbar-width:none}
+.roles::-webkit-scrollbar{display:none}
+.role{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:8px 15px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--ink-2);transition:.3s}
+.role.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 8px 18px -8px rgba(27,30,38,.5)}
+.role .dotc{width:7px;height:7px;border-radius:50%}
+.ai-chat{padding:4px 16px 12px;display:flex;flex-direction:column;gap:13px}
+.msg{max-width:82%;animation:msgIn .45s cubic-bezier(.2,.7,.2,1) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.msg.ai{align-self:flex-start}
+.msg.me{align-self:flex-end}
+.bubble{padding:11px 14px;border-radius:17px;font-size:13px;line-height:1.7}
+.msg.ai .bubble{background:#fff;border:1px solid var(--line);border-top-left-radius:6px;box-shadow:0 6px 16px -12px rgba(27,30,38,.3)}
+.msg.me .bubble{background:var(--ink);color:#F2EFE6;border-top-right-radius:6px}
+.voice{display:flex;align-items:center;gap:9px}
+.voice .wv{display:flex;gap:2.5px;align-items:center;height:16px}
+.voice .wv i{width:2.5px;background:#F6D365;border-radius:2px;animation:wv 1s ease-in-out infinite}
+.voice .wv i:nth-child(1){height:6px}.voice .wv i:nth-child(2){height:13px;animation-delay:.15s}.voice .wv i:nth-child(3){height:9px;animation-delay:.3s}.voice .wv i:nth-child(4){height:15px;animation-delay:.45s}.voice .wv i:nth-child(5){height:7px;animation-delay:.6s}
+@keyframes wv{50%{transform:scaleY(.5)}}
+.voice .len{font-size:11px;opacity:.7}
+.voice .stt{font-size:11px;opacity:.65;margin-top:5px;border-top:1px dashed rgba(255,255,255,.2);padding-top:5px}
+.exec{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;margin-top:8px;min-width:238px}
+.exec .eh{background:var(--ai-grad);color:#fff;font-size:11px;font-weight:700;padding:7px 13px;display:flex;align-items:center;gap:6px}
+.exec .er{display:flex;gap:9px;align-items:flex-start;padding:10px 13px;border-top:1px solid #F0EDE4;font-size:12px;color:var(--ink-2)}
+.exec .er:first-of-type{border:none}
+.exec .er .ck{width:17px;height:17px;border-radius:50%;background:#E7F4F0;color:var(--teal);display:grid;place-items:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.exec .er b{color:var(--ink)}
+.exec .ef{padding:9px 13px;border-top:1px dashed var(--line);display:flex;gap:8px}
+.typing{display:inline-flex;gap:4px;padding:13px 16px;background:#fff;border:1px solid var(--line);border-radius:17px;border-top-left-radius:6px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--ai2);animation:ty 1s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes ty{40%{transform:translateY(-5px);opacity:.5}}
+.sugg{display:flex;gap:8px;padding:4px 16px 10px;overflow-x:auto;scrollbar-width:none}
+.sugg::-webkit-scrollbar{display:none}
+.sugg button{flex-shrink:0;font-size:11.5px;color:var(--ai1);background:#fff;border:1px solid #BFE0D9;padding:7px 13px;border-radius:99px;transition:.25s;font-weight:600}
+.sugg button:active{transform:scale(.95)}
+.inputbar{position:absolute;left:0;right:0;bottom:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:9px;align-items:center;z-index:52}
+.inputbar .plus{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);color:var(--ink-2);font-size:17px;display:grid;place-items:center;flex-shrink:0}
+.inputbar .fld{flex:1;background:#F1EFE7;border-radius:99px;padding:9px 15px;font-size:12.5px;color:var(--ink-3)}
+.inputbar .mic{width:34px;height:34px;border-radius:50%;background:var(--ai-grad);color:#fff;display:grid;place-items:center;font-size:14px;flex-shrink:0;box-shadow:0 6px 14px -5px rgba(14,148,136,.55)}
+.ai-spacer{height:142px}
+
+/* ---------- 新增功能 ---------- */
+.features{background:var(--ink);color:#EDEAE0;position:relative;overflow:hidden}
+.features .sec-title{color:#F5F2EA}
+.features .sec-desc{color:#9AA0AB}
+.features .aurora.a{width:560px;height:560px;background:#2A1E3F;top:-200px;left:-150px;opacity:.55}
+.features .aurora.b{width:480px;height:480px;background:#0E3B34;bottom:-200px;right:-120px;opacity:.6}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative;z-index:2}
+.fcard{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:26px;transition:.4s cubic-bezier(.2,.7,.2,1);position:relative;overflow:hidden}
+.fcard:hover{transform:translateY(-6px);background:rgba(255,255,255,.08);border-color:rgba(232,85,47,.5)}
+.fcard .fi{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:23px;margin-bottom:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.fcard h4{font-family:var(--serif);font-size:18px;font-weight:900;margin-bottom:4px}
+.fcard .en{font-size:10px;letter-spacing:.22em;color:var(--brand);font-weight:700;margin-bottom:12px}
+.fcard p{font-size:13px;color:#B9BDC7;line-height:1.8}
+.fcard p b{color:#F6D365;font-weight:600}
+.fcard .loc{margin-top:15px;font-size:11px;color:var(--ai2);border-top:1px dashed rgba(255,255,255,.15);padding-top:11px}
+.fcard .new{position:absolute;top:18px;right:18px;font-size:9.5px;font-weight:800;letter-spacing:.12em;color:#14161C;background:#F6D365;padding:3.5px 9px;border-radius:99px}
+@media(max-width:900px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.fgrid{grid-template-columns:1fr}}
+
+/* ---------- 秘书后台 ---------- */
+.desk{background:linear-gradient(180deg,#EBE6D9,var(--paper))}
+.browser{max-width:980px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 50px 100px -45px rgba(27,30,38,.5);border:1px solid var(--line);background:#fff}
+.browser .chrome{background:#EDEBE3;padding:11px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.browser .dots{display:flex;gap:6px}
+.browser .dots i{width:11px;height:11px;border-radius:50%}
+.browser .url{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px;font-size:11.5px;color:var(--ink-3);padding:5px 13px;display:flex;gap:7px;align-items:center}
+.dash{display:grid;grid-template-columns:190px 1fr;min-height:460px}
+.dash .side-b{background:#1B1E26;color:#B9BDC7;padding:20px 14px;font-size:12px}
+.dash .side-b .lg{font-family:var(--serif);color:#F5F2EA;font-size:16px;font-weight:900;padding:0 8px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:12px}
+.dash .side-b a{display:flex;gap:9px;padding:9px 10px;border-radius:9px;color:inherit;text-decoration:none;margin-bottom:2px;align-items:center}
+.dash .side-b a.on{background:rgba(232,85,47,.18);color:#FFB59D}
+.dash .main-b{padding:22px 26px;background:#F8F7F2}
+.dash .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.dash .mhead h4{font-family:var(--serif);font-size:18px;font-weight:900}
+.dash .mhead .who{font-size:11px;color:var(--ink-3)}
+.dash .sync-btn{background:var(--brand);color:#fff;font-size:12px;font-weight:700;padding:9px 18px;border-radius:99px;box-shadow:0 8px 18px -6px rgba(232,85,47,.5)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi2{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px}
+.kpi2 b{font-family:var(--serif);font-size:21px;font-weight:900;display:block}
+.kpi2 span{font-size:10.5px;color:var(--ink-3)}
+.kpi2 b i{font-style:normal;font-size:11px;color:var(--teal)}
+.dtable{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.dtable table{width:100%;border-collapse:collapse;font-size:12px}
+.dtable th{background:#F3F1E9;text-align:left;padding:9px 14px;font-size:11px;color:var(--ink-2);white-space:nowrap}
+.dtable td{padding:10px 14px;border-top:1px solid #F0EDE4;color:var(--ink-2)}
+.st{display:inline-block;font-size:10px;font-weight:700;padding:2.5px 9px;border-radius:99px}
+.st.ok{background:#E7F4F0;color:var(--teal)}
+.st.pd{background:#FEF3E2;color:#B45309}
+.st.ai{background:#EDEBFB;color:#5B5FEF}
+@media(max-width:760px){.dash{grid-template-columns:1fr}.dash .side-b{display:none}.kpis{grid-template-columns:1fr 1fr}}
+
+/* ---------- 设计系统 ---------- */
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ds-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px}
+.ds-card h4{font-family:var(--serif);font-size:16px;font-weight:900;margin-bottom:16px}
+.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.swatch{aspect-ratio:.82;border-radius:14px;position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.06)}
+.swatch span{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.88);font-size:9.5px;padding:4px 7px;font-weight:700}
+.swatch span i{display:block;font-style:normal;font-weight:400;color:var(--ink-3);font-size:8.5px}
+.type-demo .t1{font-family:var(--serif);font-size:30px;font-weight:900}
+.type-demo .t2{font-family:var(--serif);font-size:19px;font-weight:700;margin-top:8px}
+.type-demo .t3{font-size:14px;color:var(--ink-2);margin-top:8px}
+.type-demo .t4{font-size:11px;color:var(--ink-3);margin-top:8px;letter-spacing:.14em}
+.ds-note{margin-top:14px;font-size:12px;color:var(--ink-2);background:var(--paper);border-left:3px solid var(--brand);padding:10px 14px;border-radius:0 10px 10px 0}
+@media(max-width:820px){.ds-grid{grid-template-columns:1fr}}
+
+/* ---------- 页脚 ---------- */
+footer{padding:70px 0 50px;text-align:center;position:relative}
+footer .big{font-family:var(--serif);font-size:clamp(50px,9vw,110px);font-weight:900;color:rgba(27,30,38,.07);line-height:1;user-select:none}
+footer p{font-size:12.5px;color:var(--ink-3);margin-top:18px}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-right{display:none}.top-links{display:none}.wrap{padding:0 24px}section{padding:80px 0}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="aurora a"></div><div class="aurora b"></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brandmark">
+        <div class="zi">伴</div>
+        <div class="meta"><b>伴 · Bandful</b><span>AI SOCIAL BUTLER · V2.0</span></div>
+      </div>
+      <nav class="top-links">
+        <a href="#proto">交互原型</a><a href="#features">新增功能</a><a href="#desk">秘书后台</a><a href="#ds">设计系统</a>
+      </nav>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <div class="kicker">社交 × 管家 × AI · 交互原型方案</div>
+        <h1>把臃肿砍掉，<br>把 <em>AI</em> 的智商拉满。<br>一个懂你的「<span class="han">伴</span>」。</h1>
+        <p class="hero-sub">以 AI 为中枢的<strong>个人生活操作系统</strong>：简洁通讯连接人，主动式管家管理生活。通讯、提醒、圈子都只是 AI 调度的前台界面——它不等你开口，它先想到。</p>
+        <div class="hero-cta">
+          <a class="btn btn-ink" href="#proto">进入交互原型 ↓</a>
+          <a class="btn btn-ghost" href="#features">看看新增了什么</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="constitution">
+          <h4>📜 产品宪法 · 三个绝不</h4>
+          <ul>
+            <li><b>绝不做广告</b> —— 与微信差异的品牌根基</li>
+            <li><b>绝不卖数据</b> —— 画像只属于用户本人</li>
+            <li><b>绝不做金融导流</b> —— 账单数据用途白名单制</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>5<i>+</i></b><span>底部模块 + 全局 AI 中枢</span></div>
+      <div class="stat"><b>6<i>项</i></b><span>基于真实生活痛点的新增能力</span></div>
+      <div class="stat"><b>4<i>重</i></b><span>AI 角色：管家 / 秘书 / 分身 / 树洞</span></div>
+      <div class="stat"><b>0<i>条</i></b><span>广告 · 算法信息流 · 商业噪音</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 交互原型 ================= -->
+<section class="prototype" id="proto">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="sec-no">01</span><h2 class="sec-title">交互原型 · 一部手机看全貌</h2></div>
+    <p class="sec-desc reveal">点击下方 Tab 切换五个模块。留意任何页面右下角的 <b>AI 悬浮球</b>——AI 不是第五个 Tab，而是贯穿所有模块的中枢。原型内时间线筛选、圈子分段、AI 角色切换与建议问题均可实际操作。</p>
+  </div>
+  <div class="stage">
+    <!-- 左侧批注 -->
+    <div class="side">
+      <div class="note reveal"><span class="no">1</span><b>AI 未读总结</b>长按 99+ 的群聊，AI 压缩成 3 行要点——不读原文也能接话。</div>
+      <div class="note reveal"><span class="no">2</span><b>今日时间线</b>工作、账单、出行、健康、证件统一汇入一条时间线，事找人，而非人记事。</div>
+      <div class="note reveal"><span class="no">3</span><b>冲突预警</b>AI 主动发现日程矛盾，并给出两个可执行方案。</div>
+    </div>
+
+    <!-- 手机 -->
+    <div class="phone reveal">
+      <div class="screen-wrap">
+        <div class="island"></div>
+        <div class="statusbar"><span id="clock">9:41</span>
+          <div class="sicons"><span class="moon">☾</span>
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="25" height="11" viewBox="0 0 25 11"><rect x="0.5" y="0.5" width="21" height="10" rx="3" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="15" height="7" rx="1.5" fill="currentColor"/><rect x="23" y="3.5" width="2" height="4" rx="1" fill="currentColor" opacity=".4"/></svg>
+          </div>
+        </div>
+
+        <!-- ======== 1 对话 ======== -->
+        <div class="screen on" id="scr-chat">
+          <div class="appbar"><h3>对话</h3><div class="acts">✎ ＋</div></div>
+          <div class="search">🔍 搜索聊天 / 联系人</div>
+          <div class="pinned">
+            <div class="lbl"><span>重要的人</span><span>其余 23 个会话已折叠</span></div>
+            <div class="row">
+              <div class="pin"><div class="av" style="background:#C2410C">妈</div>妈妈</div>
+              <div class="pin"><div class="av" style="background:#155E75">陈</div>陈总</div>
+              <div class="pin"><div class="av" style="background:#7C3AED">苏</div>苏苏</div>
+              <div class="pin"><div class="av" style="background:#0E7C6B">伴</div>小伴 AI</div>
+            </div>
+          </div>
+          <div class="chat">
+            <div class="av" style="background:#7C3AED">苏</div>
+            <div class="mid">
+              <div class="top"><span class="name">苏苏</span><span class="time">09:12</span></div>
+              <div class="prev">[图片] 这张海报的配色帮我看看，客户说不够"高级"…</div>
+            </div>
+            <div class="unread">2</div>
+          </div>
+          <div class="chat">
+            <div class="av grp" style="background:#B45309">游</div>
+            <div class="mid">
+              <div class="top"><span class="name">周末徒步游击队</span><span class="time">08:47</span></div>
+              <div class="sumcard" id="sumcard" onclick="this.classList.toggle('open')">
+                <div class="t">✦ AI 未读总结 · 87 条 → 3 行</div>
+                <ul>
+                  <li>本周六徒步改到<b>径山古道</b>，早 7:30 集合</li>
+                  <li>阿凯负责带无人机，费用 AA 约 ¥45/人</li>
+                  <li>有 3 人 @你 确认是否参加</li>
+                </ul>
+                <div class="more">💬 你可能想回：「参加，我开车，还能带 2 个人。」<br><span class="fold">点按收起 ▲</span></div>
+                <span class="fold">展开建议回复 ▼</span>
+              </div>
+            </div>
+            <div class="unread mute">87</div>
+          </div>
+          <div class="chat">
+            <div class="av" style="background:#155E75">陈</div>
+            <div class="mid">
+              <div class="top"><span class="name">陈总</span><span class="time">昨天</span></div>
+              <div class="prev">周四评审的材料今晚发我。</div>
+            </div>
+          </div>
+          <div class="draft-hint">✦ AI 已按你的口吻拟好回复：<b>「收到，晚上 9 点前发您。」</b> 点按发送</div>
+          <div class="chat">
+            <div class="av grp" style="background:#0E7C6B">家</div>
+            <div class="mid">
+              <div class="top"><span class="name">一家三口</span><span class="time">昨天</span></div>
+              <div class="prev">妈妈：电费我让小伴代缴了，你们别操心</div>
+            </div>
+          </div>
+          <div class="chat">
+            <div class="av grp" style="background:#52525B">项</div>
+            <div class="mid">
+              <div class="top"><span class="name">产品评审群</span><span class="time">周三</span></div>
+              <div class="prev">行政-小林：评审改到 10:00，3F  Polaris 会议室</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======== 2 提醒 ======== -->
+        <div class="screen" id="scr-tl">
+          <div class="datebar">
+            <div class="d1">9月27日 · 周六</div>
+            <div class="d2">杭州 · 多云 26° · 今日 6 件事 · 1 个预警</div>
+          </div>
+          <div class="brief">
+            <div class="who">✦ 管家早报 · 07:30</div>
+            <p>早上好，陈默。今天节奏前松后紧：<b>10 点产品评审</b>，下午 <b>15:08 高铁去杭州</b>。招行信用卡是<b>最后还款日</b>，已备好一键还款。另外，周日聚会和你的返程航班撞了，解决方案在下面 ↓</p>
+            <span class="go">听取语音简报 ▸ 45″</span>
+          </div>
+          <div class="chips" id="tl-chips">
+            <button class="chip on" data-f="all">全部</button>
+            <button class="chip" data-f="work">工作</button>
+            <button class="chip" data-f="bill">账单</button>
+            <button class="chip" data-f="travel">出行</button>
+            <button class="chip" data-f="health">健康</button>
+            <button class="chip" data-f="doc">证件</button>
+          </div>
+          <div class="timeline" id="timeline">
+            <div class="t-item" data-cat="work"><span class="dot" style="background:#155E75">出</span>
+              <div class="t-card"><div class="row1"><span class="tt">出门提醒</span><span class="tm">09:40</span></div>
+                <div class="ds">去公司地铁约 48 分钟，当前路况建议打车，预计 22 分钟到。</div>
+                <div class="act"><button class="mini-btn">一键叫车</button><button class="mini-btn ghost">改乘地铁</button></div>
+              </div>
+            </div>
+            <div class="t-item" data-cat="work"><span class="dot" style="background:#155E75">会</span>
+              <div class="t-card"><div class="row1"><span class="tt">Q4 产品评审</span><span class="tm">10:00</span></div>
+                <div class="ds">3F Polaris 会议室 · 材料已同步给你和 5 位参会人</div>
+                <span class="src">📋 秘书小林代录 · 昨晚 21:14</span>
+              </div>
+            </div>
+            <div class="t-item" data-cat="health"><span class="dot" style="background:#65A30D">药</span>
+              <div class="t-card"><div class="row1"><span class="tt">午餐后服药 · 维生素 D</span><span class="tm">12:30</span></div>
+                <div class="ds">健康节律 · 连续打卡 18 天。昨晚睡眠 6h42m，深睡偏少，今晚建议 23:00 前入睡。</div>
+                <span class="src">💊 健康节律 · 新增能力</span>
+              </div>
+            </div>
+            <div class="t-item" data-cat="travel"><span class="dot" style="background:#B45309">行</span>
+              <div class="t-card"><div class="row1"><span class="tt">G7531 → 杭州东</span><span class="tm">15:08</span></div>
+                <div class="ds">二等座 07车 12A · 检票口 12 · 正点</div>
+                <div class="sub-chain">
+                  <div class="h">✦ 行程集 · AI 已自动打包</div>
+                  <div class="i">🏨 今晚入住 · 西湖君悦（距东站 25 分钟）</div>
+                  <div class="i">🌦 杭州明日小雨，已放一把伞进清单</div>
+                  <div class="i">🧾 周一 9:00 提醒提交差旅报销</div>
+                </div>
+                <span class="src">✉️ 12306 出票短信解析 · 成功率 95%+</span>
+              </div>
+            </div>
+            <div class="t-item" data-cat="bill"><span class="dot" style="background:#E8552F">还</span>
+              <div class="t-card"><div class="row1"><span class="tt">招行信用卡 · 最后还款日</span><span class="tm">今天</span></div>
+                <div class="ds">应还 ¥4,382.00 · 本月餐饮占比上升 12%，月报已生成。</div>
+                <div class="act"><button class="mini-btn brand">一键还款</button><button class="mini-btn ghost">查看账单明细</button></div>
+                <span class="src">📧 账单邮箱授权解析 · 自动记账已入账</span>
+              </div>
+            </div>
+            <div class="t-item" data-cat="doc"><span class="dot" style="background:#7C3AED">证</span>
+              <div class="t-card"><div class="row1"><span class="tt">港澳通行证 32 天后到期</span><span class="tm">提醒</span></div>
+                <div class="ds">签注同步过期。线上续签约 7 个工作日，建议本周办理。</div>
+                <div class="act"><button class="mini-btn">续签指引</button><button class="mini-btn ghost">下周四再提醒我</button></div>
+                <span class="src">🪪 证件管家 · 新增能力</span>
+              </div>
+            </div>
+            <div class="t-item" data-cat="work"><span class="dot" style="background:#155E75">家</span>
+              <div class="t-card"><div class="row1"><span class="tt">和妈妈视频</span><span class="tm">20:30</span></div>
+                <div class="ds">家庭圈例行约定 · 妈妈今天守护打卡正常 ✓</div>
+                <span class="src">👪 家庭圈 · 远程关怀</span>
+              </div>
+            </div>
+            <div class="warn-card">
+              <div class="h">⚠ 冲突预警 · 周日</div>
+              <p>你答应了同学聚会（14:00 余杭），但返程航班 14:35 起飞。两个方案：<br><b>A.</b> 聚会提前到 12:00（已帮你问过组织者，可行）　<b>B.</b> 改签 17:20 航班，差价 ¥120</p>
+              <div class="act" style="margin-top:9px"><button class="mini-btn brand">选 A，通知同学</button><button class="mini-btn ghost">选 B，去改签</button></div>
+            </div>
+            <div class="tl-end">—— 今天的事都在这了，去生活吧 ——</div>
+          </div>
+        </div>
+
+        <!-- ======== 3 圈子 ======== -->
+        <div class="screen" id="scr-circle">
+          <div class="appbar"><h3>圈子</h3><div class="acts">✎</div></div>
+          <div class="seg" id="seg">
+            <button class="on" data-p="p1">朋友圈</button><button data-p="p2">兴趣圈</button><button data-p="p3">家庭圈</button>
+          </div>
+          <!-- 朋友圈 -->
+          <div class="pane on" id="p1">
+            <span class="pure-tag">✓ 纯时间序 · 无算法 · 无广告</span>
+            <div class="moment">
+              <div class="hd"><div class="av" style="background:#7C3AED">苏</div><div><div class="nm">苏苏</div><div class="tm">26 分钟前 · 仅本月可见</div></div></div>
+              <div class="tx">改了三版，客户终于说"就是这个感觉"了 🎨</div>
+              <div class="imgs"><i style="background:linear-gradient(135deg,#F8C8B4,#E8552F)"></i><i style="background:linear-gradient(135deg,#BFE6DD,#0E9488)"></i><i style="background:linear-gradient(135deg,#DDD3F5,#7C3AED)"></i></div>
+              <div class="ft"><span>♡ 妈妈、阿凯 等 6 人</span><span>💬 4</span></div>
+            </div>
+            <div class="moment">
+              <div class="hd"><div class="av" style="background:#C2410C">妈</div><div><div class="nm">妈妈</div><div class="tm">2 小时前</div></div></div>
+              <div class="tx">阳台的茉莉开了，拍给你们看 [语音日记 0:18]</div>
+              <div class="imgs"><i style="background:linear-gradient(135deg,#D9F99D,#65A30D)"></i></div>
+              <div class="ft"><span>♡ 你、爸爸</span><span>💬 2</span></div>
+            </div>
+            <div class="moment">
+              <div class="hd"><div class="av" style="background:#155E75">凯</div><div><div class="nm">阿凯</div><div class="tm">昨天 22:14</div></div></div>
+              <div class="tx">径山古道探路完成，秋色 80% 加载中。</div>
+              <div class="ft"><span>♡ 3</span><span>💬 1</span></div>
+            </div>
+          </div>
+          <!-- 兴趣圈 -->
+          <div class="pane" id="p2">
+            <div class="circle-card">
+              <div class="cov" style="background:linear-gradient(120deg,#155E75,#0E9488)"><span>同城 · 2.4k 人</span><b>周末徒步游击队</b></div>
+              <div class="bd">📍 本周活动：径山古道 12km · 早 7:30 集合<div class="row"><span style="font-size:11px;color:var(--ink-3)">✦ AI 已生成报名接龙，13 人参加</span><button class="mini-btn">一键报名</button></div></div>
+            </div>
+            <div class="circle-card">
+              <div class="cov" style="background:linear-gradient(120deg,#7C2D12,#E8552F)"><span>设计 · 8.1k 人</span><b>独立设计师客厅</b></div>
+              <div class="bd">🎨 本周话题：甲方说"高级感"时到底想要什么<div class="row"><span style="font-size:11px;color:var(--ink-3)">苏苏 等 3 位圈友可能认识你</span><button class="mini-btn ghost">去看看</button></div></div>
+            </div>
+            <div class="circle-card">
+              <div class="cov" style="background:linear-gradient(120deg,#3F3D56,#6C63FF)"><span>阅读 · 1.2k 人</span><b>深夜科幻读书会</b></div>
+              <div class="bd">📖 共读《呼吸》· 特德·姜<div class="row"><span style="font-size:11px;color:var(--ink-3)">与你画像匹配度 92%</span><button class="mini-btn ghost">加入</button></div></div>
+            </div>
+          </div>
+          <!-- 家庭圈 -->
+          <div class="pane" id="p3">
+            <div class="fam-card">
+              <div class="h">👪 一家人 <span style="font-size:10px;color:var(--ai2);font-weight:700">守护中</span></div>
+              <div class="fam-row"><div class="av" style="background:#C2410C">妈</div><div class="inf"><b>妈妈 · 63 岁</b><span>今日已打卡 · 步数 4,210 · 血压正常</span></div><span class="ok">✓ 安心</span></div>
+              <div class="fam-row"><div class="av" style="background:#52525B">爸</div><div class="inf"><b>爸爸 · 65 岁</b><span>今日未打卡 · 已发去温和提醒</span></div><span class="ok warn">待确认</span></div>
+            </div>
+            <div class="fam-card">
+              <div class="h">🧾 共享账单 <span style="font-size:10px;color:var(--ink-3)">本月</span></div>
+              <div class="fam-row"><div class="ic" style="width:38px;height:38px;border-radius:12px;background:#F3F1E9;display:grid;place-items:center">💡</div><div class="inf"><b>家电费 ¥187</b><span>小伴已代缴 · 9月22日</span></div><span class="ok">已缴</span></div>
+              <div class="fam-row"><div class="ic" style="width:38px;height:38px;border-radius:12px;background:#F3F1E9;display:grid;place-items:center">📱</div><div class="inf"><b>爸爸话费 ¥58</b><span>余额不足 · 3 天后扣费</span></div><button class="mini-btn">代充</button></div>
+            </div>
+            <div class="fam-card">
+              <div class="h">📌 代办指派</div>
+              <div class="fam-row"><div class="inf"><b>帮妈妈挂下周二眼科复诊号</b><span>小伴将在放号时间自动抢号并通知你</span></div><button class="mini-btn brand">交给 AI</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======== 4 我的 ======== -->
+        <div class="screen" id="scr-me">
+          <div class="me-pad">
+          <div class="me-card">
+            <div class="row">
+              <div class="av">默</div>
+              <div><div class="nm">陈默</div><div class="sub">小伴已陪伴 218 天 · 记住 132 条你的偏好</div></div>
+            </div>
+            <div class="pro"><span><b>Pro+</b> · 分身 / 声音克隆 / 家庭共享已开通</span><span style="opacity:.7">续费管理 ›</span></div>
+          </div>
+          <div class="block">
+            <div class="bh">🎯 我的画像 <span>仅自己可见 · 可修正</span></div>
+            <div class="tagcloud">
+              <span class="tg">徒步 <b>98</b></span><span class="tg">手冲咖啡 <b>91</b></span><span class="tg">科幻 <b>87</b></span><span class="tg">摄影 <b>76</b></span><span class="tg">独立设计 <b>72</b></span><span class="tg">羽毛球 <b>65</b></span>
+            </div>
+            <div class="bars" style="margin-top:13px">
+              <div class="brow"><em>餐饮</em><div class="track"><div class="fill" style="width:34%"></div></div><span class="pc">34%</span></div>
+              <div class="brow"><em>出行</em><div class="track"><div class="fill" style="width:26%"></div></div><span class="pc">26%</span></div>
+              <div class="brow"><em>数码</em><div class="track"><div class="fill" style="width:18%"></div></div><span class="pc">18%</span></div>
+            </div>
+            <svg class="spark" width="100%" height="46" viewBox="0 0 300 46" preserveAspectRatio="none">
+              <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E9488" stop-opacity=".3"/><stop offset="1" stop-color="#0E9488" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0,32 C25,30 35,18 60,22 S95,38 120,30 S160,10 185,16 S230,34 260,26 S290,20 300,18 L300,46 L0,46 Z" fill="url(#sg)"/>
+              <path d="M0,32 C25,30 35,18 60,22 S95,38 120,30 S160,10 185,16 S230,34 260,26 S290,20 300,18" fill="none" stroke="#0E9488" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div style="font-size:10px;color:var(--ink-3);margin-top:2px">本月情绪曲线 · 整体平稳，上周三有小低谷（树洞已陪你聊过）</div>
+          </div>
+          <div class="block">
+            <div class="bh">🪪 证件夹 <span>新增能力</span></div>
+            <div class="doc-scroll">
+              <div class="doc" style="background:linear-gradient(135deg,#155E75,#0E9488)"><div class="tp">身份证</div><div class="nm">陈默 · 3301****</div><span class="ex">2031 年到期</span></div>
+              <div class="doc" style="background:linear-gradient(135deg,#7C2D12,#E8552F)"><div class="tp">港澳通行证</div><div class="nm">C88****21</div><span class="ex hot">32 天后到期</span></div>
+              <div class="doc" style="background:linear-gradient(135deg,#3F3D56,#6C63FF)"><div class="tp">护照</div><div class="nm">E19****07</div><span class="ex">2029 年到期</span></div>
+              <div class="doc" style="background:linear-gradient(135deg,#44403C,#78716C)"><div class="tp">租房合同</div><div class="nm">滨江 · 一居室</div><span class="ex">88 天后到期</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="bh">🔐 账号授权中心 <span>行业最透明</span></div>
+            <div class="auth-row"><div class="ic">📧</div><div class="inf"><b>账单邮箱 (163)</b><span>读取：银行账单邮件 · 本周 2 封</span></div><div class="sw"></div></div>
+            <div class="auth-row"><div class="ic">✈️</div><div class="inf"><b>航旅纵横</b><span>读取：行程 · 官方 API 直连</span></div><div class="sw"></div></div>
+            <div class="auth-row"><div class="ic">🛒</div><div class="inf"><b>京东</b><span>读取：物流状态 · 已暂停</span></div><div class="sw off"></div></div>
+          </div>
+          <div class="block">
+            <div class="bh">⚙️ 更多</div>
+            <div class="list-row"><div class="ic">✦</div>AI 设置<span class="val">管家 · 自研模型 · 记忆 132 条 ›</span></div>
+            <div class="list-row"><div class="ic">🌙</div>专注与睡眠守护<span class="val">23:00–7:00 静默 ›</span></div>
+            <div class="list-row"><div class="ic">🛡</div>隐私中心<span class="val">端到端加密已开启 · 数据导出 ›</span></div>
+          </div>
+          </div>
+        </div>
+
+        <!-- ======== 5 AI ======== -->
+        <div class="screen" id="scr-ai">
+          <div class="ai-head">
+            <div class="ai-orb"></div>
+            <div><div class="nm">小伴</div><div class="st" id="ai-status">管家在线 · 已同步今日时间线</div></div>
+            <span class="model-tag">自研模型 · 已备案</span>
+          </div>
+          <div class="roles" id="roles">
+            <button class="role on" data-r="butler"><span class="dotc" style="background:#0E9488"></span>🤵 管家</button>
+            <button class="role" data-r="secretary"><span class="dotc" style="background:#B45309"></span>📋 秘书</button>
+            <button class="role" data-r="avatar"><span class="dotc" style="background:#7C3AED"></span>🪞 分身</button>
+            <button class="role" data-r="tree"><span class="dotc" style="background:#52525B"></span>🕳️ 树洞</button>
+          </div>
+          <div class="ai-chat" id="ai-chat">
+            <div class="msg ai"><div class="bubble">早，陈默。今日时间线已就绪：评审材料我检查过一遍，第 7 页的数据口径和上次周报不一致，标黄了。☕</div></div>
+            <div class="msg me"><div class="bubble voice">
+              <div style="display:flex;align-items:center;gap:9px"><span>▶</span><span class="wv"><i></i><i></i><i></i><i></i><i></i></span><span class="len">0:07</span></div>
+              <div class="stt">「帮我把周四的会挪到周五下午，顺便订去杭州的高铁」</div>
+            </div></div>
+            <div class="msg ai"><div class="bubble" style="padding:0;background:none;border:none;box-shadow:none">
+              <div class="exec">
+                <div class="eh">✦ 已完成 2 项操作</div>
+                <div class="er"><span class="ck">✓</span><span><b>评审会改期</b> 周四 15:00 → 周五 14:00<br>已通知 3 位参会人，会议室同步改订</span></div>
+                <div class="er"><span class="ck">✓</span><span><b>G7531 二等座</b> 今天 15:08 · ¥73<br>按你的偏好选了靠窗 F 座</span></div>
+                <div class="ef"><button class="mini-btn brand">去支付 ¥73</button><button class="mini-btn ghost">撤销改期</button></div>
+              </div>
+            </div></div>
+          </div>
+          <div class="sugg" id="sugg">
+            <button data-q="本月我钱花哪了？">本月我钱花哪了？</button>
+            <button data-q="以我的口吻回苏苏">以我的口吻回苏苏</button>
+            <button data-q="帮我准备周五评审">帮我准备周五评审</button>
+          </div>
+          <div class="ai-spacer"></div>
+          <div class="inputbar">
+            <button class="plus">＋</button>
+            <div class="fld">问小伴，或直接说话…</div>
+            <button class="mic">🎤</button>
+          </div>
+        </div>
+
+        <!-- AI 悬浮球 -->
+        <button class="ai-ball" id="ai-ball" title="唤起小伴">✦</button>
+
+        <!-- 底部 Tab -->
+        <nav class="tabbar" id="tabbar">
+          <button class="tab on" data-s="scr-chat"><span class="ico">💬</span>对话<span class="bdg">3</span></button>
+          <button class="tab" data-s="scr-tl"><span class="ico">⏰</span>提醒<span class="bdg">6</span></button>
+          <button class="tab" data-s="scr-circle"><span class="ico">🌐</span>圈子</button>
+          <button class="tab" data-s="scr-me"><span class="ico">👤</span>我的</button>
+          <button class="tab" data-s="scr-ai"><span class="ico">✦</span>AI</button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 右侧批注 -->
+    <div class="side">
+      <div class="note right ai reveal"><span class="no">4</span><b>全局 AI 悬浮球</b>任何页面唤起，自动携带当下语境——在对话页带着聊天记录，在提醒页带着时间线。</div>
+      <div class="note right reveal"><span class="no">5</span><b>家庭圈 · 远程关怀</b>父母打卡、共享账单、代办指派，子女在远方也能"在场"。</div>
+      <div class="note right ai reveal"><span class="no">6</span><b>四重 AI 角色</b>管家主动、秘书执行、分身像你、树洞只听。切到 AI Tab 试试。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 新增功能 ================= -->
+<section class="features" id="features">
+  <div class="aurora a"></div><div class="aurora b"></div>
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="sec-no">02</span><h2 class="sec-title">不止于需求 · 六件"生活急事"</h2></div>
+    <p class="sec-desc reveal">原方案覆盖了账单、行程、会议。但一个真人过日子，还有更多"忘了就出事"的瞬间。以下六项基于当代独居者与通勤族的真实迫切需求新增，全部接入同一条今日时间线。</p>
+    <div class="fgrid">
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">🆘</div><h4>应急守护</h4><div class="en">SAFETY CHECK-IN</div>
+        <p>独居最怕"出事了没人知道"。每晚设置<b>安全打卡</b>，超时未打卡且手机无活动迹象，自动向紧急联系人推送位置与预警。加班晚了？对小伴说一句"今晚晚归"即可顺延。</p>
+        <div class="loc">落在：提醒 · 家庭圈</div>
+      </div>
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">🪪</div><h4>证件与合同管家</h4><div class="en">DOCUMENTS</div>
+        <p>身份证、护照、签证、驾照、港澳通行证、<b>租房合同</b>——这些东西一年只用一次，忘一次就误大事。到期前 60 / 30 / 7 天链式提醒，附线上续办指引与材料清单。</p>
+        <div class="loc">落在：提醒 · 我的证件夹</div>
+      </div>
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">💊</div><h4>健康节律</h4><div class="en">HEALTH RHYTHM</div>
+        <p>慢性病用药、维生素、喝水、生理期、睡眠——联动手表数据，把"按时吃药"从意志力变成系统默认。连续打卡可视化，异常节律（连续熬夜）时管家主动劝一句。</p>
+        <div class="loc">落在：提醒 · 健康类</div>
+      </div>
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">🧾</div><h4>自动记账</h4><div class="en">AUTO LEDGER</div>
+        <p>账单邮件 + 消费短信由 AI 解析自动入账，<b>不用记一笔账</b>。月度消费结构、冲动指数、环比异常直接喂给"我的画像"，账单金额突增 50% 时主动询问。</p>
+        <div class="loc">落在：提醒 · 我的画像</div>
+      </div>
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">🚗</div><h4>车辆管家</h4><div class="en">CAR BUTLER</div>
+        <p>年检、保养里程、保险续费、违章——车主的四座大山。交管短信解析自动建档，保险到期前 30 天开始<b>比价提醒</b>，违章当天推送并附处理入口。</p>
+        <div class="loc">落在：提醒 · 出行类</div>
+      </div>
+      <div class="fcard reveal"><span class="new">NEW</span>
+        <div class="fi">🌙</div><h4>专注与睡眠守护</h4><div class="en">DIGITAL WELLNESS</div>
+        <p>23:00–7:00 全量静默，只有<b>航班取消</b>级别的紧急事件才穿透。工作日晚上的短视频失控？小伴会按你预设的预算"温柔地挡一下"，而不是粗暴锁机。</p>
+        <div class="loc">落在：我的 · 设置</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 秘书后台 ================= -->
+<section class="desk" id="desk">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="sec-no">03</span><h2 class="sec-title">B 端 · 秘书后台</h2></div>
+    <p class="sec-desc reveal">企业中高层的行程不该靠微信一条条发。秘书在网页后台批量录入，实时同步到老板的"今日时间线"；行程变更一键更新，AI 语音播报给老板。这是产品的第二增长曲线。</p>
+    <div class="browser reveal">
+      <div class="chrome">
+        <div class="dots"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></div>
+        <div class="url">🔒 ban.cn/console · 秘书工作台</div>
+      </div>
+      <div class="dash">
+        <aside class="side-b">
+          <div class="lg">伴 · 企业版</div>
+          <a href="#" class="on">🗓 行程管理</a>
+          <a href="#">👥 服务对象</a>
+          <a href="#">🤝 接待安排</a>
+          <a href="#">🧾 差旅报销</a>
+          <a href="#">⚙️ 权限设置</a>
+        </aside>
+        <div class="main-b">
+          <div class="mhead">
+            <div><h4>陈总 · 下周时间线</h4><div class="who">秘书：林珊 · 实时同步中</div></div>
+            <button class="sync-btn">⇅ 一键同步至老板时间线</button>
+          </div>
+          <div class="kpis">
+            <div class="kpi2"><b>12<i> 场</i></b><span>下周会议 / 接待</span></div>
+            <div class="kpi2"><b>2<i> 趟</i></b><span>差旅（杭州 · 深圳）</span></div>
+            <div class="kpi2"><b style="color:var(--brand)">1<i> 处</i></b><span>时间冲突待处理</span></div>
+            <div class="kpi2"><b style="color:var(--teal)">AI</b><span>已自动校验行程数据</span></div>
+          </div>
+          <div class="dtable">
+            <table>
+              <thead><tr><th>时间</th><th>事项</th><th>地点</th><th>录入方式</th><th>同步状态</th></tr></thead>
+              <tbody>
+                <tr><td>周一 09:30</td><td>Q4 预算评审</td><td>3F Polaris</td><td><span class="st pd">秘书录入</span></td><td><span class="st ok">✓ 已同步</span></td></tr>
+                <tr><td>周二 14:00</td><td>接待字节客户一行 4 人</td><td>大堂贵宾室</td><td><span class="st pd">秘书录入</span></td><td><span class="st ok">✓ 已同步</span></td></tr>
+                <tr><td>周三 18:40</td><td>CA1735 → 深圳</td><td>萧山 T3</td><td><span class="st ai">✦ AI 解析邮件</span></td><td><span class="st ok">✓ 已同步</span></td></tr>
+                <tr><td>周四 全天</td><td>深圳供应商走访 ×3</td><td>南山 / 宝安</td><td><span class="st pd">秘书录入</span></td><td><span class="st ok">✓ 已同步</span></td></tr>
+                <tr><td>周五 14:00</td><td style="color:var(--brand);font-weight:700">⚠ 与返程航班冲突</td><td>—</td><td><span class="st ai">✦ AI 检测</span></td><td><span class="st pd">待你确认</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 设计系统 ================= -->
+<section id="ds">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="sec-no">04</span><h2 class="sec-title">设计系统 · 温润东方管家</h2></div>
+    <p class="sec-desc reveal">拒绝 AI 产品千篇一律的紫色渐变。「伴」的视觉语言是宣纸、墨色与一点柿红——像一个靠谱的老朋友，而不是一个炫技的机器。</p>
+    <div class="ds-grid">
+      <div class="ds-card reveal">
+        <h4>色彩</h4>
+        <div class="swatches">
+          <div class="swatch" style="background:#F5F2EA"><span>宣纸<i>#F5F2EA · 底色</i></span></div>
+          <div class="swatch" style="background:#1B1E26"><span style="color:#fff;background:rgba(0,0,0,.35)">墨色<i>#1B1E26 · 主文字</i></span></div>
+          <div class="swatch" style="background:#E8552F"><span style="color:#fff;background:rgba(0,0,0,.28)">柿红<i>#E8552F · 强调</i></span></div>
+          <div class="swatch" style="background:var(--ai-grad)"><span style="color:#fff;background:rgba(0,0,0,.28)">青鸾<i>AI 专属渐变</i></span></div>
+          <div class="swatch" style="background:#F6D365"><span>杏黄<i>#F6D365 · 提示</i></span></div>
+        </div>
+        <div class="ds-note">柿红只用于"需要立刻处理"的事项（还款、预警、未读）；青鸾渐变专属于 AI——用户一眼就能分辨"这是小伴在说话"。</div>
+      </div>
+      <div class="ds-card reveal">
+        <h4>字体与气质</h4>
+        <div class="type-demo">
+          <div class="t1">思源宋体 · 标题</div>
+          <div class="t2">宋体的笃定感，像管家写的信</div>
+          <div class="t3">正文用思源黑体，14px / 1.7 行高，长时间阅读不累。</div>
+          <div class="t4">标签字 · 字距 0.14em · 克制地点缀</div>
+        </div>
+        <div class="ds-note">圆角系统：卡片 16–22px、按钮全圆角、头像 12–16px 方圆之间——所有圆角都"软一度"，传递陪伴感而非工具感。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="big">伴</div>
+  <p>「伴」AI 社交管家 · 交互原型 V2.0 · 2026-09<br>通讯简洁度 × 生活数据聚合度 × AI 主动智能度 —— 三轴同时占位</p>
+</footer>
+
+<script>
+/* ---------- Tab 切换 ---------- */
+const tabs=document.querySelectorAll('#tabbar .tab');
+const ball=document.getElementById('ai-ball');
+function switchTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));
+  ball.style.display=(id==='scr-ai')?'none':'grid';
+}
+tabs.forEach(t=>t.addEventListener('click',()=>switchTo(t.dataset.s)));
+ball.addEventListener('click',()=>switchTo('scr-ai'));
+
+/* ---------- 时间线筛选 ---------- */
+document.getElementById('tl-chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#tl-chips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  const f=c.dataset.f;
+  document.querySelectorAll('#timeline .t-item').forEach(it=>{
+    it.classList.toggle('hide',f!=='all'&&it.dataset.cat!==f);
+  });
+});
+
+/* ---------- 圈子分段 ---------- */
+document.getElementById('seg').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));
+  ['p1','p2','p3'].forEach(p=>document.getElementById(p).classList.toggle('on',p===b.dataset.p));
+});
+
+/* ---------- AI 角色切换 ---------- */
+const personas={
+  butler:{st:'管家在线 · 已同步今日时间线',chips:['本月我钱花哪了？','以我的口吻回苏苏','帮我准备周五评审']},
+  secretary:{st:'秘书模式 · 可代写、代回、代约、代查',chips:['帮我把明天下午的会推后一小时','起草给客户的致歉邮件','订下周一去北京的机票']},
+  avatar:{st:'分身模式 · 我懂你的语气和偏好',chips:['模拟周五面试，问我 5 个问题','以我的风格写一条徒步招募帖','朋友问我生日想要什么，帮我回']},
+  tree:{st:'树洞模式 · 只倾听，不评判',chips:['今天有点累','最近睡眠不太好','就想找个人说说话']}
+};
+document.getElementById('roles').addEventListener('click',e=>{
+  const r=e.target.closest('.role');if(!r)return;
+  document.querySelectorAll('.role').forEach(x=>x.classList.toggle('on',x===r));
+  const p=personas[r.dataset.r];
+  document.getElementById('ai-status').textContent=p.st;
+  const sg=document.getElementById('sugg');
+  sg.innerHTML=p.chips.map(c=>`<button data-q="${c}">${c}</button>`).join('');
+});
+
+/* ---------- AI 建议问答（演示级罐装回复） ---------- */
+const canned={
+  '本月我钱花哪了？':'本月支出 ¥9,860：餐饮 34%（比上月多 12%，主要是加班外卖）、出行 26%、数码 18%。有一笔异常：9月15日数码消费 ¥3,299，需要我帮你回忆那天买了什么吗？',
+  '以我的口吻回苏苏':'按你平时的语气拟好了：「配色没问题，是字体太乖了。换个有棱角的标题字，高级感就出来了。」要发吗？还是再凶一点？',
+  '帮我准备周五评审':'已就绪三件事：① 材料第 7 页数据口径已标黄待你确认 ② 参会 5 人日历均无冲突 ③ 评审纪要模板已按上次格式生成。祝你周五顺利。',
+  '帮我把明天下午的会推后一小时':'已将「产品周会」从 14:00 改到 15:00，4 位参会人均已通知，会议室改订 305。王芳回复"收到"，其余人未读，需要我 10 分钟后追一条吗？',
+  '起草给客户的致歉邮件':'草稿已写好，语气诚恳但不卑微，核心三段：承认延期 → 给出新交付时间（周三 18:00 前）→ 附补偿方案。在草稿箱等你过目，改完我帮你发。',
+  '订下周一去北京的机票':'下周一去北京的航班筛好了：按你"靠窗、不赶早"的偏好，推荐 CA1710（10:25 起飞，¥860，靠窗余位充足）。要出票吗？',
+  '模拟周五面试，问我 5 个问题':'好，进入面试官模式。第一题：你上份工作中做过最有争议的一个决策是什么？当时反对的声音是什么，你怎么处理的？请开始作答，我会追问。',
+  '以我的风格写一条徒步招募帖':'写好了：「周六径山古道，12km，秋色加载 80%。早 7:30 集合，迟到的负责背水。无人机有人带了，你只管来。——接龙报名 👇」要发到游击队群里吗？',
+  '朋友问我生日想要什么，帮我回':'按你的口吻：「别破费，人来就行。实在想送，带本书吧，你知道我喜欢哪类。」书单链接我也附上了，要发吗？',
+  '今天有点累':'嗯，我在。不用组织语言，想到哪说到哪就好。今天哪件事最耗你？',
+  '最近睡眠不太好':'我注意到你这周平均入睡 0:47，深睡只有 1h12m。今晚试试 23:00 我把所有通知静音，再给你放段白噪音？不想聊也没事，我陪着。',
+  '就想找个人说说话':'好，我哪儿也不去。今天天气不错，你那边呢？'
+};
+function pushMsg(who,html){
+  const chat=document.getElementById('ai-chat');
+  const d=document.createElement('div');
+  d.className='msg '+who;
+  d.innerHTML=`<div class="bubble">${html}</div>`;
+  chat.appendChild(d);
+  const scr=document.getElementById('scr-ai');
+  scr.scrollTo({top:scr.scrollHeight,behavior:'smooth'});
+  return d;
+}
+document.getElementById('sugg').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const q=b.dataset.q;
+  pushMsg('me',q);
+  const chat=document.getElementById('ai-chat');
+  const t=document.createElement('div');
+  t.className='msg ai';t.innerHTML='<div class="typing"><i></i><i></i><i></i></div>';
+  chat.appendChild(t);
+  const scr=document.getElementById('scr-ai');
+  scr.scrollTo({top:scr.scrollHeight,behavior:'smooth'});
+  setTimeout(()=>{t.remove();pushMsg('ai',canned[q]||'收到，交给我。');},1100);
+});
+
+/* ---------- 状态栏时钟 ---------- */
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+tick();setInterval(tick,20000);
+
+/* ---------- 滚动显现 ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
