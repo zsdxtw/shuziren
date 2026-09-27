@@ -1032,15 +1032,15 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
             <button class="tb" data-tab="timeline" onclick="switchTab('timeline')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               提醒</button>
+            <button class="tb ai-tab" data-tab="ai" onclick="switchTab('ai')">
+              <span class="aib"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/></svg></span>
+              AI</button>
             <button class="tb" data-tab="circles" onclick="switchTab('circles')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               圈子</button>
             <button class="tb" data-tab="me" onclick="switchTab('me')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               我的</button>
-            <button class="tb ai-tab" data-tab="ai" onclick="switchTab('ai')">
-              <span class="aib"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/></svg></span>
-              AI</button>
           </div>
           <div class="homebar"></div>
           <div id="ptoast"></div>
@@ -1052,8 +1052,8 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
         <div class="sw-row" id="swRow">
           <button class="swbtn on" data-tab="chat" onclick="switchTab('chat')">💬 对话</button>
           <button class="swbtn" data-tab="timeline" onclick="switchTab('timeline')">⏰ 提醒</button>
-          <button class="swbtn" data-tab="circles" onclick="switchTab('circles')">🌐 圈子</button>
           <button class="swbtn" data-tab="ai" onclick="switchTab('ai')">✨ AI</button>
+          <button class="swbtn" data-tab="circles" onclick="switchTab('circles')">🌐 圈子</button>
           <button class="swbtn" data-tab="me" onclick="switchTab('me')">👤 我的</button>
         </div>
         <div class="note">
@@ -1077,10 +1077,10 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
     <div class="sec-head rise">
       <div class="kicker">INFORMATION ARCHITECTURE · 信息架构</div>
       <h2>五大模块 · AI 贯穿所有 Tab</h2>
-      <p>底部 5 Tab + 全局 AI 悬浮入口。AI 不是第 5 个 Tab 的附属，而是贯穿所有模块的中枢 —— Tab 5 只是它的全屏对话形态。</p>
+      <p>底部 5 Tab + 全局 AI 悬浮入口。AI 稳居底栏正中 C 位 —— 它不是并列的功能 Tab，而是贯穿所有模块的中枢，中央入口只是它的全屏对话形态。</p>
     </div>
     <div class="ia-strip rise">
-      <span class="t">💬 对话</span><span class="t">⏰ 提醒</span><span class="t">🌐 圈子</span><span class="t">👤 我的</span><span class="t" style="background:var(--grad-warm)">✨ AI 中枢</span>
+      <span class="t">💬 对话</span><span class="t">⏰ 提醒</span><span class="t" style="background:var(--grad-warm)">✨ AI 中枢</span><span class="t">🌐 圈子</span><span class="t">👤 我的</span>
       <span class="plus">＋ 任何页面可唤起悬浮球（带着当下语境）</span>
     </div>
     <div class="mods">
@@ -1108,6 +1108,18 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
         <div class="nope">短信 / 邮件 / 截图，AI 皆可解析为提醒</div>
       </div>
       <div class="mod rise">
+        <span class="hl">中枢</span>
+        <div class="top" style="background:linear-gradient(135deg,#dde4ff,#efe3ff)">✨</div>
+        <h3>AI</h3><div class="en">THE CORE</div>
+        <ul>
+          <li>管家 / 秘书 / 分身 / 树洞</li>
+          <li>全局悬浮球 · 带语境唤起</li>
+          <li>主动服务：简报 · 预警 · 建议</li>
+          <li>一句话跨模块调度</li>
+        </ul>
+        <div class="nope">出票 → 时间线 → 通知家人 → 报销单，一句话完成</div>
+      </div>
+      <div class="mod rise">
         <div class="top" style="background:#f3effe">🌐</div>
         <h3>圈子</h3><div class="en">ANTI-ALGO SOCIAL</div>
         <ul>
@@ -1128,18 +1140,6 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
           <li>数据导出 / 删除 / 注销</li>
         </ul>
         <div class="nope">数据属于用户 —— 写进产品宪法的承诺</div>
-      </div>
-      <div class="mod rise">
-        <span class="hl">中枢</span>
-        <div class="top" style="background:linear-gradient(135deg,#dde4ff,#efe3ff)">✨</div>
-        <h3>AI</h3><div class="en">THE CORE</div>
-        <ul>
-          <li>管家 / 秘书 / 分身 / 树洞</li>
-          <li>全局悬浮球 · 带语境唤起</li>
-          <li>主动服务：简报 · 预警 · 建议</li>
-          <li>一句话跨模块调度</li>
-        </ul>
-        <div class="nope">出票 → 时间线 → 通知家人 → 报销单，一句话完成</div>
       </div>
     </div>
   </div>
@@ -1251,10 +1251,10 @@ const NOTE = {
   timeline:{no:'02 / 提醒',title:'今日时间线 · 产品的心脏',tag:'从"人记事"到"事找人"。四大来源统一汇入，AI 负责聚合、排序、提醒、预警冲突。',
     list:['四来源：第三方自动对接 / 他人代录 / AI 从对话识别 / 手动创建','冲突预警：徒步与生日宴冲突，AI 给出"16:30 提前离队"方案','链式行程集：车票 + 会议 + 天气 + 报销自动打包','健康管家与礼物日历（新增能力）已织入时间线'],
     hint:'<b>试试：</b>点击任意时间线卡片展开详情与操作；用顶部胶囊按类别筛选。'},
-  circles:{no:'03 / 圈子',title:'反算法的社交连接',tag:'圈子不只是动态流，而是"一群人的共同记忆"与家庭协作空间，并与时间线互通。',
+  circles:{no:'04 / 圈子',title:'反算法的社交连接',tag:'圈子不只是动态流，而是"一群人的共同记忆"与家庭协作空间，并与时间线互通。',
     list:['朋友圈：纯时间序，无算法、无广告、无点赞排行','兴趣圈：认识新朋友 → 沉淀为对话关系的增长飞轮','家庭圈：共享账单、药品余量、每日签到（新增·远程关怀）','群空间：相册 / 日程 / 接龙 / AA 账本（新增）'],
     hint:'<b>试试：</b>切换上方「朋友圈 / 兴趣圈 / 家庭圈」三个子视图。'},
-  ai:{no:'04 / AI',title:'贯穿全局的中枢',tag:'AI 不是第五个功能，而是前四个模块的调度者。一套底座，四套人格与权限。',
+  ai:{no:'03 / AI',title:'贯穿全局的中枢',tag:'AI 不是又一个功能 Tab，而是其余四个模块的调度者。一套底座，四套人格与权限。',
     list:['管家/秘书/分身/树洞，四重角色一键切换','全局悬浮球：在对话页带着聊天记录唤起，在提醒页带着时间线唤起','跨模块调度：一句话完成 出票 → 时间线 → 通知家人 → 报销','主动服务：晨间简报、冲突预警、异常检测，频率克制'],
     hint:'<b>试试：</b>点击快捷指令、直接输入，或切换 AI 角色。'},
   me:{no:'05 / 我的',title:'信任工程 · 数字资产总控台',tag:'「我的」是产品与用户之间的信任界面：一切透明、一切可撤回。',
