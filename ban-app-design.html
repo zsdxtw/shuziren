@@ -356,6 +356,97 @@ section{position:relative}
 .qchip{flex-shrink:0;font-size:12px;font-weight:600;color:#3d55d6;background:#e9edff;border:1px solid #dbe3ff;border-radius:99px;padding:7px 14px;transition:.2s}
 .qchip:hover{background:#dde4ff}
 
+/* ============ Secondary pages（二级页面） ============ */
+.pgpage{position:absolute;inset:0;background:#f4f5fa;z-index:78;transform:translateX(100%);transition:transform .34s cubic-bezier(.32,.72,.28,1);display:flex;flex-direction:column;box-shadow:-18px 0 50px rgba(10,12,30,.25)}
+.pgpage.open{transform:none}
+.pg-head{padding:64px 14px 10px;display:flex;align-items:center;gap:9px;flex-shrink:0;background:#fff;border-bottom:1px solid #eef0f6}
+.pg-back{width:34px;height:34px;border-radius:11px;background:#f2f3fa;display:grid;place-items:center;color:var(--ink);flex-shrink:0;transition:.15s}
+.pg-back:active{transform:scale(.9)}
+.pg-head .ttl{flex:1;min-width:0}
+.pg-head h5{font-size:16.5px;font-weight:800;letter-spacing:-.01em}
+.pg-head .sub{font-size:11px;color:var(--ink3)}
+.pg-act{font-size:13px;font-weight:700;color:var(--brand);padding:8px 13px;border-radius:99px;background:#eef1ff;flex-shrink:0}
+.pg-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px 0 26px;scrollbar-width:none}
+.pg-body::-webkit-scrollbar{display:none}
+.tl-rail{cursor:pointer}
+/* 会话详情页 */
+.sumbar{margin:2px 14px 12px;background:linear-gradient(120deg,#4c6bff,#7a5cff);border-radius:15px;color:#fff;padding:11px 14px;cursor:pointer}
+.sumbar .st{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.sumbar .sd{font-size:11px;opacity:.85;margin-top:2px}
+.sd-full{display:none;font-size:12px;line-height:1.8;margin-top:8px;border-top:1px dashed rgba(255,255,255,.35);padding-top:8px}
+.sumbar.open .sd-full{display:block}
+.cmsg{display:flex;gap:9px;margin:0 14px 13px;animation:msgIn .3s ease}
+.cmsg .cav{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.cmsg .cb{max-width:74%;background:#fff;border:1px solid #edeff6;border-radius:4px 15px 15px 15px;padding:9px 12px;font-size:13.5px;line-height:1.7;box-shadow:0 1px 3px rgba(20,24,50,.05);cursor:pointer;transition:.15s}
+.cmsg .cb:active{transform:scale(.97)}
+.cmsg.me{flex-direction:row-reverse}
+.cmsg.me .cb{background:linear-gradient(120deg,#4c6bff,#6579ff);color:#fff;border:none;border-radius:15px 4px 15px 15px}
+.cmsg .cnm{font-size:10.5px;color:var(--ink3);margin-bottom:3px}
+.cinput{flex-shrink:0;display:flex;gap:8px;padding:9px 14px 26px;background:#fff;border-top:1px solid #eef0f6;align-items:center}
+.cinput .draft{width:38px;height:38px;border-radius:12px;background:#eef1ff;color:#3d55d6;display:grid;place-items:center;font-size:16px;flex-shrink:0;transition:.15s}
+.cinput .draft:active{transform:scale(.9)}
+.cinput input{flex:1;height:38px;border-radius:99px;border:1.5px solid #e3e5ef;background:#fafbfe;padding:0 15px;font-size:13px;font-family:inherit;outline:none}
+.cinput input:focus{border-color:#b9c6ff}
+.cinput .csend{width:38px;height:38px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center;flex-shrink:0}
+/* 消息操作面板 */
+.mask{position:absolute;inset:0;background:rgba(15,17,34,.4);z-index:84;opacity:0;pointer-events:none;transition:.28s}
+.mask.show{opacity:1;pointer-events:auto}
+.asheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;z-index:85;transform:translateY(105%);transition:transform .32s cubic-bezier(.32,.72,.28,1);padding:10px 0 30px}
+.asheet.open{transform:none}
+.asheet .grip{width:40px;height:4.5px;border-radius:99px;background:#dcdfe9;margin:4px auto 10px}
+.asheet .ctx{margin:0 18px 8px;padding:11px 14px;background:#f6f7fc;border-radius:12px;font-size:12.5px;color:var(--ink2);line-height:1.7}
+.arow{display:flex;align-items:center;gap:13px;padding:13px 22px;font-size:14.5px;font-weight:600;cursor:pointer}
+.arow:hover{background:#f6f7fc}
+.arow .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:#f2f3fa}
+.arow.danger{color:#dc2626}.arow.danger .ic{background:#fdeaea}
+/* 新建提醒页 */
+.parse-card{margin:2px 14px 14px;background:#fff;border:1.5px solid #d9defa;border-radius:16px;padding:15px;box-shadow:0 10px 26px -14px rgba(70,90,255,.3)}
+.parse-card .ph{display:flex;align-items:center;gap:8px;font-size:12px;color:#3d55d6;font-weight:800;letter-spacing:1px;margin-bottom:10px}
+.prow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #eceef5;font-size:13px}
+.prow:last-child{border-bottom:none}
+.prow .k{color:var(--ink3)}
+.prow .v{font-weight:700}
+.nl-input{margin:0 14px 14px;background:#fff;border:1.5px solid #e3e5ef;border-radius:16px;padding:13px 15px;font-size:14px;line-height:1.7;outline:none;font-family:inherit;width:calc(100% - 28px);color:var(--ink);resize:none}
+.nl-input:focus{border-color:#b9c6ff}
+.flabel{padding:2px 20px 8px;font-size:11.5px;color:var(--ink3);font-weight:700}
+.optrow{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 14px}
+.ochip{font-size:12.5px;font-weight:600;padding:7px 15px;border-radius:99px;background:#fff;border:1.5px solid #e3e5ef;color:var(--ink2);transition:.15s}
+.ochip.on{background:#1c2030;color:#fff;border-color:#1c2030}
+.bigcta{display:block;width:calc(100% - 40px);margin:8px 20px 0;padding:14px 0;text-align:center;border-radius:16px;background:var(--grad);color:#fff;font-size:15px;font-weight:700;box-shadow:0 14px 30px -10px rgba(90,100,255,.55);transition:.2s}
+.bigcta:active{transform:scale(.97)}
+/* 记忆管理页 */
+.mem-tip{margin:0 14px 14px;background:#eef1ff;border-radius:13px;padding:10px 14px;font-size:11.5px;color:#3d55d6;line-height:1.7}
+.memrow{display:flex;gap:11px;align-items:flex-start;background:#fff;border:1px solid #edeff6;border-radius:14px;margin:0 14px 9px;padding:12px 13px;transition:.3s}
+.memrow .mi{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#f4f6fc;font-size:15px;flex-shrink:0}
+.memrow .mt{font-size:13.5px;font-weight:600;line-height:1.5}
+.memrow .ms{font-size:10.5px;color:var(--ink3);margin-top:2px}
+.memrow .ops{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
+.memrow .op{width:29px;height:29px;border-radius:9px;background:#f2f3fa;display:grid;place-items:center;font-size:13px}
+.memrow .op.del{background:#fdeaea}
+.memrow.gone{opacity:0;transform:translateX(24px)}
+/* 画像详情页 */
+.radar-wrap{background:#fff;border:1px solid #edeff6;border-radius:18px;margin:0 14px 14px;padding:16px 10px 6px;text-align:center}
+.dim-sec{background:#fff;border:1px solid #edeff6;border-radius:18px;margin:0 14px 14px;padding:15px}
+.dim-sec h6{font-size:13.5px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.dim-sec h6 .q{font-size:11px;color:var(--brand);font-weight:700;cursor:pointer}
+.bar-row{display:grid;grid-template-columns:56px 1fr 40px;gap:9px;align-items:center;font-size:12px;margin-bottom:9px}
+.bar-row .bl{color:var(--ink2);font-weight:600}
+.bar-bg{height:8px;border-radius:99px;background:#eef0f6;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--grad)}
+.bar-pct{text-align:right;color:var(--ink3);font-weight:700;font-size:11px}
+.ev{background:#f7f8fd;border-radius:11px;padding:10px 13px;font-size:11.5px;color:var(--ink2);line-height:1.8;display:none;margin-top:10px}
+.ev.show{display:block}
+.heat{display:flex;gap:6px;margin-bottom:4px}
+.heat i{flex:1;height:36px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:10.5px;font-weight:700}
+/* 群空间页 */
+.gseg{display:flex;background:#eaecf4;border-radius:13px;padding:3px;margin:0 14px 14px}
+.gseg button{flex:1;border-radius:10px;padding:7px 0;font-size:12.5px;color:var(--ink3);font-weight:600;transition:.2s}
+.gseg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(20,24,50,.1)}
+.gview{display:none}.gview.on{display:block;animation:cvIn .3s ease}
+.gcard{background:#fff;border:1px solid #edeff6;border-radius:16px;margin:0 14px 12px;padding:14px}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gal .ph3{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:22px;color:#fff}
+
 /* ============ Modules ============ */
 #modules{background:#fff;border-top:1px solid var(--line)}
 .ia-strip{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:#f2f3fb;border:1px dashed #cfd4ec;border-radius:99px;padding:10px 22px;margin-bottom:44px;font-size:13px;font-weight:700;color:var(--ink2)}
@@ -553,7 +644,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
     <div class="sec-head rise">
       <div class="kicker">INTERACTIVE PROTOTYPE · 可交互高保真原型</div>
       <h2>把「伴」拿在手里试一试</h2>
-      <p>以下为真实可交互的 App 原型：点击底部 Tab 或右侧按钮切换界面；时间线卡片可展开；AI 界面支持快捷指令与自由输入。</p>
+      <p>以下为真实可交互原型：5 个一级 Tab + 5 个二级页面（家庭群会话 / 新建提醒 / 群空间 / 记忆管理 / 画像详情）。时间线卡片可展开、圆点可勾完成；AI 支持快捷指令与自由输入。</p>
     </div>
     <div class="proto-grid">
 
@@ -596,7 +687,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     <span class="r2"><span class="pv">给妈的礼物到了吗？</span></span>
                   </span>
                 </div>
-                <div class="crow">
+                <div class="crow" data-pg="pg-chat" onclick="openPage('pg-chat')">
                   <span class="av" style="background:linear-gradient(135deg,#4c6bff,#7a5cff)">家</span>
                   <span class="mid">
                     <span class="r1"><span class="nm">家庭群</span><span class="tm">08:40</span></span>
@@ -660,7 +751,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
               <div class="scroll" style="padding-top:0">
                 <div class="tl-list">
 
-                  <div class="tl-item done" data-cat="健康" onclick="tlTog(this)">
+                  <div class="tl-item done" data-cat="健康" onclick="tlTog(this,event)">
                     <div class="tl-time">07:30</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#b6bac9"></span></div>
                     <div class="tl-card">
@@ -672,7 +763,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="健康" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="健康" onclick="tlTog(this,event)">
                     <div class="tl-time">08:30</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#10b981"></span></div>
                     <div class="tl-card">
@@ -689,7 +780,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="家庭" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="家庭" onclick="tlTog(this,event)">
                     <div class="tl-time">10:00</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#f472b6"></span></div>
                     <div class="tl-card">
@@ -706,7 +797,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="消费" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="消费" onclick="tlTog(this,event)">
                     <div class="tl-time">11:30</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#64748b"></span></div>
                     <div class="tl-card">
@@ -723,7 +814,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="账单" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="账单" onclick="tlTog(this,event)">
                     <div class="tl-time">14:30</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#f59e0b"></span></div>
                     <div class="tl-card">
@@ -740,7 +831,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="圈子" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="圈子" onclick="tlTog(this,event)">
                     <div class="tl-time">15:00</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#8b5cf6"></span></div>
                     <div class="tl-card">
@@ -757,7 +848,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item warnx" data-cat="sys" onclick="tlTog(this)">
+                  <div class="tl-item warnx" data-cat="sys" onclick="tlTog(this,event)">
                     <div class="tl-time">⚠️</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#ff7d5c"></span></div>
                     <div class="tl-card">
@@ -774,7 +865,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="家庭" onclick="tlTog(this)">
+                  <div class="tl-item" id="tl-birthday" data-cat="家庭" onclick="tlTog(this,event)">
                     <div class="tl-time">18:00</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#f472b6"></span></div>
                     <div class="tl-card">
@@ -791,7 +882,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="出行" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="出行" onclick="tlTog(this,event)">
                     <div class="tl-time">21:30</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#0ea5a5"></span></div>
                     <div class="tl-card">
@@ -808,7 +899,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </div>
                   </div>
 
-                  <div class="tl-item" data-cat="健康" onclick="tlTog(this)">
+                  <div class="tl-item" data-cat="健康" onclick="tlTog(this,event)">
                     <div class="tl-time">23:00</div>
                     <div class="tl-rail"><span class="tl-dot" style="--c:#10b981"></span></div>
                     <div class="tl-card">
@@ -826,7 +917,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                   </div>
 
                 </div>
-                <div class="tl-foot"><button class="tl-add" onclick="ptoast('快速创建提醒（演示）')">＋ 添加提醒</button></div>
+                <div class="tl-foot"><button class="tl-add" onclick="openPage('pg-addr')">＋ 添加提醒</button></div>
               </div>
             </div>
           </div>
@@ -880,7 +971,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                       <div class="info">本周活动：九溪十八涧 8.5km · 周日 08:30 · 已报 12/20 人<br>群空间：相册 236 张 · 群日程 4 · AA 车费 ¥40/人（4 人已付）</div>
                       <div style="display:flex;gap:8px">
                         <span class="tl-act" onclick="ptoast('报名成功！周日晚提醒已加入时间线')">报名周日徒步</span>
-                        <span class="tl-act plain" onclick="ptoast('AA 账单已生成，待收 2 人')">AA 收款</span>
+                        <span class="tl-act plain" onclick="openPage('pg-gspace')">群空间 →</span>
                       </div>
                     </div>
                   </div>
@@ -977,7 +1068,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                   </div>
                 </div>
 
-                <div class="me-sub">我的画像 · AI 生成，可随时修正</div>
+                <div class="me-sub" style="display:flex;justify-content:space-between;align-items:center"><span>我的画像 · AI 生成，可随时修正</span><span style="color:var(--brand);cursor:pointer;font-size:12px;font-weight:700" onclick="openPage('pg-portrait')">详情 ›</span></div>
                 <div class="pt-card">
                   <div class="pt-tags">
                     <span class="pt-tag hi">徒步</span><span class="pt-tag hi">手冲咖啡</span><span class="pt-tag">科幻</span><span class="pt-tag">羽毛球</span><span class="pt-tag">摄影</span><span class="pt-tag">靠窗座</span><span class="pt-tag">不吃香菜</span>
@@ -991,7 +1082,7 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
                     </svg>
                     <div class="cap"><b>本周情绪曲线 · 周四最愉快</b><br>仅你可见 · 绝不用于广告</div>
                   </div>
-                  <div class="pt-more"><span>AI 记住了你 <b style="color:var(--ink)">128</b> 件事</span><span class="lk" onclick="ptoast('每条记忆可查看、修改、删除')">管理记忆 →</span></div>
+                  <div class="pt-more"><span>AI 记住了你 <b style="color:var(--ink)">128</b> 件事</span><span class="lk" onclick="openPage('pg-mem')">管理记忆 →</span></div>
                 </div>
 
                 <div class="me-sub">账号授权中心 · 信任仪表盘</div>
@@ -1043,6 +1134,210 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
               我的</button>
           </div>
           <div class="homebar"></div>
+
+          <!-- ======== 二级页：家庭群会话 ======== -->
+          <div class="pgpage" id="pg-chat">
+            <div class="pg-head">
+              <button class="pg-back" onclick="closePage('pg-chat')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="ttl"><h5>家庭群</h5><div class="sub">爸爸 · 妈妈 · 姐姐 · 我（4 人）</div></div>
+              <span class="pg-act" onclick="ptoast('群设置（演示）')">⋯</span>
+            </div>
+            <div class="pg-body" id="chatBody">
+              <div class="sumbar open" onclick="this.classList.toggle('open')">
+                <div class="st">✨ AI 未读总结 · 12 条</div>
+                <div class="sd">3 个要点 · 点击展开 / 收起</div>
+                <div class="sd-full">① 生日宴 18:00 楼外楼「映月」包厢，姐姐已订<br>② 蛋糕姐姐已订，提醒你别买重<br>③ 爸爸问你需不需要开车接</div>
+              </div>
+              <div class="cmsg"><span class="cav" style="background:linear-gradient(135deg,#f472b6,#fda4af)">姐</span><div><div class="cnm">姐姐</div><div class="cb" onclick="msgTap(this)">包厢定好啦，六点楼外楼映月包厢，都别迟到哈</div></div></div>
+              <div class="cmsg"><span class="cav" style="background:linear-gradient(135deg,#0ea5a5,#34c3bb)">爸</span><div><div class="cnm">爸爸</div><div class="cb" onclick="msgTap(this)">小默，要不要开车接你？</div></div></div>
+              <div class="cmsg me"><div><div class="cb" onclick="msgTap(this)">不用接～我地铁过去，准时到</div></div></div>
+              <div class="cmsg"><span class="cav" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">妈</span><div><div class="cnm">妈妈</div><div class="cb" onclick="msgTap(this)">人到就行，都别买东西，家里啥都有</div></div></div>
+              <div class="cmsg"><span class="cav" style="background:linear-gradient(135deg,#f472b6,#fda4af)">姐</span><div><div class="cnm">姐姐</div><div class="cb" onclick="msgTap(this)">蛋糕我订好了，你可千万别买重了！</div></div></div>
+              <div class="syspill" style="margin:8px 0"><span>提示：点击任意消息气泡 → 一键转提醒</span></div>
+            </div>
+            <div class="cinput">
+              <button class="draft" onclick="aiDraft()" title="AI 代拟回复">🤖</button>
+              <input id="chatInput" placeholder="说点什么…" onkeydown="if(event.key==='Enter')chatSend()">
+              <button class="csend" onclick="chatSend()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 22-7z"/></svg></button>
+            </div>
+          </div>
+
+          <!-- ======== 二级页：新建提醒 ======== -->
+          <div class="pgpage" id="pg-addr">
+            <div class="pg-head">
+              <button class="pg-back" onclick="closePage('pg-addr')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="ttl"><h5>新建提醒</h5><div class="sub">说人话就行，AI 负责理解</div></div>
+            </div>
+            <div class="pg-body">
+              <textarea class="nl-input" rows="2" id="addrText">下午 5 点给花店打电话，给妈妈订一束康乃馨</textarea>
+              <div class="parse-card">
+                <div class="ph">✨ AI 已理解</div>
+                <div class="prow"><span class="k">时间</span><span class="v">今天 17:00（9月27日）</span></div>
+                <div class="prow"><span class="k">事项</span><span class="v">电话订康乃馨 · 妈妈生日</span></div>
+                <div class="prow"><span class="k">类别</span><span class="v">家庭</span></div>
+                <div class="prow"><span class="k">关联</span><span class="v">礼物日历 · 妈妈生日 9/27</span></div>
+              </div>
+              <div class="flabel">类别</div>
+              <div class="optrow">
+                <button class="ochip on">👪 家庭</button><button class="ochip">💳 账单</button><button class="ochip">🏃 健康</button><button class="ochip">📦 消费</button><button class="ochip">🚄 出行</button><button class="ochip">🥾 圈子</button>
+              </div>
+              <div class="flabel">提前提醒</div>
+              <div class="optrow">
+                <button class="ochip">准时</button><button class="ochip on">提前 30 分钟</button><button class="ochip">提前 1 小时</button><button class="ochip">提前 1 天</button>
+              </div>
+              <div class="flabel">重复</div>
+              <div class="optrow">
+                <button class="ochip on">不重复</button><button class="ochip">每天</button><button class="ochip">每周</button><button class="ochip">每月</button>
+              </div>
+              <button class="bigcta" onclick="addrCreate()">创建提醒</button>
+            </div>
+          </div>
+
+          <!-- ======== 二级页：群空间 ======== -->
+          <div class="pgpage" id="pg-gspace">
+            <div class="pg-head">
+              <button class="pg-back" onclick="closePage('pg-gspace')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="ttl"><h5>徒步 · 杭州 · 群空间</h5><div class="sub">486 位圈友 · 相册 236 · 群日程 4</div></div>
+            </div>
+            <div class="pg-body" style="padding-top:6px">
+              <div class="gseg">
+                <button class="on" onclick="gtab('gal',this)">相册</button>
+                <button onclick="gtab('cal',this)">群日程</button>
+                <button onclick="gtab('jz',this)">接龙</button>
+                <button onclick="gtab('aa',this)">AA 账本</button>
+              </div>
+              <div class="gview on" id="gv-gal">
+                <div class="gcard">
+                  <div class="gal">
+                    <div class="ph3" style="background:linear-gradient(135deg,#7dd3fc,#4c6bff)">🏞️<span class="cap">九溪踩线</span></div>
+                    <div class="ph3" style="background:linear-gradient(135deg,#a7f3d0,#34d399)">⛰️<span class="cap">径山秋色</span></div>
+                    <div class="ph3" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">🌇<span class="cap">西湖夜跑</span></div>
+                    <div class="ph3" style="background:linear-gradient(135deg,#c4b5fd,#8b5cf6)">⛺<span class="cap">安吉营地</span></div>
+                    <div class="ph3" style="background:linear-gradient(135deg,#fbcfe8,#ec4899)">🌸<span class="cap">莫干山</span></div>
+                    <div class="ph3" style="background:linear-gradient(135deg,#99f6e4,#14b8a6)">🚣<span class="cap">桐庐漂流</span></div>
+                  </div>
+                  <div class="pt-more"><span>共 236 张 · 6 个精选相册</span><span class="lk" onclick="ptoast('全部照片（演示）')">查看全部 →</span></div>
+                </div>
+              </div>
+              <div class="gview" id="gv-cal">
+                <div class="gcard">
+                  <div class="fam-row"><span class="fi">🥾</span><div><div class="ft">九溪十八涧 · 周日 08:30</div><div class="fs">8.5km · 已报 12/20 · 领队老周</div></div><span class="st go" onclick="ptoast('✓ 已加入你的时间线：周日 08:30 集合');closePage('pg-gspace');switchTab('timeline')">＋ 时间线</span></div>
+                  <div class="fam-row"><span class="fi">🏔️</span><div><div class="ft">徽杭古道 · 下下周六</div><div class="fs">16km 进阶线 · 报名中 8/15</div></div><span class="st go" onclick="ptoast('报名成功（演示）')">报名</span></div>
+                  <div class="pt-more"><span>群日程加入后与个人时间线合并显示</span></div>
+                </div>
+              </div>
+              <div class="gview" id="gv-jz">
+                <div class="gcard" id="jz-list">
+                  <div class="me-sub" style="padding:0 0 6px">周日徒步 · 已接龙 12/20</div>
+                  <div class="fam-row"><span class="fi">🧗</span><div><div class="ft">老周（领队）</div><div class="fs">带 2 台车 · 车费 AA</div></div><span class="st ok">✓</span></div>
+                  <div class="fam-row"><span class="fi">🎒</span><div><div class="ft">阿伟</div><div class="fs">+1 · 自带登山杖</div></div><span class="st ok">✓</span></div>
+                  <div class="fam-row"><span class="fi">📷</span><div><div class="ft">小林</div><div class="fs">+1 · 负责拍照</div></div><span class="st ok">✓</span></div>
+                  <div class="fam-row"><span class="fi">🍳</span><div><div class="ft">大鹏</div><div class="fs">+1 · 带早餐补给</div></div><span class="st ok">✓</span></div>
+                </div>
+                <button class="bigcta" onclick="jiezhang()">＋ 我要接龙</button>
+              </div>
+              <div class="gview" id="gv-aa">
+                <div class="gcard">
+                  <div class="me-sub" style="padding:0 0 6px">周日车费 AA · ¥480 / 12 人 = ¥40</div>
+                  <div class="fam-row"><span class="fi">🧗</span><div><div class="ft">老周</div><div class="fs">9/26 20:14</div></div><span class="st ok">已付</span></div>
+                  <div class="fam-row"><span class="fi">🎒</span><div><div class="ft">阿伟</div><div class="fs">9/26 20:31</div></div><span class="st ok">已付</span></div>
+                  <div class="fam-row"><span class="fi">📷</span><div><div class="ft">小林</div><div class="fs">—</div></div><span class="st wait">待付</span></div>
+                  <div class="fam-row"><span class="fi">🍳</span><div><div class="ft">大鹏</div><div class="fs">—</div></div><span class="st wait">待付</span></div>
+                  <div class="pt-more"><span>我的份额 <b style="color:var(--ink)">¥40</b> · 待付</span><span class="lk" onclick="ptoast('唤起支付（演示）· 伴不经手资金')">去支付</span></div>
+                </div>
+                <button class="bigcta" style="background:linear-gradient(120deg,#ff7d5c,#ff5c8a);box-shadow:0 14px 30px -10px rgba(255,125,92,.5)" onclick="aacue()">AI 帮我催未付的 2 位</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ======== 二级页：记忆管理 ======== -->
+          <div class="pgpage" id="pg-mem">
+            <div class="pg-head">
+              <button class="pg-back" onclick="closePage('pg-mem')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="ttl"><h5>AI 的记忆 · <span id="memCount">128</span> 件事</h5><div class="sub">逐条可见 · 可改 · 可删 · 删除即遗忘</div></div>
+            </div>
+            <div class="pg-body">
+              <div class="mem-tip">这些记忆只用于更好地服务你，绝不出现在任何广告里。删除后 AI 立即"忘记"，不再影响任何建议。</div>
+              <div class="me-sub">偏好</div>
+              <div class="memrow"><span class="mi">🥗</span><div style="flex:1"><div class="mt">不吃香菜</div><div class="ms">来源：2026-06-14 · 外卖点餐对话</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="memrow"><span class="mi">💺</span><div style="flex:1"><div class="mt">高铁 / 航班偏好靠窗</div><div class="ms">来源：近 90 天 11 次出行选择</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="memrow"><span class="mi">☕</span><div style="flex:1"><div class="mt">咖啡去冰、少糖</div><div class="ms">来源：2026-08-02 · 对话提及</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="me-sub">事实</div>
+              <div class="memrow"><span class="mi">🎂</span><div style="flex:1"><div class="mt">妈妈生日是 9 月 27 日</div><div class="ms">来源：2025-09-26 · 家庭群对话</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="memrow"><span class="mi">🥭</span><div style="flex:1"><div class="mt">对芒果轻微过敏</div><div class="ms">来源：2026-05-11 · 对话提及</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="memrow"><span class="mi">🏸</span><div style="flex:1"><div class="mt">每周三晚打羽毛球</div><div class="ms">来源：行为归纳 · 置信度 92%</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="me-sub">社交</div>
+              <div class="memrow"><span class="mi">🤝</span><div style="flex:1"><div class="mt">王晓雅是大学同学，关系亲密</div><div class="ms">来源：对话频次与称呼分析</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+              <div class="memrow"><span class="mi">🍵</span><div style="flex:1"><div class="mt">爸爸爱喝龙井</div><div class="ms">来源：2026-09-01 · 家庭群</div></div><span class="ops"><button class="op" onclick="memEdit()">✎</button><button class="op del" onclick="memDel(this)">🗑</button></span></div>
+            </div>
+          </div>
+
+          <!-- ======== 二级页：画像详情 ======== -->
+          <div class="pgpage" id="pg-portrait">
+            <div class="pg-head">
+              <button class="pg-back" onclick="closePage('pg-portrait')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="ttl"><h5>我的画像</h5><div class="sub">AI 生成于 2026-09-27 · 每条结论可修正</div></div>
+            </div>
+            <div class="pg-body">
+              <div class="radar-wrap">
+                <svg width="100%" viewBox="0 0 240 220" style="max-width:300px">
+                  <polygon points="120,20 197.9,65 197.9,155 120,200 42.1,155 42.1,65" fill="none" stroke="#e2e6f2" stroke-width="1.5"/>
+                  <polygon points="120,50 171.96,80 171.96,140 120,170 68.04,140 68.04,80" fill="none" stroke="#e2e6f2" stroke-width="1.5"/>
+                  <polygon points="120,80 145.98,95 145.98,125 120,140 94.02,125 94.02,95" fill="none" stroke="#e2e6f2" stroke-width="1.5"/>
+                  <line x1="120" y1="110" x2="120" y2="20" stroke="#eef0f6" stroke-width="1.2"/>
+                  <line x1="120" y1="110" x2="197.9" y2="65" stroke="#eef0f6" stroke-width="1.2"/>
+                  <line x1="120" y1="110" x2="197.9" y2="155" stroke="#eef0f6" stroke-width="1.2"/>
+                  <line x1="120" y1="110" x2="120" y2="200" stroke="#eef0f6" stroke-width="1.2"/>
+                  <line x1="120" y1="110" x2="42.1" y2="155" stroke="#eef0f6" stroke-width="1.2"/>
+                  <line x1="120" y1="110" x2="42.1" y2="65" stroke="#eef0f6" stroke-width="1.2"/>
+                  <polygon points="120,30.8 176.1,77.6 165.2,136.1 120,178.4 56.8,146.45 48.3,68.6" fill="rgba(76,107,255,.18)" stroke="#4c6bff" stroke-width="2.5" stroke-linejoin="round"/>
+                  <circle cx="120" cy="30.8" r="3" fill="#4c6bff"/><circle cx="176.1" cy="77.6" r="3" fill="#4c6bff"/><circle cx="165.2" cy="136.1" r="3" fill="#4c6bff"/><circle cx="120" cy="178.4" r="3" fill="#4c6bff"/><circle cx="56.8" cy="146.45" r="3" fill="#4c6bff"/><circle cx="48.3" cy="68.6" r="3" fill="#4c6bff"/>
+                  <text x="120" y="13" text-anchor="middle" font-size="11" font-weight="600" fill="#8b8fa5">兴趣 88</text>
+                  <text x="204" y="60" font-size="11" font-weight="600" fill="#8b8fa5">消费 72</text>
+                  <text x="204" y="163" font-size="11" font-weight="600" fill="#8b8fa5">社交 58</text>
+                  <text x="120" y="215" text-anchor="middle" font-size="11" font-weight="600" fill="#8b8fa5">作息 76</text>
+                  <text x="36" y="163" text-anchor="end" font-size="11" font-weight="600" fill="#8b8fa5">情绪 81</text>
+                  <text x="36" y="60" text-anchor="end" font-size="11" font-weight="600" fill="#8b8fa5">偏好 92</text>
+                </svg>
+                <div style="font-size:11px;color:var(--ink3);padding:2px 0 10px">六维画像 · 基于近 90 天行为生成</div>
+              </div>
+              <div class="dim-sec">
+                <h6>消费结构 · 月均 <span class="q" onclick="evTog('ev1')">查看依据</span></h6>
+                <div class="bar-row"><span class="bl">餐饮</span><div class="bar-bg"><div class="bar-fill" style="width:32%"></div></div><span class="bar-pct">32%</span></div>
+                <div class="bar-row"><span class="bl">出行</span><div class="bar-bg"><div class="bar-fill" style="width:21%"></div></div><span class="bar-pct">21%</span></div>
+                <div class="bar-row"><span class="bl">数码</span><div class="bar-bg"><div class="bar-fill" style="width:18%"></div></div><span class="bar-pct">18%</span></div>
+                <div class="bar-row"><span class="bl">家庭生活</span><div class="bar-bg"><div class="bar-fill" style="width:17%"></div></div><span class="bar-pct">17%</span></div>
+                <div class="bar-row"><span class="bl">其他</span><div class="bar-bg"><div class="bar-fill" style="width:12%"></div></div><span class="bar-pct">12%</span></div>
+                <div class="ev" id="ev1">依据：聚合 9 月账单邮件 6 封、外卖订单 23 单、电商物流 9 单。环比餐饮 ↓4%、出行 ↑7%（出差 2 次）。<b>结论可修正</b> →</div>
+              </div>
+              <div class="dim-sec">
+                <h6>兴趣图谱 · 带置信度 <span class="q" onclick="evTog('ev2')">查看依据</span></h6>
+                <div class="pt-tags">
+                  <span class="pt-tag hi">徒步 92%</span><span class="pt-tag hi">手冲咖啡 87%</span><span class="pt-tag">科幻 74%</span><span class="pt-tag">羽毛球 69%</span><span class="pt-tag">摄影 58%</span><span class="pt-tag">粤语老歌 51%</span>
+                </div>
+                <div class="ev" id="ev2">依据：近 90 天徒步相关对话 47 次、参与徒步圈活动 6 次、装备类消费 3 笔。标签随行为持续更新，30 天未活跃自动衰减。</div>
+              </div>
+              <div class="dim-sec">
+                <h6>时间画像 · 本周日程密度 <span class="q" onclick="evTog('ev3')">查看依据</span></h6>
+                <div class="heat">
+                  <i style="background:#9db0ff">一</i><i style="background:#c3cffe">二</i><i style="background:#b3c2ff">三</i><i style="background:#e6ebff;color:#5b6480">四</i><i style="background:#8fa6ff">五</i><i style="background:#4c6bff">六</i><i style="background:#7a94ff">日</i>
+                </div>
+                <div class="ev" id="ev3">依据：日历与时间线事项统计。周六最忙（5 项），周四最空。AI 已把重要事项优先安排在你的高效时段，避开深度工作冲突。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 消息操作面板 -->
+          <div class="mask" id="amask" onclick="sheetClose()"></div>
+          <div class="asheet" id="asheet">
+            <div class="grip"></div>
+            <div class="ctx" id="sheetCtx">消息内容</div>
+            <div class="arow" onclick="sheetRemind()"><span class="ic">⏰</span>设为提醒 · AI 自动提取时间</div>
+            <div class="arow" onclick="ptoast('已复制');sheetClose()"><span class="ic">📋</span>复制</div>
+            <div class="arow" onclick="ptoast('已引用到输入框（演示）');sheetClose()"><span class="ic">💬</span>引用回复</div>
+            <div class="arow danger" onclick="sheetClose()"><span class="ic">✕</span>取消</div>
+          </div>
+
           <div id="ptoast"></div>
         </div>
       </div>
@@ -1247,19 +1542,19 @@ footer .r{font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.9}
 const NOTE = {
   chat:{no:'01 / 对话',title:'「三无一有」的纯粹通讯',tag:'无广告 · 无信息流 · 无商业入口，有温度。只保留"和人在说话"需要的一切，多一样都不加。',
     list:['「重要的人」置顶区，其余自动折叠，信息降噪','AI 未读总结：99+ 群消息 → 3 行要点，不读原文也能接话','长按任意消息 → 一键转提醒，AI 自动提取时间地点','物流/缴费通知由 AI 收件助手收纳，不搞服务号生态'],
-    hint:'<b>试试：</b>点击顶部「晨间简报」跳转时间线；点击右下角悬浮球唤起 AI。'},
+    hint:'<b>试试：</b>点击「家庭群」进入会话 → 点消息气泡一键转提醒、🤖 代拟回复；顶部简报跳转时间线。'},
   timeline:{no:'02 / 提醒',title:'今日时间线 · 产品的心脏',tag:'从"人记事"到"事找人"。四大来源统一汇入，AI 负责聚合、排序、提醒、预警冲突。',
     list:['四来源：第三方自动对接 / 他人代录 / AI 从对话识别 / 手动创建','冲突预警：徒步与生日宴冲突，AI 给出"16:30 提前离队"方案','链式行程集：车票 + 会议 + 天气 + 报销自动打包','健康管家与礼物日历（新增能力）已织入时间线'],
-    hint:'<b>试试：</b>点击任意时间线卡片展开详情与操作；用顶部胶囊按类别筛选。'},
+    hint:'<b>试试：</b>点击卡片展开；点击时间圆点完成事项；底部「＋ 添加提醒」说一句话创建提醒。'},
   circles:{no:'04 / 圈子',title:'反算法的社交连接',tag:'圈子不只是动态流，而是"一群人的共同记忆"与家庭协作空间，并与时间线互通。',
     list:['朋友圈：纯时间序，无算法、无广告、无点赞排行','兴趣圈：认识新朋友 → 沉淀为对话关系的增长飞轮','家庭圈：共享账单、药品余量、每日签到（新增·远程关怀）','群空间：相册 / 日程 / 接龙 / AA 账本（新增）'],
-    hint:'<b>试试：</b>切换上方「朋友圈 / 兴趣圈 / 家庭圈」三个子视图。'},
+    hint:'<b>试试：</b>切换三个子视图；到「兴趣圈」打开徒步圈「群空间」：相册 / 日程 / 接龙 / AA。'},
   ai:{no:'03 / AI',title:'贯穿全局的中枢',tag:'AI 不是又一个功能 Tab，而是其余四个模块的调度者。一套底座，四套人格与权限。',
     list:['管家/秘书/分身/树洞，四重角色一键切换','全局悬浮球：在对话页带着聊天记录唤起，在提醒页带着时间线唤起','跨模块调度：一句话完成 出票 → 时间线 → 通知家人 → 报销','主动服务：晨间简报、冲突预警、异常检测，频率克制'],
     hint:'<b>试试：</b>点击快捷指令、直接输入，或切换 AI 角色。'},
   me:{no:'05 / 我的',title:'信任工程 · 数字资产总控台',tag:'「我的」是产品与用户之间的信任界面：一切透明、一切可撤回。',
     list:['画像可视化：兴趣图谱 + 情绪曲线，每条结论可修正','授权中心仪表盘：读了哪些数据一目了然，一键撤回','记忆管理：「AI 记住了我什么」128 件事逐条可删','订阅管家（新增）：闲置订阅发现，每年省下真金白银'],
-    hint:'<b>试试：</b>浏览授权中心、订阅管家；点击任意菜单项查看演示反馈。'}
+    hint:'<b>试试：</b>点画像「详情」看六维雷达；「管理记忆」逐条查看 AI 记住的事。'}
 };
 
 function switchTab(k){
@@ -1281,7 +1576,10 @@ function switchTab(k){
 switchTab('chat');
 
 /* ===================== Timeline ===================== */
-function tlTog(el){ el.classList.toggle('open'); }
+function tlTog(el,ev){
+  if(ev && ev.target.closest('.tl-dot')){ tlDoneOn(el); return; }
+  el.classList.toggle('open');
+}
 function tlFilter(cat, el){
   document.querySelectorAll('#fchips .fchip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
@@ -1374,6 +1672,111 @@ function aiRole(r, el){
   box.appendChild(sp);
   aiReply(info.greet);
 }
+
+/* ===================== 二级页面 ===================== */
+function openPage(id){document.getElementById(id).classList.add('open')}
+function closePage(id){document.getElementById(id).classList.remove('open')}
+function tlDoneOn(it){
+  const nowDone=!it.classList.contains('done');
+  it.classList.toggle('done',nowDone);
+  const pill=it.querySelector('.done-pill');
+  if(nowDone&&!pill){const s=document.createElement('span');s.className='done-pill';s.textContent='已完成';it.querySelector('.tl-h').appendChild(s)}
+  if(!nowDone&&pill){pill.remove()}
+  ptoast(nowDone?'✓ 已完成':'已恢复为未完成');
+}
+/* 会话列表行点击 */
+document.querySelectorAll('#scr-chat .crow').forEach(r=>{
+  r.addEventListener('click',()=>{
+    if(r.dataset.pg){openPage(r.dataset.pg)}
+    else{ptoast('演示：点击「家庭群」体验完整会话功能')}
+  });
+});
+/* 消息操作面板 */
+let selMsg='';
+function msgTap(el){
+  selMsg=el.textContent;
+  document.getElementById('sheetCtx').textContent=selMsg;
+  document.getElementById('amask').classList.add('show');
+  document.getElementById('asheet').classList.add('open');
+}
+function sheetClose(){
+  document.getElementById('amask').classList.remove('show');
+  document.getElementById('asheet').classList.remove('open');
+}
+function addTimelineItem(o){
+  const it=document.createElement('div');
+  it.className='tl-item';it.dataset.cat=o.cat;it.setAttribute('onclick','tlTog(this,event)');
+  it.innerHTML='<div class="tl-time">'+o.time+'</div>'
+   +'<div class="tl-rail"><span class="tl-dot" style="--c:'+o.c+'"></span></div>'
+   +'<div class="tl-card"><div class="tl-h"><span class="tl-ico" style="--ic:'+o.ic+'">'+o.icon+'</span>'
+   +'<div style="flex:1"><div class="tl-t">'+o.title+'</div><div class="tl-s">'+o.sub+'</div></div>'
+   +'<span class="tl-badge" style="background:'+o.badgeBg+';color:'+o.badgeC+'">'+o.badge+'</span>'
+   +'<svg class="tl-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></div>'
+   +'<div class="tl-more"><div class="tl-detail">'+(o.detail||o.sub)+'</div></div></div>';
+  const ref=o.beforeId?document.getElementById(o.beforeId):null;
+  if(ref){ref.parentNode.insertBefore(it,ref)}else{document.querySelector('.tl-list').appendChild(it)}
+  return it;
+}
+function sheetRemind(){
+  const t=selMsg.replace(/[！!。～~？?]/g,'').slice(0,16);
+  sheetClose();
+  addTimelineItem({time:'17:30',icon:'👪',ic:'#fdf0f6',c:'#f472b6',cat:'家庭',title:t,sub:'来自家庭群 · AI 自动提取',badge:'家庭',badgeBg:'#fdf0f6',badgeC:'#d64a9e',beforeId:'tl-birthday'});
+  ptoast('✓ 已设为提醒，加入今日时间线 17:30');
+}
+function chatSend(){
+  const inp=document.getElementById('chatInput');const v=inp.value.trim();
+  if(!v)return;
+  const body=document.getElementById('chatBody');
+  const d=document.createElement('div');d.className='cmsg me';
+  d.innerHTML='<div><div class="cb"></div></div>';
+  d.querySelector('.cb').textContent=v;
+  d.onclick=null;
+  body.appendChild(d);inp.value='';body.scrollTop=body.scrollHeight;
+}
+function aiDraft(){
+  document.getElementById('chatInput').value='好嘞，那我六点前到，蛋糕留一块等我 🎂';
+  ptoast('AI 已按你的口吻草拟，可编辑后发送');
+}
+/* 新建提醒：选项组互斥选中 */
+document.querySelectorAll('.optrow').forEach(row=>{
+  row.addEventListener('click',e=>{
+    const b=e.target.closest('.ochip');if(!b)return;
+    row.querySelectorAll('.ochip').forEach(c=>c.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+function addrCreate(){
+  addTimelineItem({time:'17:00',icon:'🌷',ic:'#fdf0f6',c:'#f472b6',cat:'家庭',title:'电话订康乃馨 · 妈妈生日',sub:'提前 30 分钟 · 新建提醒',badge:'家庭',badgeBg:'#fdf0f6',badgeC:'#d64a9e',beforeId:'tl-birthday'});
+  closePage('pg-addr');switchTab('timeline');
+  ptoast('✓ 已加入今日时间线 17:00');
+}
+/* 记忆管理 */
+function memDel(el){
+  const r=el.closest('.memrow');r.classList.add('gone');
+  setTimeout(()=>r.remove(),300);
+  const c=document.getElementById('memCount');c.textContent=+c.textContent-1;
+  ptoast('已删除，AI 将不再记住这件事');
+}
+function memEdit(){ptoast('编辑记忆（演示）')}
+/* 画像依据 */
+function evTog(id){document.getElementById(id).classList.toggle('show')}
+/* 群空间 */
+function gtab(v,el){
+  document.querySelectorAll('#pg-gspace .gseg button').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('#pg-gspace .gview').forEach(g=>g.classList.remove('on'));
+  document.getElementById('gv-'+v).classList.add('on');
+}
+let jzDone=false;
+function jiezhang(){
+  if(jzDone){ptoast('你已在接龙中');return}
+  jzDone=true;
+  const d=document.createElement('div');d.className='fam-row';
+  d.innerHTML='<span class="fi">🧗</span><div><div class="ft">陈默（我）</div><div class="fs">刚刚接龙 · 周日 08:30 已加入你的时间线</div></div><span class="st ok">✓</span>';
+  document.getElementById('jz-list').appendChild(d);
+  ptoast('接龙成功！日程已同步你的时间线');
+}
+function aacue(){ptoast('已用你的口吻温和提醒 2 位未付圈友 💬')}
 
 /* ===================== Scroll reveal ===================== */
 const io = new IntersectionObserver(es=>{
