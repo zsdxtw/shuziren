@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>「伴」Ban — AI 社交管家 · 交互原型</title>
+<style>
+/* ============ 设计变量（浅色 / 微信绿 × 苹果灰阶） ============ */
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --card-2:#F2F3F5;
+  --ink:#1D1D1F; --ink2:#86868B; --ink3:#B0B3B8;
+  --hairline:rgba(0,0,0,.07);
+  --green:#07C160; --green-deep:#06AD56; --green-soft:rgba(7,193,96,.10);
+  --blue:#007AFF; --blue-soft:rgba(0,122,255,.10);
+  --orange:#FF9500; --orange-soft:rgba(255,149,0,.12);
+  --red:#FA5155; --red-soft:rgba(250,81,85,.10);
+  --purple:#AF52DE; --purple-soft:rgba(175,82,222,.10);
+  --teal:#5AC8FA;
+  --chat-bg:#EDEDED; --bubble-me:#95EC69; --bubble-them:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  --radius:16px;
+}
+.screen.dark{
+  --bg:#111113; --card:#1C1C1E; --card-2:#2A2A2C;
+  --ink:#F5F5F7; --ink2:#98989E; --ink3:#5A5A5E;
+  --hairline:rgba(255,255,255,.09);
+  --green-soft:rgba(7,193,96,.16);
+  --blue-soft:rgba(10,132,255,.16);
+  --orange-soft:rgba(255,159,10,.16);
+  --red-soft:rgba(255,69,58,.16);
+  --purple-soft:rgba(191,90,246,.16);
+  --chat-bg:#111113; --bubble-me:#3DA65F; --bubble-them:#2A2A2C;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+  background:#E9EBEF;overflow:hidden;color:#1D1D1F;
+  background-image:radial-gradient(1200px 800px at 15% 0%,#F2F0EB 0%,transparent 55%),
+                   radial-gradient(1000px 700px at 90% 100%,#E4EFE8 0%,transparent 50%);
+}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+input{font-family:inherit;border:none;outline:none;background:none;color:inherit}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ============ 舞台布局（桌面：左理念 右手机） ============ */
+.stage{height:100vh;display:flex;align-items:center;justify-content:center;gap:72px;padding:24px}
+.panel{width:400px;max-height:92vh;overflow-y:auto;color:#1D1D1F;padding-right:8px}
+.panel .brand{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.panel .logo{width:52px;height:52px;border-radius:14px;background:#07C160;color:#fff;font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(7,193,96,.35)}
+.panel h1{font-size:30px;letter-spacing:-.5px}
+.panel h1 span{color:#07C160}
+.panel .tagline{color:#6B6F76;font-size:14px;margin:6px 0 26px;line-height:1.7}
+.panel h2{font-size:13px;letter-spacing:2px;color:#98989E;margin:30px 0 14px;font-weight:600}
+.pcard{background:rgba(255,255,255,.72);backdrop-filter:blur(20px);border:1px solid rgba(0,0,0,.05);border-radius:16px;padding:16px 18px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.pcard b{font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.pcard p{font-size:12.5px;color:#6B6F76;line-height:1.75}
+.pcard .num{display:inline-flex;width:22px;height:22px;border-radius:7px;background:var(--green-soft);color:#06AD56;font-size:12px;align-items:center;justify-content:center;font-weight:700}
+.tokens{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.token{display:flex;align-items:center;gap:6px;font-size:11px;color:#6B6F76;background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.05);border-radius:999px;padding:5px 10px}
+.token i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.chips-add{display:flex;flex-wrap:wrap;gap:6px}
+.chips-add span{font-size:11.5px;background:rgba(7,193,96,.08);color:#06AD56;border-radius:999px;padding:5px 10px;font-weight:500}
+.trylist{list-style:none}
+.trylist li{font-size:12.5px;color:#4B5058;padding:7px 0 7px 24px;position:relative;border-bottom:1px dashed rgba(0,0,0,.06);line-height:1.5}
+.trylist li:last-child{border:none}
+.trylist li::before{content:"›";position:absolute;left:6px;color:#07C160;font-weight:700}
+.panel .foot{font-size:11px;color:#B0B3B8;margin-top:26px;line-height:1.8}
+
+/* ============ 手机机身 ============ */
+.phone{position:relative;width:392px;height:830px;max-height:94vh;border-radius:56px;background:#0b0b0f;
+  box-shadow:0 0 0 3px #3a3a40,0 0 0 5px #17171a,0 30px 80px rgba(0,0,0,.45);flex-shrink:0}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:118px;height:32px;background:#000;border-radius:20px;z-index:60}
+.screen{position:absolute;inset:9px;border-radius:47px;overflow:hidden;overflow:clip;background:var(--bg);display:flex;flex-direction:column;
+  transition:background .35s;color:var(--ink)}
+.hint{position:absolute;bottom:-34px;left:0;right:0;text-align:center;font-size:12px;color:#A6AAB2;letter-spacing:1px}
+
+/* ============ 状态栏 ============ */
+.statusbar{position:relative;z-index:50;height:52px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 32px 6px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.statusbar .icons{display:flex;align-items:center;gap:6px}
+.statusbar svg{display:block}
+
+/* ============ 启动页（设计理念） ============ */
+.splash{position:absolute;inset:0;z-index:200;background:linear-gradient(165deg,#F7FBF8 0%,#EDF3EF 55%,#E8F0EA 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px 36px;
+  transition:opacity .6s,visibility .6s}
+.screen.dark .splash{background:linear-gradient(165deg,#15171A 0%,#101312 60%,#0F1411 100%)}
+.splash.hide{opacity:0;visibility:hidden}
+.splash .slogo{width:96px;height:96px;border-radius:26px;background:linear-gradient(160deg,#07C160,#06A956);color:#fff;
+  font-size:50px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 18px 44px rgba(7,193,96,.4);animation:pop .8s cubic-bezier(.2,1.4,.3,1) both}
+.splash h1{font-size:26px;margin:22px 0 6px;letter-spacing:-.3px}
+.splash .sub{font-size:13.5px;color:var(--ink2);line-height:1.8;max-width:260px}
+.splash .pills{display:flex;gap:10px;margin:24px 0 30px}
+.splash .pill{font-size:12px;font-weight:600;padding:8px 16px;border-radius:999px;background:var(--card);color:#06AD56;
+  box-shadow:0 2px 10px rgba(7,193,96,.12);border:1px solid rgba(7,193,96,.15);animation:rise .6s .3s both}
+.splash .pill:nth-child(2){animation-delay:.42s}.splash .pill:nth-child(3){animation-delay:.54s}
+.enterbtn{background:var(--green);color:#fff;font-size:15px;font-weight:600;padding:13px 44px;border-radius:999px;
+  box-shadow:0 10px 26px rgba(7,193,96,.38);animation:rise .6s .66s both;transition:transform .15s}
+.enterbtn:active{transform:scale(.94)}
+.splash .note{position:absolute;bottom:36px;font-size:11px;color:var(--ink3);letter-spacing:1.5px}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ============ 页面骨架 ============ */
+.app{flex:1;position:relative;overflow:hidden}
+.page{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:86px;
+  opacity:0;transform:translateY(10px) scale(.99);pointer-events:none;transition:opacity .28s,transform .28s}
+.page.on{opacity:1;transform:none;pointer-events:auto}
+
+/* 大标题导航（iOS Large Title） */
+.nav{padding:6px 20px 10px;position:sticky;top:0;z-index:20;background:linear-gradient(var(--bg) 78%,transparent)}
+.nav .row{display:flex;align-items:center;justify-content:space-between;min-height:40px}
+.nav .title{font-size:30px;font-weight:800;letter-spacing:-.6px}
+.nav .sub{font-size:12.5px;color:var(--ink2);margin-top:3px;font-weight:400}
+.nicon{width:34px;height:34px;border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--ink2);transition:transform .15s}
+.nicon:active{transform:scale(.88)}
+
+/* ============ 底部 Tab 栏 ============ */
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:80;height:78px;padding-bottom:16px;
+  display:flex;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(24px);
+  border-top:.5px solid var(--hairline)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#B0B3B8;position:relative;transition:color .2s}
+.tab svg{transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
+.tab.on{color:var(--green)}
+.tab.on svg{transform:translateY(-2px) scale(1.08)}
+.tab span{font-size:10px;font-weight:500}
+.tab .ai-dot{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--card)}
+
+/* ============ 对话 Tab ============ */
+.ai-entry{margin:4px 16px 12px;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(7,193,96,.12),rgba(10,122,255,.07));
+  border:1px solid rgba(7,193,96,.18);display:flex;gap:12px;align-items:center;cursor:pointer;transition:transform .15s}
+.ai-entry:active{transform:scale(.98)}
+.ai-entry .ava{width:46px;height:46px;border-radius:14px;background:linear-gradient(150deg,#07C160,#0ABF7A);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 6px 14px rgba(7,193,96,.3);flex-shrink:0}
+.ai-entry b{font-size:15px}
+.ai-entry p{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ai-entry .go{color:var(--ink3);flex-shrink:0}
+.chatlist{background:var(--card);border-radius:20px 20px 0 0;margin:0 8px;overflow:hidden;box-shadow:0 -1px 0 var(--hairline)}
+.crow{display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;cursor:pointer;transition:background .15s}
+.crow:active{background:var(--card-2)}
+.crow::after{content:"";position:absolute;left:74px;right:0;bottom:0;height:1px;background:var(--hairline);transform:scaleY(.5)}
+.crow .ava{width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:23px;color:#fff;position:relative}
+.crow .info{flex:1;min-width:0}
+.crow .info b{font-size:16px;font-weight:600;display:block}
+.crow .info p{font-size:13px;color:var(--ink2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .meta{text-align:right;flex-shrink:0;align-self:flex-start;margin-top:2px}
+.crow .meta i{font-style:normal;font-size:11.5px;color:var(--ink3)}
+.badge{display:inline-flex;min-width:18px;height:18px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;
+  align-items:center;justify-content:center;padding:0 5px;margin-top:6px;font-weight:600}
+.dot-off{width:8px;height:8px;border-radius:50%;background:var(--ink3);margin:8px auto 0}
+
+/* ============ 会话详情浮层 ============ */
+.chat-detail{position:absolute;inset:0;z-index:120;background:var(--chat-bg);display:flex;flex-direction:column;
+  transform:translateX(103%);visibility:hidden;transition:transform .34s cubic-bezier(.3,1,.3,1),visibility 0s .34s}
+.chat-detail.open{transform:none;visibility:visible;transition:transform .34s cubic-bezier(.3,1,.3,1),visibility 0s 0s}
+.cd-nav{flex-shrink:0;padding:10px 14px 8px;display:flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(20px);border-bottom:.5px solid var(--hairline)}
+.cd-nav .back{display:flex;align-items:center;gap:2px;color:var(--ink);font-size:15px;padding:4px 8px 4px 0;font-weight:400}
+.cd-nav .back:active{opacity:.5}
+.cd-nav b{flex:1;text-align:center;font-size:16px;font-weight:600;margin-right:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-body{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:14px}
+.sys{align-self:center;font-size:11.5px;color:#9A9DA3;background:rgba(120,124,130,.14);padding:4px 10px;border-radius:999px}
+.msg{display:flex;gap:10px;max-width:86%}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.msg .mava{width:36px;height:36px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff}
+.msg .mwrap{display:flex;flex-direction:column;gap:3px;min-width:0}
+.msg .who{font-size:11px;color:var(--ink3);padding-left:2px}
+.msg.me .who{display:none}
+.bubble{position:relative;background:var(--bubble-them);padding:10px 13px;border-radius:14px;font-size:15.5px;line-height:1.55;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);word-break:break-word;transition:transform .12s}
+.bubble:active{transform:scale(.98)}
+.msg.me .bubble{background:var(--bubble-me);border-top-right-radius:4px}
+.msg.them .bubble{border-top-left-radius:4px}
+.screen.dark .bubble{box-shadow:none}
+.ai-sumbar{margin:0 14px 4px;padding:9px 14px;border-radius:12px;background:var(--blue-soft);display:flex;align-items:center;gap:8px;
+  font-size:12.5px;color:var(--blue);font-weight:500;cursor:pointer}
+.ai-sumcard{background:var(--card);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.9;color:var(--ink);
+  border-left:3px solid var(--blue);box-shadow:var(--shadow);animation:rise .35s both}
+.ai-sumcard b{color:var(--blue)}
+.cd-input{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 12px 26px;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(20px);border-top:.5px solid var(--hairline)}
+.cd-input input{flex:1;background:var(--card-2);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--ink)}
+.sendbtn{width:38px;height:38px;border-radius:10px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s}
+.sendbtn:active{transform:scale(.88)}
+
+/* ============ 提醒 Tab（今日时间线） ============ */
+.brief{margin:2px 16px 14px;background:linear-gradient(140deg,#0B8F4E 0%,#07C160 70%);border-radius:20px;padding:16px 18px;color:#fff;
+  box-shadow:0 12px 30px rgba(7,193,96,.28);position:relative;overflow:hidden}
+.brief::after{content:"✨";position:absolute;right:-8px;top:-14px;font-size:88px;opacity:.14;transform:rotate(12deg)}
+.brief .bt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;letter-spacing:1px;opacity:.9;margin-bottom:8px}
+.brief .bt i{font-style:normal;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:999px;font-size:11px}
+.brief p{font-size:13.5px;line-height:1.85;opacity:.97}
+.brief .act{display:flex;gap:8px;margin-top:12px}
+.brief .act button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12.5px;
+  padding:7px 14px;border-radius:999px;font-weight:500;backdrop-filter:blur(4px)}
+.brief .act button:active{transform:scale(.94)}
+.warn{margin:0 16px 14px;background:var(--orange-soft);border:1px solid rgba(255,149,0,.25);border-radius:16px;padding:13px 15px;display:flex;gap:10px}
+.warn .wico{font-size:20px;line-height:1.2}
+.warn b{font-size:13px;color:#C77700;display:flex;align-items:center;gap:5px}
+.screen.dark .warn b{color:#FFB340}
+.warn p{font-size:12.5px;color:var(--ink2);line-height:1.7;margin-top:4px}
+.warn .wact{display:flex;gap:8px;margin-top:9px}
+.warn .wact button{font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px}
+.warn .wact .ok{background:var(--orange);color:#fff}
+.warn .wact .no{background:var(--card);color:var(--ink2);border:1px solid var(--hairline)}
+.chiprow{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto}
+.fchip{flex-shrink:0;font-size:12.5px;font-weight:500;padding:7px 15px;border-radius:999px;background:var(--card);color:var(--ink2);
+  border:1px solid var(--hairline);transition:all .2s}
+.fchip.on{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 4px 12px rgba(7,193,96,.3)}
+.tl{padding:0 16px}
+.tl-item{display:flex;gap:12px;margin-bottom:2px;transition:opacity .3s}
+.tl-item.hide{display:none}
+.tl-time{width:44px;flex-shrink:0;text-align:right;padding-top:14px;font-size:12px;font-weight:600;color:var(--ink2);
+  font-variant-numeric:tabular-nums;line-height:1.3}
+.tl-time span{display:block;font-size:10px;font-weight:400;color:var(--ink3)}
+.tl-rail{width:20px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.tl-rail .node{width:9px;height:9px;border-radius:50%;background:var(--ink3);margin-top:17px;flex-shrink:0;border:2.5px solid var(--bg)}
+.tl-item[data-cat="work"] .node{background:var(--blue)}.tl-item[data-cat="finance"] .node{background:var(--red)}
+.tl-item[data-cat="travel"] .node{background:var(--teal)}.tl-item[data-cat="life"] .node{background:var(--orange)}
+.tl-item[data-cat="health"] .node{background:var(--purple)}.tl-item[data-cat="social"] .node{background:var(--green)}
+.tl-rail .line{width:2px;flex:1;background:var(--hairline);margin-top:4px}
+.tl-item:last-child .line{opacity:0}
+.tl-card{flex:1;background:var(--card);border-radius:var(--radius);padding:13px 14px;margin-bottom:12px;box-shadow:var(--shadow);
+  border:.5px solid var(--hairline);position:relative;transition:transform .15s,opacity .3s}
+.tl-card:active{transform:scale(.985)}
+.tl-card.done{opacity:.5}
+.tl-card.done .tt{text-decoration:line-through}
+.tl-top{display:flex;align-items:flex-start;gap:10px}
+.tl-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.tl-item[data-cat="work"] .tl-ico{background:var(--blue-soft)}
+.tl-item[data-cat="finance"] .tl-ico{background:var(--red-soft)}
+.tl-item[data-cat="travel"] .tl-ico{background:rgba(90,200,250,.15)}
+.tl-item[data-cat="life"] .tl-ico{background:var(--orange-soft)}
+.tl-item[data-cat="health"] .tl-ico{background:var(--purple-soft)}
+.tl-item[data-cat="social"] .tl-ico{background:var(--green-soft)}
+.tl-main{flex:1;min-width:0}
+.tt{font-size:15px;font-weight:600;line-height:1.4}
+.tmeta{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.6}
+.tact{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.tact button{font-size:12px;font-weight:500;padding:6px 13px;border-radius:999px;background:var(--card-2);color:var(--ink);transition:transform .15s}
+.tact button:active{transform:scale(.9)}
+.tact button.pri{background:var(--green-soft);color:var(--green-deep)}
+.tact button.pri.blue{background:var(--blue-soft);color:var(--blue)}
+.ckbtn{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink3);flex-shrink:0;margin-top:4px;
+  display:flex;align-items:center;justify-content:center;color:#fff;transition:all .25s cubic-bezier(.2,1.6,.4,1)}
+.ckbtn.on{background:var(--green);border-color:var(--green);transform:scale(1.05)}
+.progressbar{height:5px;border-radius:999px;background:var(--card-2);margin-top:9px;overflow:hidden}
+.progressbar i{display:block;height:100%;background:var(--orange);border-radius:999px}
+.water{display:flex;gap:6px;margin-top:10px;align-items:center}
+.water .cup{width:20px;height:24px;border-radius:4px 4px 6px 6px;border:1.6px solid var(--purple);position:relative;cursor:pointer;transition:transform .15s}
+.water .cup:active{transform:scale(.85)}
+.water .cup.full{background:var(--purple);border-color:var(--purple)}
+.water .wtxt{font-size:11.5px;color:var(--ink2);margin-left:4px}
+.tomorrow{margin:6px 16px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:.5px solid var(--hairline);overflow:hidden}
+.tomorrow .thead{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer}
+.tomorrow .thead b{font-size:14px}
+.tomorrow .thead span{font-size:12px;color:var(--ink2)}
+.tm-list{display:none;padding:0 16px 12px;border-top:.5px dashed var(--hairline)}
+.tomorrow.open .tm-list{display:block}
+.tm-row{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13.5px;border-bottom:.5px solid var(--hairline)}
+.tm-row:last-child{border:none}
+.tm-row i{font-style:normal;font-size:11px;color:var(--ink3);width:40px;font-variant-numeric:tabular-nums}
+.tm-row em{font-style:normal;margin-left:auto;font-size:11.5px;color:var(--ink2)}
+
+/* ============ 圈子 Tab ============ */
+.seg{display:flex;background:var(--card-2);border-radius:11px;padding:2.5px;margin:4px 16px 14px}
+.seg button{flex:1;padding:7px 0;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--ink2);transition:all .2s}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.segview{display:none}.segview.on{display:block}
+.cover{margin:0 16px 16px;border-radius:20px;height:130px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .me-ava{position:absolute;left:18px;bottom:-20px;width:58px;height:58px;border-radius:16px;border:3px solid var(--bg);
+  background:linear-gradient(140deg,#5E7CE2,#8E9BFF);display:flex;align-items:center;justify-content:center;font-size:26px}
+.cover .me-name{position:absolute;left:88px;bottom:2px;color:#fff;font-size:15px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.feed{padding:0 16px}
+.post{background:var(--card);border-radius:18px;padding:14px 15px;margin-bottom:12px;box-shadow:var(--shadow);border:.5px solid var(--hairline)}
+.post .phead{display:flex;gap:10px;align-items:center}
+.post .pava{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;flex-shrink:0}
+.post .pname{font-size:14px;font-weight:600;color:#576B95}
+.screen.dark .post .pname{color:#7BA0E8}
+.post .ptime{font-size:11px;color:var(--ink3);margin-top:2px}
+.post .ptext{font-size:14.5px;line-height:1.7;margin:10px 2px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border-radius:12px;overflow:hidden}
+.pgrid.one{grid-template-columns:180px}
+.pgrid img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:linear-gradient(140deg,#D8DEE6,#C4CBD4)}
+.pfoot{display:flex;align-items:center;gap:20px;margin-top:11px;padding-top:10px;border-top:.5px solid var(--hairline)}
+.pfoot button{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink2);transition:transform .15s}
+.pfoot button:active{transform:scale(.9)}
+.pfoot .liked{color:var(--red)}
+.pfoot .liked svg{animation:heart .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes heart{0%{transform:scale(1)}45%{transform:scale(1.5)}100%{transform:scale(1)}}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:0 16px}
+.topic{background:var(--card);border-radius:18px;padding:15px;box-shadow:var(--shadow);border:.5px solid var(--hairline);position:relative;overflow:hidden}
+.topic .tico{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:10px}
+.topic b{font-size:14.5px}
+.topic p{font-size:11.5px;color:var(--ink2);margin:4px 0 10px}
+.join{font-size:12px;font-weight:600;color:var(--green-deep);background:var(--green-soft);padding:6px 14px;border-radius:999px}
+.join.joined{background:var(--card-2);color:var(--ink3)}
+.family-members{display:flex;gap:14px;padding:0 22px;margin-bottom:14px}
+.fm{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;color:var(--ink2)}
+.fm .fava{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;color:#fff;border:2.5px solid var(--card);box-shadow:var(--shadow)}
+
+/* ============ 我的 Tab ============ */
+.profile{margin:2px 16px 14px;background:var(--card);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;
+  box-shadow:var(--shadow);border:.5px solid var(--hairline);cursor:pointer}
+.profile:active{transform:scale(.99)}
+.profile .pava{width:62px;height:62px;border-radius:18px;background:linear-gradient(140deg,#5E7CE2,#8E9BFF);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;flex-shrink:0}
+.profile .pid b{font-size:19px;display:block}
+.profile .pid p{font-size:12.5px;color:var(--ink2);margin-top:4px}
+.profile .qr{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink3);font-size:10px}
+.pro-card{margin:0 16px 14px;border-radius:20px;padding:16px 18px;color:#fff;position:relative;overflow:hidden;cursor:pointer;
+  background:linear-gradient(135deg,#0B8F4E,#07C160 65%,#2ED573);box-shadow:0 12px 28px rgba(7,193,96,.3)}
+.pro-card::after{content:"◆";position:absolute;right:70px;top:-10px;font-size:60px;opacity:.15}
+.pro-card .pt{display:flex;justify-content:space-between;align-items:center}
+.pro-card b{font-size:17px;letter-spacing:.5px}
+.pro-card .renew{background:rgba(255,255,255,.2);font-size:11.5px;padding:5px 12px;border-radius:999px;font-weight:500}
+.pro-card p{font-size:12px;opacity:.88;margin-top:8px}
+.services{margin:0 16px 14px;background:var(--card);border-radius:20px;padding:16px 6px 8px;box-shadow:var(--shadow);border:.5px solid var(--hairline)}
+.services .sgrid{display:grid;grid-template-columns:repeat(4,1fr)}
+.svc{display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px 0 12px;font-size:11.5px;color:var(--ink);border-radius:12px;transition:transform .15s}
+.svc:active{transform:scale(.88)}
+.svc .sico{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.menu{margin:0 16px 14px;background:var(--card);border-radius:20px;box-shadow:var(--shadow);border:.5px solid var(--hairline);overflow:hidden}
+.mrow{display:flex;align-items:center;gap:13px;padding:14px 16px;cursor:pointer;position:relative;transition:background .15s;font-size:15px}
+.mrow:active{background:var(--card-2)}
+.mrow::after{content:"";position:absolute;left:54px;right:16px;bottom:0;height:1px;background:var(--hairline);transform:scaleY(.5)}
+.mrow:last-child::after{display:none}
+.mrow .mico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.mrow .mval{margin-left:auto;font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:4px}
+.mrow .chev{color:var(--ink3)}
+.switch{width:48px;height:29px;border-radius:999px;background:var(--card-2);position:relative;transition:background .25s;flex-shrink:0}
+.switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:24px;height:24px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .25s cubic-bezier(.3,1.3,.4,1)}
+.switch.on{background:var(--green)}
+.switch.on::after{transform:translateX(19px)}
+.tags-cloud{display:flex;flex-wrap:wrap;gap:7px;padding:2px 16px 6px}
+.tags-cloud span{font-size:11.5px;background:var(--blue-soft);color:var(--blue);padding:5px 11px;border-radius:999px;font-weight:500}
+.me-foot{text-align:center;font-size:11px;color:var(--ink3);padding:8px 0 4px;letter-spacing:1px}
+
+/* ============ AI Tab ============ */
+#page-ai{display:flex;flex-direction:column;background:var(--bg)}
+.ai-head{flex-shrink:0;padding:6px 20px 0}
+.ai-head .airow{display:flex;align-items:center;justify-content:space-between;min-height:40px}
+.ai-head h3{font-size:24px;font-weight:800;letter-spacing:-.4px;display:flex;align-items:center;gap:8px}
+.ai-head .model{font-size:10.5px;color:var(--ink2);background:var(--card);border:1px solid var(--hairline);padding:4px 10px;border-radius:999px}
+.roles{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 10px;flex-shrink:0}
+.role{flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:8px 14px;border-radius:999px;
+  background:var(--card);border:1px solid var(--hairline);color:var(--ink2);transition:all .2s;white-space:nowrap}
+.role.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.screen.dark .role.on{background:#fff;color:#111}
+.ctxbar{flex-shrink:0;margin:0 20px 8px;font-size:11px;color:var(--ink2);background:var(--card);border:1px dashed var(--hairline);
+  border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:7px;line-height:1.5}
+.ai-body{flex:1;overflow-y:auto;padding:6px 18px 14px;display:flex;flex-direction:column;gap:14px}
+.aimsg{display:flex;gap:10px;max-width:92%}
+.aimsg.me{align-self:flex-end;flex-direction:row-reverse}
+.aimsg .aava{width:34px;height:34px;border-radius:11px;background:linear-gradient(150deg,#07C160,#0ABF7A);display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0;box-shadow:0 4px 10px rgba(7,193,96,.25)}
+.abubble{background:var(--card);border-radius:16px;border-bottom-left-radius:5px;padding:12px 14px;font-size:14.5px;line-height:1.75;
+  box-shadow:var(--shadow);border:.5px solid var(--hairline);color:var(--ink)}
+.aimsg.me .abubble{background:var(--green);color:#fff;border-radius:16px;border-bottom-right-radius:5px;box-shadow:0 6px 16px rgba(7,193,96,.3)}
+.abubble .ab{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+.abubble .ab button{font-size:12px;font-weight:500;padding:6px 13px;border-radius:999px;background:var(--green-soft);color:var(--green-deep)}
+.abubble .ab button.ghost{background:var(--card-2);color:var(--ink2)}
+.resultcard{margin-top:10px;background:var(--bg);border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:2;color:var(--ink)}
+.resultcard div{display:flex;align-items:center;gap:7px}
+.resultcard .tick{color:var(--green);font-weight:700}
+.typing{display:flex;gap:4px;padding:4px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--ink3);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.quick{flex-shrink:0;display:flex;gap:8px;overflow-x:auto;padding:6px 18px 10px}
+.quick button{flex-shrink:0;font-size:12px;padding:7px 14px;border-radius:999px;background:var(--card);color:var(--ink);
+  border:1px solid var(--hairline);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.quick button:active{transform:scale(.93)}
+.ai-input{flex-shrink:0;display:flex;align-items:center;gap:9px;padding:10px 14px 6px;background:color-mix(in srgb,var(--card) 90%,transparent);
+  backdrop-filter:blur(24px);border-top:.5px solid var(--hairline)}
+.ai-input input{flex:1;background:var(--card-2);border-radius:999px;padding:10px 16px;font-size:14.5px;color:var(--ink)}
+.micbtn{width:38px;height:38px;border-radius:50%;background:var(--card);border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center;color:var(--ink2);flex-shrink:0;transition:all .2s}
+.micbtn:active{transform:scale(.88);background:var(--green);color:#fff}
+.listen{position:absolute;inset:0;z-index:150;background:rgba(10,14,12,.55);backdrop-filter:blur(14px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;opacity:0;visibility:hidden;transition:.3s}
+.listen.on{opacity:1;visibility:visible}
+.listen .wave{display:flex;gap:5px;align-items:center;height:44px}
+.listen .wave i{width:5px;border-radius:99px;background:#07C160;animation:wv 1s infinite ease-in-out}
+.listen .wave i:nth-child(1){height:14px}.listen .wave i:nth-child(2){height:30px;animation-delay:.15s}
+.listen .wave i:nth-child(3){height:44px;animation-delay:.3s}.listen .wave i:nth-child(4){height:26px;animation-delay:.45s}
+.listen .wave i:nth-child(5){height:12px;animation-delay:.6s}
+@keyframes wv{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.15)}}
+.listen p{color:#fff;font-size:14px;letter-spacing:2px}
+
+/* ============ 悬浮球 / Toast / Sheet ============ */
+.fab{position:absolute;right:16px;bottom:96px;width:52px;height:52px;border-radius:50%;z-index:70;
+  background:linear-gradient(150deg,#07C160,#0ABF7A);color:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 26px rgba(7,193,96,.42);cursor:pointer;transition:transform .2s;animation:fabpulse 3s infinite}
+.fab:active{transform:scale(.85)}
+.fab.hidden{display:none}
+@keyframes fabpulse{0%,100%{box-shadow:0 10px 26px rgba(7,193,96,.42)}50%{box-shadow:0 10px 34px rgba(7,193,96,.6)}}
+.toast{position:absolute;left:50%;bottom:118px;transform:translateX(-50%) translateY(20px);z-index:300;background:rgba(29,29,31,.92);
+  color:#fff;font-size:13px;padding:11px 20px;border-radius:999px;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);backdrop-filter:blur(8px);max-width:82%;overflow:hidden;text-overflow:ellipsis}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.mask{position:absolute;inset:0;z-index:250;background:rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:.3s;backdrop-filter:blur(2px)}
+.mask.on{opacity:1;visibility:visible}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:260;background:var(--card);border-radius:24px 24px 0 0;padding:14px 18px 34px;
+  transform:translateY(105%);visibility:hidden;transition:transform .38s cubic-bezier(.3,1,.3,1),visibility 0s .38s;max-height:72%;overflow-y:auto}
+.sheet.on{transform:none;visibility:visible;transition:transform .38s cubic-bezier(.3,1,.3,1),visibility 0s 0s}
+.sheet .grip{width:38px;height:4.5px;border-radius:99px;background:var(--hairline);margin:0 auto 14px}
+.sheet h4{font-size:16.5px;font-weight:700;margin-bottom:4px}
+.sheet .sdesc{font-size:12.5px;color:var(--ink2);margin-bottom:14px;line-height:1.6}
+.as-btn{display:flex;align-items:center;gap:12px;width:100%;padding:15px 6px;font-size:16px;border-bottom:.5px solid var(--hairline);transition:background .15s}
+.as-btn:active{background:var(--card-2)}
+.as-btn:last-child{border:none}
+.as-btn .aico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.as-btn small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px;font-weight:400}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.tpl{background:var(--card-2);border-radius:14px;padding:13px 14px;text-align:left;transition:transform .15s;border:.5px solid transparent}
+.tpl:active{transform:scale(.94)}
+.tpl b{font-size:13.5px;display:flex;gap:6px;align-items:center}
+.tpl p{font-size:11px;color:var(--ink2);margin-top:3px}
+.spend-row{display:flex;justify-content:space-between;font-size:13.5px;padding:9px 2px;border-bottom:.5px solid var(--hairline)}
+.spend-row span:last-child{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
+.spend-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:12px 2px 4px}
+.auth-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:.5px solid var(--hairline)}
+.auth-row .aico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.auth-row b{font-size:14px;display:block}
+.auth-row p{font-size:11.5px;color:var(--ink2);margin-top:2px}
+.revoke{margin-left:auto;font-size:12px;color:var(--red);background:var(--red-soft);padding:6px 13px;border-radius:999px;font-weight:500;flex-shrink:0}
+.revoke.off{background:var(--card-2);color:var(--ink3)}
+.pomo{display:flex;flex-direction:column;align-items:center;gap:14px;padding:10px 0 6px}
+.pomo .ptime{font-size:56px;font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:2px}
+.pomo .pctrl{display:flex;gap:12px}
+.pomo .pctrl button{font-size:14px;font-weight:600;padding:11px 30px;border-radius:999px}
+.pomo .start{background:var(--green);color:#fff;box-shadow:0 8px 20px rgba(7,193,96,.3)}
+.pomo .reset{background:var(--card-2);color:var(--ink2)}
+.pomo p{font-size:12px;color:var(--ink2)}
+
+/* ============ 响应式 ============ */
+@media (max-width:1020px){.panel{display:none}.stage{gap:0}}
+@media (max-width:460px){
+  .stage{padding:0}
+  .phone{width:100%;height:100%;max-height:100%;border-radius:0;box-shadow:none}
+  .screen{inset:0;border-radius:0}
+  .island{display:none}
+  .hint{display:none}
+}
+@media (max-height:880px) and (min-width:1021px){
+  .phone{transform:scale(.92);transform-origin:center;margin:-30px}
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <!-- ============ 左侧：设计理念面板（桌面端） ============ -->
+  <aside class="panel">
+    <div class="brand">
+      <div class="logo">伴</div>
+      <div>
+        <h1>伴 <span>Ban</span></h1>
+        <div style="font-size:12px;color:#98989E;letter-spacing:1px">AI 社交管家 · 交互原型 V1.0</div>
+      </div>
+    </div>
+    <p class="tagline">把微信的臃肿砍掉，把管家的智商拉满。<br>一个以 AI 为中枢、以「简洁通讯 + 主动式生活管家」为双引擎的个人生活操作系统。</p>
+
+    <h2>四条设计理念</h2>
+    <div class="pcard"><b><span class="num">1</span>克制即高级 · Less, but better</b>
+      <p>无广告、无信息流、无商业入口。对话页只保留"和人在说话"所需要的一切，多一样都不加 —— 每一个"不做"都是写给用户的承诺书。</p></div>
+    <div class="pcard"><b><span class="num">2</span>事找人 · Proactive, not passive</b>
+      <p>从"人记事"到"事找人"。账单、行程、会议、外卖，无论来自哪个 App，统一汇入一条"今日时间线"，AI 负责聚合、排序、预警冲突。</p></div>
+    <div class="pcard"><b><span class="num">3</span>画像属于你 · Privacy by design</b>
+      <p>AI 记住的每一条偏好都逐条可见、可改、可删；画像只对本人可见，永不用于广告。授权中心做到行业最透明。</p></div>
+    <div class="pcard"><b><span class="num">4</span>零学习成本 · 微信骨架 × 苹果秩序 × AI 灵魂</b>
+      <p>底部五 Tab 的微信式骨架、iOS 大标题与卡片体系的苹果式秩序，全局悬浮球让 AI 贯穿所有模块 —— AI 不是功能，是中枢。</p></div>
+
+    <h2>设计规范</h2>
+    <div class="pcard">
+      <div class="tokens">
+        <span class="token"><i style="background:#07C160"></i>微信绿 07C160</span>
+        <span class="token"><i style="background:#007AFF"></i>iOS 蓝 007AFF</span>
+        <span class="token"><i style="background:#FF9500"></i>预警橙 FF9500</span>
+        <span class="token"><i style="background:#FA5155"></i>警示红 FA5155</span>
+        <span class="token"><i style="background:#AF52DE"></i>健康紫 AF52DE</span>
+      </div>
+      <p style="margin-top:10px">8pt 网格 · 16px 卡片圆角 · 苹方/SF Pro 字体 · iOS 弹性动效 · 深色模式全局适配</p>
+    </div>
+
+    <h2>在需求之上新增的日常能力</h2>
+    <div class="pcard"><div class="chips-add">
+      <span>晨间习惯打卡</span><span>喝水 / 步数</span><span>快捷记账</span><span>外卖实时进度</span><span>专注番茄钟</span><span>二维码名片</span><span>明日日程预览</span><span>冲突改约建议</span><span>深色模式</span><span>语音输入演示</span>
+    </div></div>
+
+    <h2>原型试玩指引</h2>
+    <div class="pcard">
+      <ul class="trylist">
+        <li>点开「产品部核心群」→ 点击顶部蓝色条，AI 总结 12 条未读</li>
+        <li>点按任意聊天气泡 → 「设为提醒」，事项会实时进入今日时间线</li>
+        <li>提醒页：勾选完成事项 / 喝水杯 +1 / 处理冲突预警</li>
+        <li>AI 页：切换 5 种角色、点麦克风、发送「今日简报」</li>
+        <li>我的页：打开深色模式、记账本、专注番茄钟、授权中心</li>
+      </ul>
+    </div>
+    <p class="foot">「伴」产品设计方案 V1.0 · 2026-09 · 本原型为纯前端演示，数据均为模拟</p>
+  </aside>
+
+  <!-- ============ 右侧：手机原型 ============ -->
+  <div class="phone-wrap" style="position:relative">
+    <div class="phone">
+      <div class="island"></div>
+      <div class="screen" id="screen">
+
+        <!-- 状态栏 -->
+        <div class="statusbar">
+          <span id="clock">9:41</span>
+          <div class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 9.5a1.6 1.6 0 0 1 1.13.47l-1.13 1.13-1.13-1.13A1.6 1.6 0 0 1 8 9.5zm-3.6-3.1a5.1 5.1 0 0 1 7.2 0l-1.3 1.3a3.26 3.26 0 0 0-4.6 0l-1.3-1.3zM.8 3.1a9.4 9.4 0 0 1 14.4 0l-1.3 1.3a7.56 7.56 0 0 0-11.8 0L.8 3.1z"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.5" y="0.5" width="21" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="15" height="9" rx="2" fill="currentColor"/><path d="M23 4.5v4a2.4 2.4 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg>
+          </div>
+        </div>
+
+        <!-- 启动页 -->
+        <div class="splash" id="splash">
+          <div class="slogo">伴</div>
+          <h1>伴 · Ban</h1>
+          <p class="sub">用最简洁的通讯连接人<br>用最懂你的 AI 管理生活</p>
+          <div class="pills"><span class="pill">克 制</span><span class="pill">主 动</span><span class="pill">懂 你</span></div>
+          <button class="enterbtn" onclick="enterApp()">进入原型</button>
+          <p class="note">交互原型 · 点击屏幕任意处均可进入</p>
+        </div>
+
+        <main class="app">
+
+          <!-- ================= Tab 1 对话 ================= -->
+          <section class="page on" id="page-chat">
+            <div class="nav">
+              <div class="row">
+                <span class="title">伴</span>
+                <div style="display:flex;gap:10px">
+                  <button class="nicon" onclick="toast('搜索（演示）')"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="5.5"/><path d="M12 12l3.5 3.5"/></svg></button>
+                  <button class="nicon" onclick="toast('发起对话 / 加好友（演示）')"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v6M9 6h6M4 12.5V15l2.8-2.2H13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4.5a2 2 0 0 0 2 2z" transform="translate(0 -1)"/></svg></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-entry" onclick="switchTab('ai')">
+              <div class="ava">✨</div>
+              <div style="flex:1;min-width:0">
+                <b>小伴 · AI 管家</b>
+                <p>早上好，今天 5 件要事，15:12 的高铁建议 14:20 出发…</p>
+              </div>
+              <span class="go">›</span>
+            </div>
+
+            <div class="chatlist" id="chatlist"></div>
+            <p style="text-align:center;font-size:11px;color:var(--ink3);padding:14px 0 6px">三无一有 · 无广告 无信息流 无商业入口 有温度</p>
+          </section>
+
+          <!-- ================= Tab 2 提醒（今日时间线） ================= -->
+          <section class="page" id="page-time">
+            <div class="nav">
+              <div class="row">
+                <div>
+                  <span class="title">今日</span>
+                  <div class="sub">9月27日 周日 · 北京小雨 18°C / 杭州多云 22°C</div>
+                </div>
+                <button class="nicon" onclick="openSheet('sheet-add')"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8.5 3v11M3 8.5h11"/></svg></button>
+              </div>
+            </div>
+
+            <div class="brief">
+              <div class="bt">小伴简报 <i>07:30</i></div>
+              <p>早上好，陈默。今天 5 件要事：10:00 产品评审会（3F-301）、15:12 G1875 赴杭州、18:30 同学聚会。招行信用卡 ¥12,480 后天到期。全天节奏适中，建议 13:00 前完成午餐。</p>
+              <div class="act">
+                <button onclick="toast('完整简报（演示）：含天气、通勤路况、账单明细')">查看完整简报</button>
+                <button onclick="switchTab('ai');setTimeout(()=>aiSay('已为你重新梳理今日安排：最紧张的是 15:12 高铁，建议 14:20 从公司出发，网约车约 35 分钟。需要现在叫车吗？',['现在叫车','稍后再说'])">问小伴</button>
+              </div>
+            </div>
+
+            <div class="warn" id="conflict">
+              <span class="wico">⚠️</span>
+              <div style="flex:1">
+                <b>小伴发现时间冲突</b>
+                <p>G1875 预计 <b style="color:inherit">17:23</b> 到达杭州东，同学聚会 18:30 在国局势必赶，通勤约 50 分钟。建议改约 19:30。</p>
+                <div class="wact">
+                  <button class="ok" onclick="acceptFix()">听小伴的，改 19:30</button>
+                  <button class="no" onclick="dismissConflict()">暂不</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="chiprow" id="filters">
+              <button class="fchip on" data-f="all" onclick="filterTL(this)">全部 8</button>
+              <button class="fchip" data-f="work" onclick="filterTL(this)">工作</button>
+              <button class="fchip" data-f="finance" onclick="filterTL(this)">金融</button>
+              <button class="fchip" data-f="travel" onclick="filterTL(this)">出行</button>
+              <button class="fchip" data-f="life" onclick="filterTL(this)">生活</button>
+              <button class="fchip" data-f="health" onclick="filterTL(this)">健康</button>
+              <button class="fchip" data-f="social" onclick="filterTL(this)">社交</button>
+            </div>
+
+            <div class="tl" id="timeline">
+              <div class="tl-item" data-cat="health">
+                <div class="tl-time">08:00<span>习惯</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">☀️</div>
+                    <div class="tl-main"><div class="tt">晨间打卡 · 维生素 / 早餐</div>
+                      <div class="tmeta">已连续 11 天 · 别断哦</div></div>
+                    <button class="ckbtn" onclick="habit(this)" title="打卡">✓</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="work">
+                <div class="tl-time">10:00<span>1h</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">📊</div>
+                    <div class="tl-main"><div class="tt">产品评审会 · Q3 复盘</div>
+                      <div class="tmeta">3F-301 · 王芳组织 · 6 人参会</div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                  <div class="tact">
+                    <button class="pri blue" onclick="toast('AI 会前摘要：上次评审遗留 3 个待办，本次重点是留存数据（已生成）')">AI 会前摘要</button>
+                    <button onclick="toast('已导航至 3F-301（演示）')">位置</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="life">
+                <div class="tl-time">12:30<span>约达</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">🛵</div>
+                    <div class="tl-main"><div class="tt">外卖 · 轻食研究所</div>
+                      <div class="tmeta">骑手 张师傅 · 预计 12:38 送达</div>
+                      <div class="progressbar"><i style="width:78%"></i></div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="travel">
+                <div class="tl-time">15:12<span>开</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">🚄</div>
+                    <div class="tl-main"><div class="tt">G1875 · 北京南 → 杭州东</div>
+                      <div class="tmeta">检票口 B12 · 06车12F 靠窗 · 二等座</div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                  <div class="tact">
+                    <button class="pri" onclick="toast('已叫车：14:20 公司楼下出发，司机 3 分钟后到达（演示）')">14:20 叫车出发</button>
+                    <button onclick="toast('行程卡：正晚点 / 值机 / 报销一键打包（演示）')">行程集</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="travel">
+                <div class="tl-time">16:30<span>入住</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">🏨</div>
+                    <div class="tl-main"><div class="tt">入住 · 西子湖四季酒店</div>
+                      <div class="tmeta">西湖区灵隐路 5 号 · 订单已同步自邮件</div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                  <div class="tact"><button class="pri blue" onclick="toast('已唤起导航 · 25 分钟可达（演示）')">导航</button></div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="social">
+                <div class="tl-time">18:30<span>改?</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">🍻</div>
+                    <div class="tl-main"><div class="tt">同学聚会 · 局气（国贸店）</div>
+                      <div class="tmeta">6 人 · 建议处理上方冲突提醒</div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="finance">
+                <div class="tl-time">20:00<span>提醒</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">💳</div>
+                    <div class="tl-main"><div class="tt">招行信用卡 · 还款日</div>
+                      <div class="tmeta">本期 ¥12,480 · 9月29日到期 · 来源：账单邮件</div></div>
+                    <button class="ckbtn" onclick="check(this)">✓</button>
+                  </div>
+                  <div class="tact">
+                    <button class="pri" onclick="toast('已跳转还款（演示）· 小伴将在明日 09:00 再次提醒')">去还款</button>
+                    <button onclick="toast('已顺延至明日 09:00 提醒')">明天再说</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tl-item" data-cat="health">
+                <div class="tl-time">21:00<span>目标</span></div>
+                <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+                <div class="tl-card">
+                  <div class="tl-top">
+                    <div class="tl-ico">💧</div>
+                    <div class="tl-main"><div class="tt">今日喝水 · 步数 6,532</div>
+                      <div class="tmeta">点击杯子记录一杯 · 步数来自手机传感器</div>
+                      <div class="water" id="water">
+                        <div class="cup full"></div><div class="cup full"></div><div class="cup full"></div>
+                        <div class="cup full"></div><div class="cup full"></div><div class="cup full"></div>
+                        <div class="cup"></div><div class="cup"></div>
+                        <span class="wtxt">6 / 8 杯</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tomorrow" id="tomorrow">
+              <div class="thead" onclick="document.getElementById('tomorrow').classList.toggle('open')">
+                <b>明天 · 周一</b><span>3 项安排 ›</span>
+              </div>
+              <div class="tm-list">
+                <div class="tm-row"><i>09:30</i>📄 提交周报<em>工作</em></div>
+                <div class="tm-row"><i>14:00</i>🦷 牙医复诊 · 拜博口腔<em>健康</em></div>
+                <div class="tm-row"><i>19:00</i>🏸 羽毛球 · 常规局<em>社交</em></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= Tab 3 圈子 ================= -->
+          <section class="page" id="page-circle">
+            <div class="nav"><div class="row"><span class="title">圈子</span></div></div>
+            <div class="seg" id="circleSeg">
+              <button class="on" onclick="segCircle(this,'feed')">朋友圈</button>
+              <button onclick="segCircle(this,'topic')">兴趣圈</button>
+              <button onclick="segCircle(this,'family')">家庭圈</button>
+            </div>
+
+            <div class="segview on" id="sv-feed">
+              <div class="cover">
+                <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=minimal%20serene%20west%20lake%20hangzhou%20at%20soft%20sunrise%2C%20pastel%20gradient%20sky%2C%20calm%20water%2C%20distant%20pagoda%2C%20clean%20composition&image_size=landscape_16_9" onerror="this.style.display='none';this.parentNode.style.background='linear-gradient(140deg,#8FB8C9,#C9D6C2)'">
+                <div class="me-ava">🧑‍💼</div>
+                <span class="me-name">陈默</span>
+              </div>
+              <div class="feed">
+                <div class="post">
+                  <div class="phead">
+                    <div class="pava" style="background:linear-gradient(140deg,#F272A0,#F2994A)">🎨</div>
+                    <div><div class="pname">苏苏</div><div class="ptime">32 分钟前 · 插画圈</div></div>
+                  </div>
+                  <div class="ptext">新画的一组「独居小日子」，画到凌晨两点但很满足，求轻喷~</div>
+                  <div class="pgrid">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=cozy%20watercolor%20illustration%20of%20a%20cat%20reading%20a%20book%20by%20window%2C%20warm%20pastel%20tones%2C%20storybook%20style&image_size=square" onerror="this.style.background='linear-gradient(140deg,#F2D0C9,#E8B4C8)'">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=watercolor%20illustration%20of%20a%20girl%20watering%20plants%20in%20sunny%20apartment%2C%20soft%20pastel%2C%20storybook%20style&image_size=square" onerror="this.style.background='linear-gradient(140deg,#C9E4DE,#D7E3D0)'">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=watercolor%20illustration%20of%20a%20cozy%20desk%20with%20coffee%20and%20sketchbook%20at%20night%2C%20warm%20lamp%20light%2C%20storybook%20style&image_size=square" onerror="this.style.background='linear-gradient(140deg,#F5E6C8,#EAD7B7)'">
+                  </div>
+                  <div class="pfoot">
+                    <button onclick="like(this,12)">♥ <span>12</span></button>
+                    <button onclick="toast('评论区（演示）· 苏苏：谢谢鼓励！')">💬 评论</button>
+                    <button onclick="toast('AI 识图：手绘插画 · 已归入你的兴趣标签')">✨ 识图</button>
+                  </div>
+                </div>
+                <div class="post">
+                  <div class="phead">
+                    <div class="pava" style="background:linear-gradient(140deg,#2E9E6B,#67B26F)">🥾</div>
+                    <div><div class="pname">阿伟</div><div class="ptime">2 小时前 · 周末徒步圈</div></div>
+                  </div>
+                  <div class="ptext">周六白马山徒步成团确认！目前 5 人还差 2 人，气象窗口很好，举手🙋</div>
+                  <div class="pgrid one">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=misty%20mountain%20hiking%20trail%20at%20sunrise%2C%20small%20hikers%20with%20backpacks%2C%20golden%20light%2C%20cinematic&image_size=square" onerror="this.style.background='linear-gradient(140deg,#8CA6B8,#D9C6A5)'">
+                  </div>
+                  <div class="pfoot">
+                    <button onclick="like(this,8)">♥ <span>8</span></button>
+                    <button onclick="toast('已接龙报名 · 阿伟：欢迎！集合时间已发你')">🙋 接龙</button>
+                    <button onclick="toast('AI：已识别活动信息，是否加入时间线？（演示）')">✨ 提醒</button>
+                  </div>
+                </div>
+                <div class="post">
+                  <div class="phead">
+                    <div class="pava" style="background:linear-gradient(140deg,#E8615A,#F2A65A)">🦀</div>
+                    <div><div class="pname">妈妈</div><div class="ptime">昨天 · 家庭圈</div></div>
+                  </div>
+                  <div class="ptext">螃蟹到了，周末回来吃饭吗？给你留了最大的两只。</div>
+                  <div class="pgrid one">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=steamed%20hairy%20crabs%20on%20a%20ceramic%20plate%2C%20chinese%20home%20cooking%2C%20warm%20cozy%20light%2C%20appetizing%20food%20photography&image_size=square" onerror="this.style.background='linear-gradient(140deg,#E8A87C,#D96C47)'">
+                  </div>
+                  <div class="pfoot">
+                    <button onclick="like(this,5)">♥ <span>5</span></button>
+                    <button onclick="toast('已回复：妈，周六到家！')">💬 回复</button>
+                  </div>
+                </div>
+                <p style="text-align:center;font-size:11px;color:var(--ink3);padding:6px 0">纯时间序 · 无算法推荐 · 无广告</p>
+              </div>
+            </div>
+
+            <div class="segview" id="sv-topic">
+              <div class="topic-grid">
+                <div class="topic"><div class="tico" style="background:var(--green-soft)">🥾</div><b>周末徒步圈</b><p>12.4k 成员 · 本周 3 场活动</p><button class="join joined" onclick="this.classList.toggle('joined');this.textContent=this.classList.contains('joined')?'已加入':'+ 加入';toast(this.textContent==='已加入'?'已加入徒步圈':'已退出')">已加入</button></div>
+                <div class="topic"><div class="tico" style="background:var(--blue-soft)">📚</div><b>深夜读书会</b><p>8.2k 成员 · 正在共读《三体》</p><button class="join" onclick="this.classList.add('joined');this.textContent='已加入';toast('已加入读书会 · 每晚 22:00 打卡')">+ 加入</button></div>
+                <div class="topic"><div class="tico" style="background:var(--orange-soft)">☕</div><b>手冲咖啡研究所</b><p>6.7k 成员 · 新豆测评中</p><button class="join" onclick="this.classList.add('joined');this.textContent='已加入';toast('已加入咖啡研究所')">+ 加入</button></div>
+                <div class="topic"><div class="tico" style="background:var(--purple-soft)">🐱</div><b>铲屎官联盟</b><p>21.3k 成员 · 晒猫日</p><button class="join" onclick="this.classList.add('joined');this.textContent='已加入';toast('已加入铲屎官联盟')">+ 加入</button></div>
+              </div>
+              <p style="text-align:center;font-size:11px;color:var(--ink3);padding:8px 0 2px">兴趣圈：认识新朋友 → 沉淀为对话关系的增长飞轮</p>
+            </div>
+
+            <div class="segview" id="sv-family">
+              <div class="family-members">
+                <div class="fm"><div class="fava" style="background:linear-gradient(140deg,#E8615A,#F2A65A)">👩</div>妈妈</div>
+                <div class="fm"><div class="fava" style="background:linear-gradient(140deg,#4A6FA5,#7B9ACC)">👨</div>爸爸</div>
+                <div class="fm"><div class="fava" style="background:linear-gradient(140deg,#9B5DE5,#C77DFF)">👧</div>妹妹</div>
+                <div class="fm"><div class="fava" style="background:var(--card-2);color:var(--ink2);font-size:20px">+</div>邀请</div>
+              </div>
+              <div style="padding:0 16px">
+                <div class="menu" style="margin:0 0 12px">
+                  <div class="mrow" onclick="toast('代缴成功 ¥248.00 · 已同步至家庭账本（演示）')">
+                    <div class="mico" style="background:var(--orange-soft)">💡</div>
+                    <div style="flex:1">本月水电<em style="font-style:normal;font-size:12px;color:var(--ink3);margin-left:6px">妈妈可见</em></div>
+                    <span class="mval" style="color:var(--red)">¥248 待缴</span><span class="chev">›</span>
+                  </div>
+                  <div class="mrow" onclick="toast('代办已完成 · 已通知妈妈')">
+                    <div class="mico" style="background:var(--blue-soft)">🩺</div>
+                    <div style="flex:1">给爸爸买血压仪</div>
+                    <span class="mval">妹妹指派给你</span><span class="chev">›</span>
+                  </div>
+                </div>
+                <div class="brief" style="margin:0;background:linear-gradient(140deg,#4A6FA5,#5E7CE2);box-shadow:0 12px 30px rgba(90,111,165,.3)">
+                  <div class="bt">家庭健康同步 <i>仅成员可见</i></div>
+                  <p>爸爸 10:00 服药已确认 · 妈妈今日步数 4,280 · 妹妹设置的体检提醒已同步至你明日时间线（14:00 牙医复诊）。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= Tab 4 我的 ================= -->
+          <section class="page" id="page-me">
+            <div class="nav"><div class="row"><span class="title">我的</span></div></div>
+
+            <div class="profile" onclick="toast('个人资料（演示）· 伴号 BX-2026')">
+              <div class="pava">🧑‍💼</div>
+              <div class="pid" style="flex:1"><b>陈默</b><p>伴号：BX-2026 · 北京</p></div>
+              <div class="qr">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="1.5" width="7" height="7" rx="1.5"/><rect x="11.5" y="1.5" width="7" height="7" rx="1.5"/><rect x="1.5" y="11.5" width="7" height="7" rx="1.5"/><path d="M11.5 11.5h3v3h-3zM15.5 15.5h3v3h-3z"/></svg>
+                <span>名片</span>
+              </div>
+            </div>
+
+            <div class="pro-card" onclick="toast('会员中心（演示）· Pro 权益：无限 AI 对话 / 自动对接 / 画像报告')">
+              <div class="pt"><b>伴 PRO</b><span class="renew">9月30日 到期</span></div>
+              <p>无限 AI 对话 · 账单/行程自动对接 · AI 未读总结 · 家庭共享</p>
+            </div>
+
+            <div class="services">
+              <div class="sgrid">
+                <button class="svc" onclick="openSheet('sheet-spend')"><span class="sico" style="background:var(--orange-soft)">💰</span>记账</button>
+                <button class="svc" onclick="openSheet('sheet-pomo')"><span class="sico" style="background:var(--blue-soft)">🍅</span>专注</button>
+                <button class="svc" onclick="toast('快递聚合（演示）：京东包裹 2 个在途，预计明天送达')"><span class="sico" style="background:var(--green-soft)">📦</span>快递</button>
+                <button class="svc" onclick="toast('健康中心（演示）：步数 6,532 · 睡眠 7h12m · 深睡占比 31%')"><span class="sico" style="background:var(--purple-soft)">❤️</span>健康</button>
+                <button class="svc" onclick="toast('二维码名片已生成（演示）· 面对面扫一扫加好友')"><span class="sico" style="background:var(--blue-soft)">🎫</span>名片</button>
+                <button class="svc" onclick="toast('随手日记（演示）· 可交给 AI 代写周记')"><span class="sico" style="background:var(--orange-soft)">📖</span>日记</button>
+                <button class="svc" onclick="toast('清单（演示）：本周还剩 4 项待办')"><span class="sico" style="background:var(--green-soft)">✅</span>清单</button>
+                <button class="svc" onclick="toast('更多服务（演示）')"><span class="sico" style="background:var(--card-2)">⋯</span>更多</button>
+              </div>
+            </div>
+
+            <div class="menu">
+              <div class="mrow" onclick="toast('钱包（演示）：余额 ¥328.50')">
+                <div class="mico" style="background:var(--green-soft)">👛</div>钱包<span class="mval">¥328.50</span><span class="chev">›</span>
+              </div>
+              <div class="mrow" onclick="toast('通讯录（演示）：386 位联系人 · 群 24 个')">
+                <div class="mico" style="background:var(--blue-soft)">👥</div>通讯录<span class="mval">386 位</span><span class="chev">›</span>
+              </div>
+              <div class="mrow" onclick="openSheet('sheet-auth')">
+                <div class="mico" style="background:var(--orange-soft)">🛡️</div>账号授权中心<span class="mval">已授权 6 个</span><span class="chev">›</span>
+              </div>
+            </div>
+
+            <div class="menu">
+              <div class="mrow" onclick="toast('AI 设置（演示）：模型路由 / 人格 / 声音 / 记忆管理')">
+                <div class="mico" style="background:var(--green-soft)">✨</div>AI 设置<span class="mval">管家 · 沉稳男声</span><span class="chev">›</span>
+              </div>
+              <div class="mrow" onclick="toast('我的画像（演示）：兴趣 / 消费 / 社交 / 时间 / 情绪 五维图谱')">
+                <div class="mico" style="background:var(--purple-soft)">🧠</div>我的画像<span class="mval">216 条记忆</span><span class="chev">›</span>
+              </div>
+              <div class="mrow" onclick="toast('隐私中心（演示）：数据导出 / 一键撤回 / 注销')">
+                <div class="mico" style="background:var(--card-2)">🔒</div>隐私中心<span class="chev">›</span>
+              </div>
+              <div class="mrow">
+                <div class="mico" style="background:rgba(120,124,130,.14)">🌙</div>深色模式
+                <div style="margin-left:auto"><div class="switch" id="darkSwitch" onclick="toggleDark()"></div></div>
+              </div>
+              <div class="mrow" onclick="toast('关怀模式（演示）：大字体 · 适合长辈使用')">
+                <div class="mico" style="background:var(--orange-soft)">🔍</div>关怀模式 · 大字体<span class="chev">›</span>
+              </div>
+            </div>
+
+            <div style="margin:0 16px 6px" class="tags-cloud">
+              <span>徒步</span><span>手冲咖啡</span><span>科幻</span><span>靠窗座</span><span>不吃香菜</span><span>周三羽毛球</span><span>偏爱 22:00 后社交</span>
+            </div>
+            <p class="me-foot">小伴记住的偏好 · 逐条可删 · 画像只属于你<br>伴 V1.0 · 2026</p>
+          </section>
+
+          <!-- ================= Tab 5 AI ================= -->
+          <section class="page" id="page-ai">
+            <div class="ai-head">
+              <div class="airow">
+                <h3>🤵 <span id="aiRoleName">小伴 · 管家</span></h3>
+                <span class="model">GPT-5 · 已连接</span>
+              </div>
+            </div>
+            <div class="roles" id="roles">
+              <button class="role on" data-r="管家" data-e="🤵" data-line="管家模式：时间线、账单、行程、预警，交给我。" onclick="switchRole(this)">🤵 管家</button>
+              <button class="role" data-r="秘书" data-e="📋" data-line="秘书模式：代写、代回、代约、代查，请吩咐。" onclick="switchRole(this)">📋 秘书</button>
+              <button class="role" data-r="分身" data-e="🪞" data-line="分身模式：我将以你的口吻起草，发送前必经你确认。" onclick="switchRole(this)">🪞 分身</button>
+              <button class="role" data-r="树洞" data-e="🕳️" data-line="树洞模式：我在，你说，不评判。" onclick="switchRole(this)">🕳️ 树洞</button>
+              <button class="role" data-r="私人医生" data-e="🩺" data-line="私人医生模式：健康咨询与建议，仅供参考，不构成诊疗。" onclick="switchRole(this)">🩺 医生</button>
+            </div>
+            <div class="ctxbar">🧠 小伴已掌握你的上下文：今日 8 项日程 · 3 张账单 · 216 条偏好记忆 · 6 位重要联系人</div>
+            <div class="ai-body" id="aiBody">
+              <div class="aimsg">
+                <div class="aava" id="aiAva">🤵</div>
+                <div class="abubble">早上好，陈默 ☀️ 今天有 5 件事需要你，最紧张的一段是 15:12 的高铁。北京小雨记得带伞，杭州 22°C。要我把出差打包成「行程集」吗？
+                  <div class="ab"><button onclick="aiSay('已打包「杭州出差集」：🚄 G1875 + 🏨 四季酒店 + 📋 周一 10:00 客户会议 + ☔ 当地天气。报销提醒已同步。',['发给秘书确认','就这样'])">打包行程集</button><button class="ghost" onclick="toast('已静默，简报明日 07:30 再见')">先不用</button></div>
+                </div>
+              </div>
+              <div class="aimsg me"><div class="abubble">帮我把同学聚会改到 19:30，并通知大家</div></div>
+              <div class="aimsg">
+                <div class="aava">🤵</div>
+                <div class="abubble">好的，已办好：
+                  <div class="resultcard">
+                    <div><span class="tick">✓</span>「同学聚会」已改至 19:30 · 局气（国贸店）</div>
+                    <div><span class="tick">✓</span>已代你通知 6 位同学，3 人已读</div>
+                    <div><span class="tick">✓</span>18:45 出发提醒已加入今日时间线</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="quick">
+              <button onclick="aiSend('今日简报')">📋 今日简报</button>
+              <button onclick="aiSend('帮我规划下周出差')">🧳 规划出差</button>
+              <button onclick="aiSend('总结一下工作群的消息')">💬 总结群消息</button>
+              <button onclick="aiSend('今天有点累')">🌙 陪我聊聊</button>
+            </div>
+            <div class="ai-input">
+              <input id="aiInput" placeholder="想到什么说什么…" onkeydown="if(event.key==='Enter')aiSend()">
+              <button class="micbtn" onclick="voiceDemo()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="1" width="4" height="9" rx="2"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V15" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+              </button>
+              <button class="sendbtn" onclick="aiSend()"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5l13-6-4.5 13-2.2-5z"/></svg></button>
+            </div>
+          </section>
+        </main>
+
+        <!-- 会话详情浮层 -->
+        <div class="chat-detail" id="chatDetail">
+          <div class="cd-nav">
+            <button class="back" onclick="closeChat()"><svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>伴</button>
+            <b id="cdTitle">群聊</b>
+          </div>
+          <div id="cdSum"></div>
+          <div class="cd-body" id="cdBody"></div>
+          <div class="cd-input">
+            <input id="cdInput" placeholder="说点什么…" onkeydown="if(event.key==='Enter')cdSend()">
+            <button class="sendbtn" onclick="cdSend()"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5l13-6-4.5 13-2.2-5z"/></svg></button>
+          </div>
+        </div>
+
+        <!-- 语音聆听浮层 -->
+        <div class="listen" id="listen" onclick="listenOff()">
+          <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
+          <p>正在聆听 · 松开结束</p>
+        </div>
+
+        <!-- 悬浮球 -->
+        <div class="fab" id="fab" onclick="switchTab('ai')" title="随时唤起小伴">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/><circle cx="19" cy="4.5" r="1.8"/><circle cx="5" cy="19" r="1.5"/></svg>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 遮罩 + 各类底部弹层 -->
+        <div class="mask" id="mask" onclick="closeSheets()"></div>
+
+        <div class="sheet" id="sheet-add">
+          <div class="grip"></div>
+          <h4>新建提醒</h4>
+          <p class="sdesc">手动创建只是四种来源之一 —— 账单、行程、群聊结论，小伴都会自动汇入时间线。</p>
+          <div class="tpl-grid">
+            <button class="tpl" onclick="quickAdd('💳','信用卡还款提醒','金融 · 已创建循环提醒',this)"><b>💳 信用卡还款</b><p>循环 · 每月 29 日</p></button>
+            <button class="tpl" onclick="quickAdd('💊','吃药提醒','健康 · 每晚 21:00',this)"><b>💊 吃药提醒</b><p>循环 · 每晚 21:00</p></button>
+            <button class="tpl" onclick="quickAdd('📦','取快递','生活 · 菜鸟驿站 3-2-1018',this)"><b>📦 取快递</b><p>今天 18:00 · 驿站</p></button>
+            <button class="tpl" onclick="quickAdd('📞','给妈妈回电话','社交 · 今晚 20:30',this)"><b>📞 回电话给妈妈</b><p>今天 20:30</p></button>
+          </div>
+        </div>
+
+        <div class="sheet" id="sheet-msg">
+          <div class="grip"></div>
+          <h4>消息操作</h4>
+          <p class="sdesc" id="msgPreview"></p>
+          <button class="as-btn" onclick="msgToReminder()"><span class="aico" style="background:var(--green-soft)">⏰</span><span>设为提醒<small>小伴将自动提取时间与事项</small></span></button>
+          <button class="as-btn" onclick="toast('已复制');closeSheets()"><span class="aico" style="background:var(--blue-soft)">📋</span><span>复制</span></button>
+          <button class="as-btn" onclick="toast('已引用（演示）');closeSheets()"><span class="aico" style="background:var(--purple-soft)">💬</span><span>引用回复</span></button>
+          <button class="as-btn" onclick="toast('阅后即焚已开启 · 对方读后 10 秒销毁（演示）');closeSheets()"><span class="aico" style="background:var(--orange-soft)">🔥</span><span>阅后即焚</span></button>
+        </div>
+
+        <div class="sheet" id="sheet-spend">
+          <div class="grip"></div>
+          <h4>今日账本</h4>
+          <p class="sdesc">数据来源：手动记一笔 + 小伴从支付通知自动识别</p>
+          <div id="spendList">
+            <div class="spend-row"><span>☕ 美式 · Manner</span><span>¥15.00</span></div>
+            <div class="spend-row"><span>🥗 轻食午餐</span><span>¥42.50</span></div>
+            <div class="spend-row"><span>🚇 地铁通勤</span><span>¥6.00</span></div>
+          </div>
+          <div class="spend-total"><span>今日合计</span><span style="color:var(--green)" id="spendTotal">¥63.50</span></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="tpl" style="flex:1" onclick="addSpend('🧋 奶茶',18)"><b>🧋 记一笔奶茶</b><p>¥18.00</p></button>
+            <button class="tpl" style="flex:1" onclick="addSpend('🚕 打车',26)"><b>🚕 记一笔打车</b><p>¥26.00</p></button>
+          </div>
+        </div>
+
+        <div class="sheet" id="sheet-pomo">
+          <div class="grip"></div>
+          <div class="pomo">
+            <div class="ptime" id="pomoTime">25:00</div>
+            <p id="pomoState">专注模式 · 开始后消息自动转为静默摘要</p>
+            <div class="pctrl">
+              <button class="start" id="pomoStart" onclick="pomoToggle()">开始专注</button>
+              <button class="reset" onclick="pomoReset()">重置</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="sheet-auth">
+          <div class="grip"></div>
+          <h4>账号授权中心</h4>
+          <p class="sdesc">你授权了什么、读了哪些数据、随时一键撤回 —— 这是信任工程的核心界面。</p>
+          <div class="auth-row"><div class="aico" style="background:var(--red-soft)">🏦</div><div><b>招商银行</b><p>读取账单日 / 还款金额</p></div><button class="revoke" onclick="revoke(this)">撤回</button></div>
+          <div class="auth-row"><div class="aico" style="background:var(--blue-soft)">🚄</div><div><b>12306</b><p>读取行程 · 车次 / 座位</p></div><button class="revoke" onclick="revoke(this)">撤回</button></div>
+          <div class="auth-row"><div class="aico" style="background:var(--orange-soft)">🛒</div><div><b>京东</b><p>读取物流状态</p></div><button class="revoke" onclick="revoke(this)">撤回</button></div>
+          <div class="auth-row"><div class="aico" style="background:var(--green-soft)">📧</div><div><b>邮箱（IMAP）</b><p>解析订单 / 账单邮件</p></div><button class="revoke" onclick="revoke(this)">撤回</button></div>
+        </div>
+
+        <!-- Tab 栏 -->
+        <nav class="tabbar" id="tabbar">
+          <button class="tab on" data-t="chat" onclick="switchTab('chat')">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8.2C4 5.9 5.9 4 8.2 4h9.6C20.1 4 22 5.9 22 8.2v5.6c0 2.3-1.9 4.2-4.2 4.2H10l-4.6 4v-4.2A4.2 4.2 0 0 1 4 13.8z" stroke-linejoin="round"/></svg>
+            <span>对话</span>
+          </button>
+          <button class="tab" data-t="time" onclick="switchTab('time')">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 4.1A9 9 0 1 0 22 13" stroke-linejoin="round"/><path d="M17.5 5.5L14 9l-1.5-1.5M14 9V4" stroke-linejoin="round"/><path d="M13.5 13l3-3"/></svg>
+            <span>提醒</span>
+          </button>
+          <button class="tab" data-t="circle" onclick="switchTab('circle')">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13" cy="13" r="8.6"/><circle cx="13" cy="13" r="3.6"/><path d="M13 4.4v5M13 16.6v5M4.4 13h5M16.6 13h5" stroke-linecap="round"/></svg>
+            <span>圈子</span>
+          </button>
+          <button class="tab" data-t="me" onclick="switchTab('me')">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="13" cy="9" r="4.6"/><path d="M4.5 22.5c1.4-4.3 4.7-6.5 8.5-6.5s7.1 2.2 8.5 6.5" stroke-linejoin="round"/></svg>
+            <span>我的</span>
+          </button>
+          <button class="tab" data-t="ai" onclick="switchTab('ai')">
+            <span class="ai-dot"></span>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 3l2 6.5L21.5 12 15 14l-2 6.5L11 14 4.5 12 11 9.5z"/><path d="M20.5 4.5l.8 2.4 2.4.8-2.4.8-.8 2.4-.8-2.4-2.4-.8 2.4-.8z" fill="currentColor" stroke="none"/></svg>
+            <span>AI</span>
+          </button>
+        </nav>
+
+      </div><!-- /screen -->
+    </div><!-- /phone -->
+    <p class="hint">「伴」交互原型 · 手机端可直接全屏操作</p>
+  </div>
+</div>
+
+<script>
+/* ================= 基础工具 ================= */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+let toastTimer;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* 状态栏实时时间 */
+function tickClock(){const d=new Date();$('#clock').textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')}
+tickClock();setInterval(tickClock,10000);
+
+/* 启动页 */
+function enterApp(){$('#splash').classList.add('hide');switchTab('chat')}
+$('#splash').addEventListener('click',e=>{if(e.target.tagName!=='BUTTON')enterApp()});
+setTimeout(()=>{if(!$('#splash').classList.contains('hide'))enterApp()},5200);
+
+/* ================= Tab 切换 ================= */
+function switchTab(t){
+  $$('.page').forEach(p=>p.classList.remove('on'));
+  $('#page-'+t).classList.add('on');
+  $$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('#fab').classList.toggle('hidden',t==='ai');
+}
+
+/* ================= 对话列表 & 会话详情 ================= */
+const chats=[
+  {id:'work',name:'产品部核心群',type:'group',unread:12,ava:'📊',bg:'linear-gradient(140deg,#4A6FA5,#7B9ACC)',time:'09:24',last:'李雷：评审会材料我放群文件了',sum:true},
+  {id:'mom',name:'妈妈',ava:'👩',bg:'linear-gradient(140deg,#E8615A,#F2A65A)',time:'昨天',last:'周末回来吃饭吗？给你留了螃蟹'},
+  {id:'sec',name:'林秘书',ava:'👩‍💼',bg:'linear-gradient(140deg,#9B5DE5,#C77DFF)',time:'昨天',last:'陈总，周四的行程已同步到您的时间线'},
+  {id:'hike',name:'周末徒步圈',type:'group',unread:99,ava:'🥾',bg:'linear-gradient(140deg,#2E9E6B,#67B26F)',time:'周五',last:'阿伟：周六白马山，3 人成行，举手！'},
+  {id:'wang',name:'老王',ava:'🧑‍🔧',bg:'linear-gradient(140deg,#6C7A89,#95A5B8)',time:'周二',last:'发票已顺丰寄出，单号在附件'},
+];
+const chatMsgs={
+  work:[
+    {s:'sys',t:'9月27日 09:01'},
+    {who:'王芳',ava:'👩',bg:'linear-gradient(140deg,#E8615A,#F2A65A)',t:'明天评审会的 PPT 我更新到 v3 了，大家提前看下',time:'09:01'},
+    {who:'李雷',ava:'🧑‍💻',bg:'linear-gradient(140deg,#4A6FA5,#7B9ACC)',t:'收到，我下午把留存数据补上 @陈默',time:'09:05'},
+    {me:1,t:'好，重点看留存那一页',time:'09:10'},
+    {who:'张伟',ava:'🧑‍🎨',bg:'linear-gradient(140deg,#F272A0,#F2994A)',t:'对了，会议室改到 3F-301 了，别走错',time:'09:18'},
+    {who:'李雷',ava:'🧑‍💻',bg:'linear-gradient(140deg,#4A6FA5,#7B9ACC)',t:'评审会材料我放群文件了',time:'09:24'},
+  ],
+  mom:[
+    {s:'sys',t:'昨天 20:12'},
+    {who:'妈妈',ava:'👩',bg:'linear-gradient(140deg,#E8615A,#F2A65A)',t:'周末回来吃饭吗？给你留了螃蟹',time:'20:12'},
+    {me:1,t:'回！周六下午到',time:'20:40'},
+    {who:'妈妈',ava:'👩',bg:'linear-gradient(140deg,#E8615A,#F2A65A)',t:'好，那你路上慢点，高铁上冷，穿件外套',time:'20:41'},
+  ],
+  sec:[
+    {s:'sys',t:'昨天 18:05'},
+    {who:'林秘书',ava:'👩‍💼',bg:'linear-gradient(140deg,#9B5DE5,#C77DFF)',t:'陈总，周四的行程已同步到您的时间线：10:00 客户拜访，14:30 董事会，18:00 晚宴（国贸三期 62F）',time:'18:05'},
+    {me:1,t:'收到，晚宴改到 18:30',time:'18:22'},
+    {who:'林秘书',ava:'👩‍💼',bg:'linear-gradient(140deg,#9B5DE5,#C77DFF)',t:'好的，已更新并通知司机',time:'18:23'},
+  ],
+  hike:[
+    {s:'sys',t:'周五 21:30'},
+    {who:'阿伟',ava:'🥾',bg:'linear-gradient(140deg,#2E9E6B,#67B26F)',t:'周六白马山，3 人成行，举手！',time:'21:30'},
+    {who:'小柯',ava:'🎒',bg:'linear-gradient(140deg,#F2994A,#F2C14E)',t:'+1！带咖啡去',time:'21:35'},
+  ],
+  wang:[
+    {s:'sys',t:'周二 15:02'},
+    {who:'老王',ava:'🧑‍🔧',bg:'linear-gradient(140deg,#6C7A89,#95A5B8)',t:'发票已顺丰寄出，单号在附件',time:'15:02'},
+  ],
+};
+function renderChatList(){
+  $('#chatlist').innerHTML=chats.map(c=>`
+    <div class="crow" onclick="openChat('${c.id}')">
+      <div class="ava" style="background:${c.bg}">${c.ava}</div>
+      <div class="info"><b>${c.name}</b><p>${c.last}</p></div>
+      <div class="meta"><i>${c.time}</i><br>${c.unread?`<span class="badge">${c.unread>99?'99+':c.unread}</span>`:'<span class="dot-off"></span>'}</div>
+    </div>`).join('');
+}
+renderChatList();
+
+let curChat=null,pendingMsg='';
+function openChat(id){
+  const c=chats.find(x=>x.id===id);curChat=c;
+  $('#cdTitle').textContent=c.name;
+  $('#cdSum').innerHTML=c.sum?`<div class="ai-sumbar" onclick="showSum(this)">✨ ${c.unread} 条未读 · 小伴帮你总结为 3 个要点</div>`:'';
+  $('#cdBody').innerHTML=chatMsgs[id].map(m=>msgHTML(m)).join('');
+  $('#chatDetail').classList.add('open');
+  scrollChat();
+}
+function closeChat(){$('#chatDetail').classList.remove('open')}
+function msgHTML(m){
+  if(m.s==='sys')return `<div class="sys">${m.t}</div>`;
+  if(m.me)return `<div class="msg me" onclick="msgActions('${m.t.replace(/'/g,"\\'").slice(0,24)}')"><div class="mava" style="background:linear-gradient(140deg,#5E7CE2,#8E9BFF)">🧑‍💼</div><div class="mwrap"><div class="bubble">${m.t}</div></div></div>`;
+  return `<div class="msg them" onclick="msgActions('${m.t.replace(/'/g,"\\'").slice(0,24)}')"><div class="mava" style="background:${m.bg}">${m.ava}</div><div class="mwrap"><div class="who">${m.who}</div><div class="bubble">${m.t}</div></div></div>`;
+}
+function scrollChat(){const b=$('#cdBody');b.scrollTop=b.scrollHeight}
+function showSum(bar){
+  bar.style.display='none';
+  $('#cdBody').insertAdjacentHTML('afterbegin',
+    `<div class="msg"><div class="mava" style="background:linear-gradient(150deg,#07C160,#0ABF7A)">✨</div>
+     <div class="mwrap"><div class="who">小伴 · AI</div><div class="ai-sumcard"><b>群聊要点 · 12 条未读</b><br>
+     1. 评审会 PPT 更新至 v3，李雷下午补留存数据<br>
+     2. 会议室改至 <b>3F-301</b><br>
+     3. 材料已存群文件 —— 你需要确认「留存」页数据</div></div></div>`);
+  toast('已生成 AI 总结 · 不读原文也能接话');
+}
+function cdSend(){
+  const inp=$('#cdInput',),v=inp.value.trim();if(!v)return;
+  inp.value='';
+  $('#cdBody').insertAdjacentHTML('beforeend',`<div class="msg me"><div class="mava" style="background:linear-gradient(140deg,#5E7CE2,#8E9BFF)">🧑‍💼</div><div class="mwrap"><div class="bubble">${esc(v)}</div></div></div>`);
+  scrollChat();
+  const reply={work:['李雷','🧑‍💻','linear-gradient(140deg,#4A6FA5,#7B9ACC)','收到收到，会上对齐'],
+    mom:['妈妈','👩','linear-gradient(140deg,#E8615A,#F2A65A)','好，妈妈给你做糖醋排骨'],
+    sec:['林秘书','👩‍💼','linear-gradient(140deg,#9B5DE5,#C77DFF)','好的陈总，我这边同步更新'],
+    hike:['阿伟','🥾','linear-gradient(140deg,#2E9E6B,#67B26F)','稳！周六山脚下见'],
+    wang:['老王','🧑‍🔧','linear-gradient(140deg,#6C7A89,#95A5B8)','好的，收到哈']}[curChat.id];
+  setTimeout(()=>{
+    $('#cdBody').insertAdjacentHTML('beforeend',`<div class="msg them"><div class="mava" style="background:${reply[2]}">${reply[1]}</div><div class="mwrap"><div class="who">${reply[0]}</div><div class="bubble">${reply[3]}</div></div></div>`);
+    scrollChat();
+  },900);
+}
+function esc(s){return s.replace(/</g,'&lt;')}
+function msgActions(txt){pendingMsg=txt;$('#msgPreview').textContent='「'+txt+'…」';openSheet('sheet-msg')}
+function msgToReminder(){
+  closeSheets();closeChat();
+  addTimelineItem('⏰','来自对话的提醒','小伴从消息提取 · 待确认时间','work','10:30');
+  switchTab('time');
+  toast('✓ 已加入今日时间线 · 小伴自动提取了时间与事项');
+}
+
+/* ================= 时间线 ================= */
+function check(btn){const on=btn.classList.toggle('on');btn.closest('.tl-card').classList.toggle('done',on);if(on)toast('已完成 1 项 · 今日还剩 '+(6-$$('.ckbtn.on').length+1)+' 项')}
+function habit(btn){if(btn.classList.contains('on'))return;btn.classList.add('on');btn.closest('.tl-card').classList.add('done');toast('打卡成功 · 连续 12 天 🔥')}
+function filterTL(chip){
+  $$('#filters .fchip').forEach(c=>c.classList.remove('on'));chip.classList.add('on');
+  const f=chip.dataset.f;
+  $$('.tl-item').forEach(it=>it.classList.toggle('hide',f!=='all'&&it.dataset.cat!==f));
+}
+$$('#water .cup').forEach(c=>c.addEventListener('click',()=>{
+  if(c.classList.contains('full'))return;c.classList.add('full');
+  const n=$$('#water .cup.full').length;
+  $('#water .wtxt').textContent=n+' / 8 杯';
+  if(n===8)toast('🎉 今日喝水目标达成');
+}));
+function acceptFix(){
+  const social=$$('.tl-item[data-cat="social"] .tt')[0];
+  if(social)social.textContent='同学聚会 · 局气（国贸店）19:30';
+  const t=$$('.tl-item[data-cat="social"] .tl-time')[0];
+  if(t)t.innerHTML='19:30<span>已改</span>';
+  $('#conflict').style.opacity='0';setTimeout(()=>$('#conflict').style.display='none',350);
+  toast('✓ 已改约 19:30 · 已通知 6 位同学 · 新出发提醒 18:45');
+}
+function dismissConflict(){$('#conflict').style.opacity='0';setTimeout(()=>$('#conflict').style.display='none',350);toast('已忽略 · 小伴明日会再帮你确认')}
+function addTimelineItem(ico,title,meta,cat,time){
+  const html=`<div class="tl-item" data-cat="${cat}" style="animation:rise .4s both">
+    <div class="tl-time">${time}<span>新增</span></div>
+    <div class="tl-rail"><div class="node"></div><div class="line"></div></div>
+    <div class="tl-card"><div class="tl-top"><div class="tl-ico">${ico}</div>
+    <div class="tl-main"><div class="tt">${title}</div><div class="tmeta">${meta}</div></div>
+    <button class="ckbtn" onclick="check(this)">✓</button></div></div></div>`;
+  $('#timeline').insertAdjacentHTML('afterbegin',html);
+}
+function quickAdd(ico,title,meta){closeSheets();addTimelineItem(ico,title,meta,'life','18:00');toast('✓ 已创建 · '+title)}
+
+/* ================= 圈子 ================= */
+function segCircle(btn,v){
+  $$('#circleSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  $$('.segview').forEach(s=>s.classList.remove('on'));$('#sv-'+v).classList.add('on');
+}
+function like(btn,n){
+  const s=btn.querySelector('span');
+  if(btn.classList.toggle('liked')){s.textContent=n+1}else{s.textContent=n}
+}
+
+/* ================= AI 对话 ================= */
+function aiBubbleHTML(html,me){
+  if(me)return `<div class="aimsg me"><div class="abubble">${html}</div></div>`;
+  return `<div class="aimsg"><div class="aava">${$('#aiAva').textContent}</div><div class="abubble">${html}</div></div>`;
+}
+function appendAI(html){$('#aiBody').insertAdjacentHTML('beforeend',aiBubbleHTML(html,false));scrollAI()}
+function scrollAI(){const b=$('#aiBody');b.scrollTop=b.scrollHeight}
+function typing(){
+  $('#aiBody').insertAdjacentHTML('beforeend',`<div class="aimsg" id="typingMsg"><div class="aava">${$('#aiAva').textContent}</div><div class="abubble"><div class="typing"><i></i><i></i><i></i></div></div></div>`);
+  scrollAI();
+}
+function aiSay(text,btns){
+  const t=$('#typingMsg');if(t)t.remove();
+  appendAI(text+(btns?`<div class="ab">${btns.map((b,i)=>`<button class="${i?'ghost':''}" onclick="toast('已执行：${b}（演示）')">${b}</button>`).join('')}</div>`:''));
+}
+function aiSend(txt){
+  const inp=$('#aiInput');
+  const v=(txt||inp.value).trim();if(!v)return;
+  inp.value='';
+  $('#aiBody').insertAdjacentHTML('beforeend',aiBubbleHTML(esc(v),true));
+  scrollAI();typing();
+  setTimeout(()=>{
+    let reply,btns=null;
+    if(v.includes('简报')){reply='📋 <b>今日简报 · 9月27日</b><br>· 5 件要事，最紧张：15:12 G1875 赴杭州<br>· 18:30 同学聚会存在通勤风险（已给改约建议）<br>· 招行信用卡 ¥12,480 后天到期<br>· 北京小雨 ☔ 杭州多云 22°C<br>· 精力预估：下午 16:00 后是低潮，重要决策放在上午';btns=['处理冲突','去还款']}
+    else if(v.includes('出差')||v.includes('规划')){reply='🧳 <b>下周出差规划 · 草案</b><br>周一 10:00 客户会议（林秘书已录）→ 建议周日 20:00 抵杭，宿四季酒店；周三返程 G1872。两晚房差已比价：比携程主推便宜 ¥260。';btns=['生成行程集','再便宜一点']}
+    else if(v.includes('总结')||v.includes('群')){reply='💬 <b>「产品部核心群」要点</b><br>① 评审 PPT 更新至 v3，李雷下午补数据<br>② 会议室改至 3F-301<br>③ 材料在群文件，需你确认留存页 —— 要我直接创建提醒吗？';btns=['创建提醒','不用']}
+    else if(v.includes('累')||v.includes('难过')||v.includes('聊聊')||v.includes('开心')){reply='我在，你说。今天走了 6,532 步、开了 3 个会，还能撑到现在，已经很不容易了。想吐槽工作，还是想安静待一会儿？';btns=['想吐槽','安静待着']}
+    else if(v.includes('车')){reply='🚗 已为你预约 14:20 网约车：公司楼下 → 北京南站，司机王师傅 · 京A·8D6K2 · 约 35 分钟，费用约 ¥58（企业支付）。';btns=['好了','取消']}
+    else if(v.includes('提醒')){reply='✓ 已创建提醒，并按你的习惯设置了提前 30 分钟震动 + 出发时间推送。已加入今日时间线。';btns=['看时间线']}
+    else if(v.includes('药')||v.includes('痛')||v.includes('睡')){reply='🩺 从你的描述看更像用眼疲劳而非器质性问题，建议先休息观察。你昨晚睡眠 7h12m（深睡 31%），尚可。<b>咨询仅供参考，不构成诊疗建议</b>，若持续加重请就医。';btns=['设置复诊提醒']}
+    else{reply='收到～我看了下你的时间线：现在离 10:00 评审会还有一会儿，材料在群文件。需要我做什么，尽管说。';btns=['会前摘要','没事儿']}
+    aiSay(reply,btns);
+  },1100);
+}
+function switchRole(btn){
+  $$('#roles .role').forEach(r=>r.classList.remove('on'));btn.classList.add('on');
+  $('#aiRoleName').textContent='小伴 · '+btn.dataset.r;
+  $('#aiAva').textContent=btn.dataset.e;
+  toast('已切换「'+btn.dataset.r+'」· '+btn.dataset.line);
+}
+function voiceDemo(){
+  $('#listen').classList.add('on');
+  setTimeout(()=>{listenOff();$('#aiInput').value='帮我把同学聚会改到 19:30，并通知大家';toast('语音识别完成（演示）· 已填入输入框')},1900);
+}
+function listenOff(){$('#listen').classList.remove('on')}
+
+/* ================= 我的 · 深色 / 记账 / 番茄 / 授权 ================= */
+function toggleDark(){
+  const on=$('#darkSwitch').classList.toggle('on');
+  $('#screen').classList.toggle('dark',on);
+  toast(on?'🌙 深色模式已开启 · 全局适配':'已切回浅色模式');
+}
+let spend=63.5;
+function addSpend(name,fee){
+  $('#spendList').insertAdjacentHTML('beforeend',`<div class="spend-row"><span>${name}</span><span>¥${fee.toFixed(2)}</span></div>`);
+  spend+=fee;$('#spendTotal').textContent='¥'+spend.toFixed(2);
+  toast('已记一笔 · '+name+' ¥'+fee.toFixed(2));
+}
+let pomoTimer=null,pomoSec=1500,pomoOn=false;
+function pomoToggle(){
+  const b=$('#pomoStart');
+  if(pomoOn){clearInterval(pomoTimer);pomoOn=false;b.textContent='继续专注';$('#pomoState').textContent='已暂停 · 深呼吸一下';return}
+  pomoOn=true;b.textContent='暂停';$('#pomoState').textContent='专注中 · 消息自动转为静默摘要，结束后小伴帮你追要点';
+  pomoTimer=setInterval(()=>{
+    pomoSec--;
+    const m=Math.floor(pomoSec/60),s=pomoSec%60;
+    $('#pomoTime').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if(pomoSec<=0){clearInterval(pomoTimer);pomoOn=false;pomoSec=1500;b.textContent='开始专注';$('#pomoTime').textContent='25:00';$('#pomoState').textContent='🎉 完成！休息 5 分钟，期间有 3 条消息已为你静默总结';toast('🍅 专注完成 · 期间 3 条消息已生成摘要')}
+  },1000);
+}
+function pomoReset(){clearInterval(pomoTimer);pomoOn=false;pomoSec=1500;$('#pomoTime').textContent='25:00';$('#pomoStart').textContent='开始专注';$('#pomoState').textContent='专注模式 · 开始后消息自动转为静默摘要'}
+function revoke(btn){
+  const off=btn.classList.toggle('off');
+  btn.textContent=off?'已撤回':'撤回';
+  toast(off?'已撤回授权 · 相关数据同步删除':'已重新授权');
+}
+
+/* ================= 通用弹层 ================= */
+function openSheet(id){$('#mask').classList.add('on');$('#'+id).classList.add('on')}
+function closeSheets(){$('#mask').classList.remove('on');$$('.sheet').forEach(s=>s.classList.remove('on'))}
+</script>
+</body>
+</html>
